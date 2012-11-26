@@ -36,9 +36,9 @@ class MyPlugin(val global: Global) extends Plugin { plugin =>
           rhs = EmptyTree
         )
 
-        val x = tree match {
+        super.transform(tree match {
           case cd @ ClassDef(mods, name, _, classBody)
-            if mods.annotations.find(_.children(0).children(0).children(0).toString() == "sinject.Module").isEmpty=> {
+            if mods.annotations.find(_.children(0).children(0).children(0).toString() == "sinject.Module").isEmpty => {
 
             val body = classBody.body.map {
               case item @ DefDef(_, termname, _, vparams, _, _) if termname.toString == "<init>" =>
@@ -48,10 +48,13 @@ class MyPlugin(val global: Global) extends Plugin { plugin =>
 
             cd.copy(impl = Template(classBody.parents, classBody.self, NewValDef(IMPLICIT | PARAMACCESSOR) :: body))
           }
+          case p @ PackageDef(pid, stats) =>
+            println("===package===")
+            println(pid)
+            println(stats)
+            p
           case t => t
-        }
-
-        super.transform(x)
+        })
       }
     }
   }
