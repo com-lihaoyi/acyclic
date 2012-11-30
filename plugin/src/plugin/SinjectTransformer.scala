@@ -9,7 +9,7 @@ import tools.nsc.interpreter._
 import reflect.internal.{Flags, SymbolTable}
 
 
-class GenerateSynthetics(plugin: AutoProxyPlugin, val global: Global) extends PluginComponent
+class SinjectTransformer(plugin: SinjectPlugin, val global: Global) extends PluginComponent
         with Transform
         with TypingTransformers
         with TreeDSL

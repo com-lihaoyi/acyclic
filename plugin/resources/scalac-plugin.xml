@@ -1,4 +1,4 @@
 <plugin>
     <name>sinject</name>
-    <classname>plugin.AutoProxyPlugin</classname>
+    <classname>plugin.SinjectPlugin</classname>
 </plugin>
