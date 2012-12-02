@@ -7,96 +7,117 @@ import tools.nsc.symtab.Flags._
 import tools.nsc.ast.TreeDSL
 import tools.nsc.interpreter._
 import reflect.internal.{Flags, SymbolTable}
+import reflect.ClassTag
 
 
-class SinjectTransformer(plugin: SinjectPlugin, val global: Global) extends PluginComponent
-        with Transform
-        with TypingTransformers
-        with TreeDSL
-{
+class SinjectTransformer(plugin: SinjectPlugin, val global: Global)
+    extends PluginComponent
+    with Transform
+    with TypingTransformers
+    with TreeDSL{
+
   import global._
 
   val runsAfter = List[String]("typer")
   val phaseName = "sinject"
 
-  def newTransformer(unit: CompilationUnit) = new AutoProxyTransformer(unit)
+  def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 
-  class AutoProxyTransformer(unit: CompilationUnit) extends TypingTransformer(unit) {
 
-    val inserted =
-          Select(
-            Select(
-              Select(
-                Ident(
-                  newTermName("_root_")
-                ),
-                newTermName("java")
-              ),
-              newTermName("lang")
-            ),
-            newTypeName("String")
+
+
+    //http://stackoverflow.com/questions/7866696/define-a-constructor-parameter-for-a-synthetic-class-in-a-scala-compiler-plugin
+
+    override def transform(tree: Tree): Tree = tree match{
+      case cd @ ClassDef(mods, className, tparams, impl) =>
+        println("ClassDef " + className)
+
+        val enclosingModules = for{
+          symbol <- (unit.body.symbol.info.prefixChain :+ unit.body.symbol.info).reverse
+          decl <- symbol.decls
+          TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
+          if sym.typeOfThis.toString == "sinject.Module[T]"
+        } yield singleType
+
+        println("enclosingModules " + enclosingModules)
+
+        def newValDefs(mods: Long) = enclosingModules.filter(_ != cd.symbol.tpe)
+                                         .map{ enclosing =>
+
+          println("Injecting " + enclosing + " into " + cd.symbol.tpe)
+          val valdef = ValDef(
+            Modifiers(mods),
+            "sinjected" + math.abs(enclosing.hashCode()),
+            TypeTree(enclosing),
+            EmptyTree
           )
+          valdef.symbol
 
-    //import CODE._
-    println("Prefix Chain " + (unit.body.symbol.info.prefixChain :+ unit.body.symbol.info))
-    val enclosingModule =
-      (unit.body.symbol.info.prefixChain :+ unit.body.symbol.info).flatMap(
-        (_: Type).decls.filter(
-          (_: Symbol).annotations.exists(
-            (_: AnnotationInfo).toString == "sinject.Module"
+        }
+
+        val constructorDefs = newValDefs(PARAMACCESSOR | PARAM)
+        val memberDefs = newValDefs(PARAMACCESSOR | PRIVATE | LOCAL)
+        openInterpreter(
+          "oldV" -> impl.body -> "List[Tree]",
+          "members" -> memberDefs -> "List[Tree]",
+          "newConstr" -> constructorDefs -> "List[Tree]"
+        )
+
+        treeCopy.ClassDef(
+          tree,
+          mods,
+          className,
+          tparams,
+          treeCopy.Template(
+            impl,
+            impl.parents,
+            impl.self,
+            impl.body.map(constructorTransform(constructorDefs)) ++ memberDefs
           )
         )
-      ).headOption
 
-    override def transform(tree: Tree): Tree = {
-      val newTree =
-        (tree, enclosingModule) match {
-          case (cd @ ClassDef(mods, className, tparams, impl), Some(enclosing))
-          if className.toString != enclosing.name.  toString =>
-            val newBody = impl.body.map(_ match {
-              case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs) if name.toString == "<init>" =>
-                val newValDef = ValDef(Modifiers(IMPLICIT | PARAM | PARAMACCESSOR), "sinjected", inserted, EmptyTree)
+      case x => super.transform(x)
+    }
+    def constructorTransform(newValDefs: List[ValDef])(tree: Tree) = tree match {
+      case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
+        if name.toString == "<init>" =>
+        println("DefDef")
 
-                  treeCopy.DefDef(dd, modifiers, name, tparams, vparamss match{
-                    case first :+ last if last.forall(_.mods.hasFlag(Flags.IMPLICIT)) =>
-                      first :+ (last :+ newValDef)
-                    case _ =>
-                      vparamss :+ List(newValDef)
-                  }, tpt, rhs)
-
-              case x => x
-            })
-            treeCopy.ClassDef(tree, mods, className, tparams, treeCopy.Template(impl, impl.parents, impl.self, newBody))
-          case _ => tree
+        val newvparamss = vparamss match{
+          case first :+ last
+            if last.forall(_.mods.hasFlag(Flags.IMPLICIT)) =>
+            first :+ (last ++ newValDefs)
+          case _ => vparamss :+ newValDefs
         }
-      super.transform(newTree)
+
+        treeCopy.DefDef(dd, modifiers, name, tparams, newvparamss, tpt, rhs)
+        dd
+
+      case x => x
     }
   }
-}
-
 /*
-if (className.toString == "Cow"){
-  val repl = new ILoop
-  repl.settings = new Settings
-  //repl.in = new JLineReader(null)
-  repl.in = SimpleReader()
+openInterpreter(
+          "dd" -> dd -> "DefDef",
+          "encl" -> enclosingModules -> "List[Type]"
+        )
+*/
+  def openInterpreter(bind: ((String, Any), String)*){
+    val repl = new ILoop
+    repl.settings = new Settings
+    repl.in = SimpleReader()
 
-  // set the "-Yrepl-sync" option
-  repl.settings.Yreplsync.value = true
+    repl.settings.Yreplsync.value = true
 
-  dd.vparamss(0)(0).mods.
-  // start the interpreter and then close it after you :quit
-  repl.createInterpreter()
-  repl.bind("aunit", unit: Any)
-  repl.bind("global", global)
-  repl.interpret("import global._")
-  repl.interpret("val unit = aunit.asInstanceOf[scala.tools.nsc.Global#CompilationUnit]")
-  repl.bind("acd", cd: Any)
-  repl.interpret("val cd = acd.asInstanceOf[scala.tools.nsc.Global#ClassDef]")
+    repl.createInterpreter()
 
-  repl.bind("add", dd: Any)
-  repl.interpret("val dd = add.asInstanceOf[scala.tools.nsc.Global#DefDef]")
-  repl.loop()
-  repl.closeInterpreter()
+    repl.bind("global", global)
+    repl.interpret("import global._")
+    for(((name, value), tpe) <- bind){
+      repl.bind(s"a$name", value: Any)
+      repl.interpret(s"val $name = a$name.asInstanceOf[$tpe]")
+    }
+    repl.loop()
+    repl.closeInterpreter()
+  }
 }
-          */

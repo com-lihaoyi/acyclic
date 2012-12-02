@@ -9,6 +9,6 @@ object Main {
     implicit val l = 100l
     implicit val d = 0.0d
     implicit val a = Array("cow")
-    val x = new Cow(1, "cow")(a, 1)
+    val x = new Cow('a')
   }
 }

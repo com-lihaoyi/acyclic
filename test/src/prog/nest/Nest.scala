@@ -1,6 +1,8 @@
 package prog.nest
 
-@sinject.Module
+import sinject.Module
+
+object Nest extends Module[Nest]
 class Nest{
   implicit def m = this
   implicit val i = 10 / 0

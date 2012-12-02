@@ -1,13 +1,9 @@
 package prog
 
-object Prog{
-  def apply()(implicit m: Prog = null) = m
-  def init() = new Prog()
-  val dynamic = "cow"
-}
+object Prog extends sinject.Module[Prog]
 
-@sinject.Module
-class Prog extends scala.annotation.Annotation{
+
+class Prog{
   implicit def m = this
   implicit val i = 10
   def one = new ClassOne()

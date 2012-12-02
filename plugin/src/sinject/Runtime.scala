@@ -1,6 +1,8 @@
 package sinject
 
 
-class Module extends annotation.StaticAnnotation
+class Module[T] {
+  def apply()(implicit m: T = throw sinject.NotInModuleError) = m
+}
 
 object NotInModuleError extends Error
