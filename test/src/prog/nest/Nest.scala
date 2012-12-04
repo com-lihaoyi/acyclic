@@ -1,12 +1,13 @@
 package prog.nest
 
-import sinject.Module
 
-object Nest extends Module[Nest]
+object Nest extends sinject.Module[Nest]
+
 class Nest{
-  implicit def m = this
-  implicit val i = 10 / 0
+  implicit val m = this
+  implicit val i = 10.0 / 2
 
+  val x = new Cow('a')
   def run() = println("omg")
 }
 
