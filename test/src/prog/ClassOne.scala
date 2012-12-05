@@ -1,7 +1,7 @@
 package prog
 
-class ClassOne() {
-  def value = "One! "
+class ClassOne(n: Int) {
+  def value = "One! " + n
   def run() = Prog().two.value
 
 }

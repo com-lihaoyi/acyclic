@@ -10,6 +10,7 @@ import tools.nsc.interpreter._
 import reflect.internal.{Flags, SymbolTable}
 import reflect.ClassTag
 import tools.scalap.scalax.rules.scalasig.MethodSymbol
+//import tools.nsc.typechecker.bContexts.Context
 
 
 class Transformer(val plugin: SinjectPlugin)
@@ -23,93 +24,115 @@ class Transformer(val plugin: SinjectPlugin)
   println("Starting Transformer")
 
   val runsAfter = List("typer")
-  //override val runsRightAfter = Some("typer")
 
   val phaseName = "sinjectTransformer"
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 
-    override def transform(tree: Tree): Tree = tree match{
+    override def transform(tree: Tree): Tree = handleClass.orElse[Tree, Tree]{
+
+      case a @ Apply(fun @ Select(qualifier, name), List(arg))
+          if a.toString.contains("apply$default$1")
+          && arg.symbol.owner.tpe.toString == "sinject.Module[T]" =>
+
+        val newArgTrees = getArgTreesMatching("sinjected$" + a.tpe.toString().replace('.', '$'))
+
+        val x = treeCopy.Apply(a, fun, newArgTrees)
+        super.transform(x)
+
+      case a @ Apply(fun, args)
+        if a.symbol.tpe.toString.contains("sinjected$")
+        && !a.toString.contains("sinjected$") =>
+
+        val newArgTrees = getArgTreesMatching("sinjected$")
+
+        val newA = treeCopy.Apply(a, fun, args ++ newArgTrees)
+
+        newA.fun.tpe = newA.symbol.tpe
+
+        super.transform(newA)
+
+      case x =>super.transform(x)
+    }.apply(tree)
+
+    def getArgTreesMatching(s: String) = {
+      val newArgSymbols =
+        localTyper.context
+          .owner.owner
+          .info.decls
+          .filter(_.name.toString.contains(s))
+          .toList
+
+      newArgSymbols.map{ sym =>
+        val thisTree = This(localTyper.context.owner.owner)
+        val newTree = Select(thisTree, sym.name)
+
+        newTree.symbol = sym
+        localTyper typed newTree
+      }
+    }
+
+    val handleClass: PartialFunction[Tree, Tree] = {
       case cd @ ClassDef(mods, className, tparams, impl) =>
-        println("\n###ClassDef " + className)
-        println(global.analyzer)
         val enclosingModules = for{
           symbol <- (unit.body.symbol.info.prefixChain :+ unit.body.symbol.info).reverse
           decl <- symbol.decls
           TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
           if sym.typeOfThis.toString == "sinject.Module[T]"
-          if singleType != cd.symbol.tpe
         } yield {
           singleType
         }
 
-        if (enclosingModules.length == 0) super.transform(cd)
-        else {
-          def makeValDefs(flags: Long) = for{
-            enclosing <- enclosingModules
-          } yield {
-            val paramSym =
-              cd.symbol.asInstanceOf[ClassSymbol]
-                .newValueParameter(
-                "sinjected$" + enclosing.toString().replace('.', '$'),
-                cd.pos.focus,
+        def makeValDefs(flags: Long, filterThis: Boolean) = for{
+          enclosing <- enclosingModules
+          if !filterThis || enclosing != cd.symbol.tpe
+        } yield {
+          val paramSym = cd.symbol.asInstanceOf[ClassSymbol].newValueParameter(
+              "sinjected$" + enclosing.toString().replace('.', '$'),
+              cd.pos.focus,
+              if (enclosing == cd.symbol.tpe)
+                flags & ~PARAMACCESSOR
+              else
                 flags
-              )
-
-            paramSym.setInfo(enclosing)
-
-            localTyper.typedValDef(ValDef(paramSym))
-          }
-
-          val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PRIVATE)
-          val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
-
-          newValDefs.map(x => cd.symbol.info.decls.enter(x.symbol))
-
-          val newTree = treeCopy.ClassDef(
-            cd,
-            mods,
-            className,
-            tparams,
-            treeCopy.Template(
-              impl,
-              impl.parents,
-              impl.self,
-              newValDefs ++ constructorTransform(impl.body, newConstrDefs)
             )
-          )
 
-          super.transform(newTree)
+          paramSym setInfo enclosing
+
+          localTyper.typedValDef(
+             ValDef(
+               paramSym,
+               if (enclosing != cd.symbol.tpe) EmptyTree
+               else This(cd.symbol)
+             )
+          )
         }
 
-      case a @ Apply(fun, args) if fun.tpe != fun.symbol.tpe =>
-        //openInterpreter("a" -> a -> "Apply")
-        println("=================================")
-        println(a)
-        println("A")
-        println(fun.tpe)
-        println("B")
-        println(fun.symbol.tpe)
-        println("C")
-        a.fun.tpe = a.fun.symbol.tpe
-        a.tpe = a.fun.symbol.tpe.resultType
+        val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PRIVATE | LOCAL, false)
+        val newConstrDefs = makeValDefs(PARAMACCESSOR | PARAM, true)
 
-        val x = localTyper.applyImplicitArgs{ a }
+        newValDefs.map(x => cd.symbol.info.decls.enter(x.symbol))
 
-        println(x)
-        super.transform(x)
-      case x =>super.transform(x)
+        super.transform(treeCopy.ClassDef(
+          cd,
+          mods,
+          className,
+          tparams,
+          treeCopy.Template(
+            impl,
+            impl.parents,
+            impl.self,
+            newValDefs ++ constructorTransform(impl.body, newConstrDefs)
+          )
+        ))
+
     }
-
 
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
         if name.toString == "<init>" =>
 
         val (newvparamss, extend) = vparamss match {
-          case first :+ last
-            if last.forall(_.mods.hasFlag(Flags.IMPLICIT))
-            && last.length > 0 =>
+          case first :+ last =>
             (first :+ (last ++ newConstrDefs), true)
           case _ => (vparamss :+ newConstrDefs, false)
         }
@@ -124,7 +147,7 @@ class Transformer(val plugin: SinjectPlugin)
 
         val res = treeCopy.DefDef(dd, modifiers, name, tparams, newvparamss, tpt, rhs)
 
-        res.symbol.setInfo(recurse(res.symbol.info, extend))
+        res.symbol setInfo recurse(res.symbol.info, extend)
 
         res
 

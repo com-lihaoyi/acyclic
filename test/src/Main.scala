@@ -1,12 +1,9 @@
 object Main {
   def main(args: Array[String]){
-    //val m = new prog.Prog();
-    //println(m.one.run())
-    //println(m.two.run())
-    implicit val c = 'c'
-    implicit val l = 100l
-    implicit val d = 0.0d
-    implicit val a = Array("cow")
-    //val x = new Cow('a')
+    val m = new prog.Prog(10, "lol")
+
+    val n = new prog.Prog(5, "wtf")
+    println(m.run)
+    println(n.run)
   }
 }
