@@ -16,7 +16,7 @@ class Tests extends FreeSpec{
 
   }
   "test two-level nesting" in {
-    assert(test("test/resources/nested", "nested.Nested") == "result: 29")
+    assert(test("test/resources/nested", "nested.Nested") == "return: 29")
   }
   def getFilePaths(src: String): List[String] = {
     val f = new io.File(src)

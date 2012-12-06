@@ -2,6 +2,7 @@ package nested.outer.inner
 
 import nested.outer.Outer
 
+
 object Inner extends sinject.Module[Inner]
 
 class Inner(){
