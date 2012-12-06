@@ -1,5 +1,4 @@
-package prog
-
+package simple.prog
 
 object Prog extends sinject.Module[Prog]{}
 
