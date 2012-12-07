@@ -23,9 +23,13 @@ class Tests extends FreeSpec{
     assert(test("test/resources/noarglists", "noarglists.NoArgLists") == "1 2")
   }
 
-/*  "injecting into a class with multiple argument lists" in {
-    assert(test("test/resources/multiplearglists", "multiplearglists.MultipleArgLists") == "1 2")
-  }*/
+  "injecting into a class with multiple argument lists" in {
+    assert(test("test/resources/multiplearglists", "multiplearglists.MultipleArgLists") == "two 4 three args 1 1.5 two 5 three args 2 1.5")
+  }
+
+  "injecting into a class with multiple constructors" in {
+    assert(test("test/resources/multiconstructor", "multiconstructor.MultiConstructor") == "two 4 three args 1 1.5 two 5 three args 2 1.5")
+  }
   def getFilePaths(src: String): List[String] = {
     val f = new io.File(src)
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))

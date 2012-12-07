@@ -13,7 +13,7 @@ class SinjectPlugin(val global: Global) extends Plugin {
   var injections = Map[String, Set[String]]()
 
   val components = List[PluginComponent](
-    new Scanner(this),
+    //new Scanner(this),
     new Transformer(this)
 
   )
