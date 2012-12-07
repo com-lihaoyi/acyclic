@@ -11,13 +11,21 @@ import tools.nsc.reporters.ConsoleReporter
 import tools.nsc.util.ScalaClassLoader.URLClassLoader
 
 class Tests extends FreeSpec{
-  "test single level" in {
+  "simplest possible example" in {
     assert(test("test/resources/simple", "simple.Simple") == "Two!lolOne! 10Two!wtfOne! 5")
 
   }
-  "test two-level nesting" in {
+  "two-level nesting" in {
     assert(test("test/resources/nested", "nested.Nested") == "return: 29")
   }
+
+  "injecting into a class with no argument lists" in {
+    assert(test("test/resources/noarglists", "noarglists.NoArgLists") == "1 2")
+  }
+
+/*  "injecting into a class with multiple argument lists" in {
+    assert(test("test/resources/multiplearglists", "multiplearglists.MultipleArgLists") == "1 2")
+  }*/
   def getFilePaths(src: String): List[String] = {
     val f = new io.File(src)
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
@@ -29,7 +37,7 @@ class Tests extends FreeSpec{
 
     val settings = new Settings
     settings.d.value = "out/compiled"
-    //settings.Xprint.value = List("all")
+    settings.Xprint.value = List("all")
     val classPath = getFilePaths("/Runtimes/scala-2.10.0-RC2/lib") :+
                     "out/production/plugin"
 

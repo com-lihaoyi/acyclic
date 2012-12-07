@@ -29,7 +29,8 @@ class Transformer(val plugin: SinjectPlugin)
 
   val moduleClass = definitions.getClass(newTypeName("sinject.Module"))
 
-  def typeToString(tpe: Type) = "sinjected$" + tpe.toString.replace('.', '$')
+  val prefix = "sinj$"
+  def typeToString(tpe: Type) = prefix + tpe.toString.split('.').map(_ charAt 0).mkString
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 
@@ -84,7 +85,7 @@ class Transformer(val plugin: SinjectPlugin)
         println(newValDefs)
         println(newConstrDefs)
         newValDefs.map(x => cd.symbol.info.decls.enter(x.symbol))
-
+        println("Transforming Done " + className)
         super.transform(treeCopy.ClassDef(
           cd,
           mods,
@@ -103,7 +104,7 @@ class Transformer(val plugin: SinjectPlugin)
           if name == newTermName("apply")
           && qualifier.symbol.tpe.firstParent.typeSymbol == moduleClass =>
 
-        //println("Transforming Apply " + a)
+        println("Transforming Apply " + a)
         val newArgTrees = getArgTreesMatching(_.name.toString == typeToString(a.tpe))
 
         val x = treeCopy.Apply(a, fun, newArgTrees)
@@ -111,20 +112,25 @@ class Transformer(val plugin: SinjectPlugin)
 
       /* Transform constructor calls to inject the parameter */
       case a @ Apply(fun, args)
-        if fun.symbol.tpe.params.exists(_.name.toString.contains("sinjected$"))
-        && a.fun.tpe != a.symbol.tpe =>
+        if fun.symbol.tpe.paramss.flatten.exists(_.name.toString.contains(prefix))
+        && fun.tpe != a.symbol.tpe && fun.tpe.resultType == fun.tpe.finalResultType =>
 
-        //println("Transforming Call " + a)
+        println("Transforming Call " + a)
 
-        val newArgsNeeded = fun.symbol.tpe.params.filter(_.name.toString.contains("sinjected$"))
+        val newArgsNeeded = fun.symbol.tpe.paramss.flatten.filter(_.name.toString.contains(prefix))
         val newArgTrees = getArgTreesMatching(x => newArgsNeeded.exists(_.name == x.name))
 
         val newA = treeCopy.Apply(a, fun, args ++ newArgTrees)
+        println(newA.fun.tpe + "------------>" + newA.symbol.tpe + "\t" + newA.fun.symbol.tpe)
 
         newA.fun.tpe = newA.symbol.tpe
-
+        println("Transformed Call " + newA)
         super.transform(newA)
-
+      case a @ Apply(fun, args)
+        if fun.symbol.tpe.paramss.flatten.exists(_.name.toString.contains(prefix))
+        && fun.tpe != fun.symbol.tpe =>
+        fun.tpe = fun.symbol.tpe
+        a
       case x => super.transform(x)
 
     }
@@ -155,7 +161,7 @@ class Transformer(val plugin: SinjectPlugin)
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
         if name == newTermName("<init>") =>
-     //   println("Transforming Constructor " + dd)
+        println("Transforming Constructor " + dd)
         val (newvparamss, extend) = vparamss match {
           case first :+ last =>
             (first :+ (last ++ newConstrDefs), true)
@@ -173,7 +179,7 @@ class Transformer(val plugin: SinjectPlugin)
         val res = treeCopy.DefDef(dd, modifiers, name, tparams, newvparamss, tpt, rhs)
 
         res.symbol setInfo recurse(res.symbol.info, extend)
-
+        println("Transformed Constructor " + res)
         res
 
       case x => super.transform(x)
