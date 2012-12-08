@@ -33,20 +33,20 @@ class Transformer(val plugin: SinjectPlugin)
   def typeToString(tpe: Type) = prefix + tpe.toString.split('.').map(_ charAt 0).mkString
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
-
+    def getEnclosingModules(sym: ClassSymbol) = for{
+      symbol <- sym.ownerChain.map(_.tpe).drop(1)
+      decl <- symbol.decls
+      TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
+      //          if sym == moduleClass
+      if decl.isModule
+    } yield {
+      singleType
+    }
     override def transform(tree: Tree): Tree = tree match {
       /* add injected class members and constructor parameters */
       case cd @ ClassDef(mods, className, tparams, impl) =>
-
-        val enclosingModules = for{
-          symbol <- cd.symbol.ownerChain.map(_.tpe).drop(1)
-          decl <- symbol.decls
-          TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
-//          if sym == moduleClass
-          if decl.isModule
-        } yield {
-          singleType
-        }
+        println("Transforming Class " + cd)
+        val enclosingModules = getEnclosingModules(cd.symbol.asClass)
 
         def makeValDefs(flags: Long, filterThis: Boolean) = for {
           enclosing <- enclosingModules
@@ -75,7 +75,7 @@ class Transformer(val plugin: SinjectPlugin)
 
         newValDefs.map(x => cd.symbol.info.decls.enter(x.symbol))
 
-        treeCopy.ClassDef(
+        super.transform(treeCopy.ClassDef(
           cd,
           mods,
           className,
@@ -86,7 +86,7 @@ class Transformer(val plugin: SinjectPlugin)
             impl.self,
             newValDefs ++ constructorTransform(impl.body, newConstrDefs)
           )
-        )
+        ))
 
       /* Transform calls to Module.apply() to inject the parameter */
       case a @ Apply(fun @ Select(qualifier, name), List(singleArg))
@@ -100,18 +100,26 @@ class Transformer(val plugin: SinjectPlugin)
 
       /* Transform constructor calls to inject the parameter */
       case a @ Apply(fun, args)
-        if fun.symbol.tpe.paramss.flatten.exists(_.name.toString.contains(prefix))
-        && !fun.tpe.paramss.flatten.exists(_.name.toString.contains(prefix))
+        //if getEnclosingModules(a.tpe.selfsym.asClass) != List()
+        if a.symbol.owner.isClass
+        && fun.symbol.tpe.paramss.flatten.exists(_.name.toString.contains(prefix))
+        && getEnclosingModules(a.symbol.owner.asClass).length > 0
         && fun.tpe.resultType == fun.tpe.finalResultType =>
-
+        //a.symbol.o
+//        openRepl("a" -> a -> "Apply",
+//          "e" -> getEnclosingModules(a.symbol.owner.asClass) -> "List[Type]")
         val newArgsNeeded = fun.symbol.tpe.paramss.flatten.filter(_.name.toString.contains(prefix))
-        val newArgTrees = getArgTreesMatching(x => newArgsNeeded.exists(_.name == x.name))
+        val enclosingVersion = getEnclosingModules(a.symbol.owner.asClass)
+
+        val newNames = enclosingVersion.map(x => typeToString(x))
+
+        val newArgTrees = getArgTreesMatching(x => newNames.exists(x.name.toString == _))
 
         val newA = treeCopy.Apply(a, fun, args ++ newArgTrees)
 
         println(newA.fun.tpe + "------------>" + newA.symbol.tpe + "\t" + newA.fun.symbol.tpe)
 
-        newA.fun.tpe = recurse(newA.fun.tpe, newArgsNeeded, true)
+        newA.fun.tpe = recurse(newA.fun.tpe, newArgTrees.map(_.symbol), true)
 
 
         super.transform(newA)
@@ -121,7 +129,9 @@ class Transformer(val plugin: SinjectPlugin)
         && fun.tpe != fun.symbol.tpe =>
         fun.tpe = fun.symbol.tpe
         a
-      case x => super.transform(x)
+      case x =>
+        println("Skipping " + x.shortClass)
+        super.transform(x)
 
     }
 
@@ -131,11 +141,25 @@ class Transformer(val plugin: SinjectPlugin)
      */
     def getArgTreesMatching(pred: Symbol => Boolean) = {
       val newArgSymbols =
-        localTyper.context
-                  .owner.owner
-                  .info.decls
-                  .filter(pred)
-                  .toList
+        List(
+          localTyper.context.owner.owner/*,
+          localTyper.context.owner.owner.owner*/
+        ).flatMap(
+          _.info.decls
+           .filter(pred)
+        )
+
+      def recurse: Symbol => List[Symbol] = {
+        case NoSymbol => Nil
+        case x: TermSymbol => recurse(x.owner)
+        case x =>
+          println(x)
+          x.paramss.flatten ++ recurse(x.owner)
+      }
+      println("XYZ")
+
+      println(recurse(localTyper.context.owner))
+
 
       newArgSymbols.map{ sym =>
         val thisTree = This(localTyper.context.owner.owner)
@@ -162,7 +186,7 @@ class Transformer(val plugin: SinjectPlugin)
         res.symbol setInfo recurse(res.symbol.info,newConstrDefs.map(_.symbol), extend)
         res
 
-      case x => super.transform(x)
+      case x => x
     }
     def recurse(t: Type, newConstrSyms: List[Symbol], extend: Boolean): Type = t match {
       case NullaryMethodType(resultType) => t

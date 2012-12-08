@@ -13,7 +13,6 @@ import tools.nsc.util.ScalaClassLoader.URLClassLoader
 class Tests extends FreeSpec{
   "simplest possible example" in {
     assert(test("test/resources/simple", "simple.Simple") == "Two!lolOne! 10Two!wtfOne! 5")
-
   }
   "two-level nesting" in {
     assert(test("test/resources/nested", "nested.Nested") == "return: 29")
