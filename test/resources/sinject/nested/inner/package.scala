@@ -1,6 +1,7 @@
-package nested.outer.inner
+package sinject.nested.inner
 
-import nested.outer.Outer
+
+import sinject.nested.Outer
 
 object Inner extends sinject.Module[Inner]
 class Inner(){

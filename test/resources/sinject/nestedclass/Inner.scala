@@ -1,4 +1,4 @@
-package multiconstructor.prog
+package sinject.nestedclass
 
 class Inner(s: String) {
   def value = "Inner! " + s
@@ -8,6 +8,6 @@ class Inner(s: String) {
   val myX = new X(10)
 
   class X(n: Int){
-    def get = n + Prog().value
+    def get = n + Prog().value + Prog().s
   }
 }

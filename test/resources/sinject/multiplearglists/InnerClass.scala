@@ -1,5 +1,4 @@
-package multiplearglists.prog
-
+package sinject.multiplearglists
 
 class TwoArgLists(s: String)(x: Int, y: Int){
   def get = s + " " + (Injected().value + x + y)

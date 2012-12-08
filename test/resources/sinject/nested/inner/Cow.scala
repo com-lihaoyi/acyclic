@@ -1,6 +1,6 @@
-package nested.outer.inner
+package sinject.nested.inner
 
-import nested.outer.Outer
+import sinject.nested.Outer
 
 class Cow() {
   def get() = Outer().value + Inner().value + 10

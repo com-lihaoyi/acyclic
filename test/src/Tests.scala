@@ -2,8 +2,11 @@ import java.io
 import java.net.{URLClassLoader, URL}
 import org.scalatest.path.FreeSpec
 import plugin.SinjectPlugin
+import reflect.{ClassTag, classTag}
 import reflect.internal.util.{BatchSourceFile, SourceFile}
 import reflect.io.{File, AbstractFile}
+
+import sinject._
 import tools.nsc.Global
 import tools.nsc.plugins.Plugin
 import tools.nsc.Settings
@@ -13,22 +16,39 @@ import tools.nsc.util.ScalaClassLoader.URLClassLoader
 class Tests extends FreeSpec{
   "testing injection" - {
     "simplest possible example" in {
-      assert(test("test/resources/simple", "simple.Simple") == "Two!lolOne! 10Two!wtfOne! 5")
+
+      val first = make[simple.Prog]("simple")(0: Integer, "fail")
+      val second = make[simple.Prog]("simple")(123: Integer, "cow")
+      assert(first() === "Two! fail One! 0")
+      assert(second() === "Two! cow One! 123")
+
     }
     "two-level folder/module nesting" in {
-      assert(test("test/resources/nested", "nested.Nested") == "return: 29")
+      val first = make[nested.Outer]("nested")(1: Integer)
+      val second = make[nested.Outer]("nested")(5: Integer)
+      assert(first() === "13")
+      assert(second() === "25")
     }
 
     "class with no argument lists" in {
-      assert(test("test/resources/noarglists", "noarglists.NoArgLists") == "1 2")
+      val first = make[noarglists.Injected]("noarglists")(2: Integer)
+      val second = make[noarglists.Injected]("noarglists")(25: Integer)
+      assert(first() === "2")
+      assert(second() === "25")
     }
 
     "class with multiple argument lists" in {
-      assert(test("test/resources/multiplearglists", "multiplearglists.MultipleArgLists") == "two 4 | three args 1 1.5 | 1.5 f 12 List(three, args) -128 1 || two 5 | three args 2 1.5 | 1.5 f 12 List(three, args) -128 2")
+      val first = make[multiplearglists.Injected]("multiplearglists")(3: Integer)
+      val second = make[multiplearglists.Injected]("multiplearglists")(5: Integer)
+      assert(first() === "two 6 | three args 3 1.5 | 1.5 f 12 List(three, args) -128 3")
+      assert(second() === "two 8 | three args 5 1.5 | 1.5 f 12 List(three, args) -128 5")
     }
 
-    "nested class" in {
-      assert(test("test/resources/multiconstructor", "multiconstructor.MultiConstructor") == "Inner! c 20 Inner! c 15")
+    "sinject.nested class" in {
+      val first = make[nestedclass.Prog]("nestedclass")(1: Integer, "mooo")
+      val second = make[nestedclass.Prog]("nestedclass")(5: Integer, "cow")
+      assert(first() === "Inner! c 11mooo")
+      assert(second() === "Inner! c 15cow")
     }
   }
   def getFilePaths(src: String): List[String] = {
@@ -41,7 +61,7 @@ class Tests extends FreeSpec{
     s.d.value = "out/compiled"
     //s.Xprint.value = List("all")
     val classPath = getFilePaths("/Runtimes/scala-2.10.0-RC2/lib") :+
-      "out/production/plugin"
+      "out/production/plugin/"
 
     println("classPath")
     classPath.map(new io.File(_).getAbsolutePath).foreach{ f =>
@@ -57,23 +77,22 @@ class Tests extends FreeSpec{
   }
   lazy val cl = new java.net.URLClassLoader(Array(new java.io.File("out/compiled/").toURI.toURL)){
     override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
-      try{
+      if (name.startsWith("sinject") && this.findLoadedClass(name) == null){
         println("Loading " + name)
         val cls = this.findClass(name)
         println("Done " + name)
         cls
-      }catch{ case x: ClassNotFoundException =>
-        println("Failed")
+      } else {
         super.loadClass(name, resolve)
       }
     }
   }
-  def test(src: String, s: String) = {
+  def make[T: ClassTag](src: String)(args: AnyRef*) = {
 
     new java.io.File("out/compiled").mkdirs()
 
     println("sources")
-    val sources = getFilePaths(src)
+    val sources = getFilePaths("test/resources/sinject/" + src)
     sources.foreach(println)
 
     println("Compiling...")
@@ -81,9 +100,7 @@ class Tests extends FreeSpec{
     run.compile(sources)
 
     println("Executing...")
-    val cls = cl.loadClass(s)
-    val result = cls.getMethod("run").invoke(null).asInstanceOf[String]
-    println("RESULT: " + result)
-    result
+    val cls = cl.loadClass(classTag[T].runtimeClass.getName)
+    cls.getConstructors()(0).newInstance(args:_*).asInstanceOf[() => String]
   }
 }
