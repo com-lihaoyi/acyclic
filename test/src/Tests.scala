@@ -1,52 +1,49 @@
 import java.io
-import java.net.{URLClassLoader, URL}
 import org.scalatest.path.FreeSpec
 import plugin.SinjectPlugin
+import reflect.io.VirtualDirectory
 import reflect.{ClassTag, classTag}
-import reflect.internal.util.{BatchSourceFile, SourceFile}
-import reflect.io.{File, AbstractFile}
 
 import sinject._
 import tools.nsc.Global
 import tools.nsc.plugins.Plugin
 import tools.nsc.Settings
 import tools.nsc.reporters.ConsoleReporter
-import tools.nsc.util.ScalaClassLoader.URLClassLoader
 
 class Tests extends FreeSpec{
   "testing injection" - {
     "simplest possible example" in {
 
-      val first = make[simple.Prog]("simple")(0: Integer, "fail")
-      val second = make[simple.Prog]("simple")(123: Integer, "cow")
+      val first = make[simple.Prog](0: Integer, "fail")
+      val second = make[simple.Prog](123: Integer, "cow")
       assert(first() === "Two! fail One! 0")
       assert(second() === "Two! cow One! 123")
 
     }
     "two-level folder/module nesting" in {
-      val first = make[nested.Outer]("nested")(1: Integer)
-      val second = make[nested.Outer]("nested")(5: Integer)
+      val first = make[nestedpackage.Outer](1: Integer)
+      val second = make[nestedpackage.Outer](5: Integer)
       assert(first() === "13")
       assert(second() === "25")
     }
 
     "class with no argument lists" in {
-      val first = make[noarglists.Injected]("noarglists")(2: Integer)
-      val second = make[noarglists.Injected]("noarglists")(25: Integer)
+      val first = make[noarglists.Injected](2: Integer)
+      val second = make[noarglists.Injected](25: Integer)
       assert(first() === "2")
       assert(second() === "25")
     }
 
     "class with multiple argument lists" in {
-      val first = make[multiplearglists.Injected]("multiplearglists")(3: Integer)
-      val second = make[multiplearglists.Injected]("multiplearglists")(5: Integer)
+      val first = make[multiplearglists.Injected](3: Integer)
+      val second = make[multiplearglists.Injected](5: Integer)
       assert(first() === "two 6 | three args 3 1.5 | 1.5 f 12 List(three, args) -128 3")
       assert(second() === "two 8 | three args 5 1.5 | 1.5 f 12 List(three, args) -128 5")
     }
 
-    "sinject.nested class" in {
-      val first = make[nestedclass.Prog]("nestedclass")(1: Integer, "mooo")
-      val second = make[nestedclass.Prog]("nestedclass")(5: Integer, "cow")
+    "sinject.nestedpackage class" in {
+      val first = make[nestedclass.Prog](1: Integer, "mooo")
+      val second = make[nestedclass.Prog](5: Integer, "cow")
       assert(first() === "Inner! c 11mooo")
       assert(second() === "Inner! c 15cow")
     }
@@ -67,14 +64,14 @@ class Tests extends FreeSpec{
     classPath.map(new io.File(_).getAbsolutePath).foreach{ f =>
       s.classpath.append(f)
       s.bootclasspath.append(f)
-
-      println(f)
     }
     s
   }
   lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
     override protected def loadRoughPluginsList(): List[Plugin] = List(new SinjectPlugin(this))
+
   }
+
   lazy val cl = new java.net.URLClassLoader(Array(new java.io.File("out/compiled/").toURI.toURL)){
     override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
       if (name.startsWith("sinject") && this.findLoadedClass(name) == null){
@@ -87,12 +84,14 @@ class Tests extends FreeSpec{
       }
     }
   }
-  def make[T: ClassTag](src: String)(args: AnyRef*) = {
+  lazy val vd = new VirtualDirectory("classFiles", None)
+  /* Instantiates an object of type T passing the given arguments to its first constructor */
+  def make[T: ClassTag](args: AnyRef*) = {
 
     new java.io.File("out/compiled").mkdirs()
-
+    val src = "test/resources/" + classTag[T].runtimeClass.getPackage.getName.replace('.', '/')
     println("sources")
-    val sources = getFilePaths("test/resources/sinject/" + src)
+    val sources = getFilePaths(src)
     sources.foreach(println)
 
     println("Compiling...")

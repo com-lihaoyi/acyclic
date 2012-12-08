@@ -19,35 +19,34 @@ class Transformer(val plugin: SinjectPlugin)
   val global = plugin.global
   import global._
 
-
   val runsAfter = List("typer")
 
   val phaseName = "sinject"
 
-  val moduleClass = definitions.getClass(newTypeName("sinject.Module"))
+  val moduleClass = rootMirror getClassByName newTypeName("sinject.Module")
 
   val prefix = "sinj$"
   def typeToString(tpe: Type) = newTermName(prefix + tpe.toString.split('.').map(_ charAt 0).mkString)
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
+
     def getEnclosingModules(sym: ClassSymbol) = {
-      if(Seq("class Int", "class Byte", "class Double", "object List").contains(sym.toString)) Nil else
-      //try{
-        for{
-          symbol <- sym.ownerChain.map(_.tpe).drop(1)
-          decl <- symbol.decls
-          if decl != NoSymbol
-          if decl.isModule
-          if decl.companionClass != NoSymbol
 
-          //if decl.asModule.
-          //_ = try{ decl.tpe} catch{ case _ => openRepl("decl" -> decl -> "Symbol")}
-          TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
+      //if(Seq("class Int", "class Byte", "class Double", "object List").contains(sym.toString)) Nil else
+      for{
+        symbol <- sym.ownerChain.map(_.tpe).drop(1).dropRight(1)
+        decl <- symbol.decls
 
-        } yield {
-          singleType
-        }
-      //}catch{case x: Throwable => Nil }
+        if decl.isModule
+        if decl.companionClass != NoSymbol
+        if decl.sourceFile != null
+
+        TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
+
+      } yield {
+        singleType
+      }
+
     }
 
     override def transform(tree: Tree): Tree = super.transform { tree match {
