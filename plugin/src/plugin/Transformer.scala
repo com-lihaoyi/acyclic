@@ -31,8 +31,7 @@ class Transformer(val plugin: SinjectPlugin)
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     def getEnclosingModules(sym: ClassSymbol) = {
-      println("Getting ; " + sym)
-      if(sym.toString == "class Int") Nil else
+      if(Seq("class Int", "class Byte", "class Double", "object List").contains(sym.toString)) Nil else
       //try{
         for{
           symbol <- sym.ownerChain.map(_.tpe).drop(1)
@@ -54,7 +53,7 @@ class Transformer(val plugin: SinjectPlugin)
     override def transform(tree: Tree): Tree = super.transform { tree match {
       /* add injected class members and constructor parameters */
       case cd @ ClassDef(mods, className, tparams, impl) =>
-        println("Transforming Class " + cd)
+
         val enclosingModules = getEnclosingModules(cd.symbol.asClass)
 
         def makeValDefs(flags: Long, filterThis: Boolean) = for {
@@ -110,12 +109,11 @@ class Transformer(val plugin: SinjectPlugin)
       /* Transform constructor calls to inject the parameter */
       case a @ Apply(fun, args)
         if a.symbol.owner.isClass
-        //&& fun.symbol.tpe.paramss.flatten.exists(_.name.toString.contains(prefix))
         && getEnclosingModules(a.symbol.owner.asClass).length > 0
         && fun.tpe.resultType == fun.tpe.finalResultType
         && fun.symbol.isClassConstructor=>
 
-        println ("Transforming Apply " + a)
+
         val enclosingVersion = getEnclosingModules(a.symbol.owner.asClass)
 
         val newNames = enclosingVersion.map(x => typeToString(x))
@@ -128,13 +126,8 @@ class Transformer(val plugin: SinjectPlugin)
 
         newA
 
-      case a @ Apply(fun, args) =>
-        println("Skipping Apply " + a)
-        a
 
-      case x =>
-        println("Skipping thing:" + x.shortClass + " " + x)
-        x
+      case x => x
     }}
 
     /**

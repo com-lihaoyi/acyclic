@@ -7,6 +7,6 @@ object MultipleArgLists {
   def run() = {
     val packageOne = new Injected(1)
     val packageTwo = new Injected(2)
-    packageOne.get + " " + packageTwo.get
+    packageOne.get + " || " + packageTwo.get
   }
 }
