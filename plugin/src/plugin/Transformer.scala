@@ -3,14 +3,11 @@ package plugin
 import tools.nsc.{Settings, Global}
 import tools.nsc.plugins.PluginComponent
 import tools.nsc.transform.{Transform, TypingTransformers}
-import scala.tools.nsc.typechecker._
+
 import tools.nsc.symtab.Flags._
 import tools.nsc.ast.TreeDSL
 import tools.nsc.interpreter._
-import reflect.internal.{Flags, SymbolTable}
-import reflect.ClassTag
-import tools.scalap.scalax.rules.scalasig.MethodSymbol
-//import tools.nsc.typechecker.bContexts.Context
+
 
 
 class Transformer(val plugin: SinjectPlugin)
@@ -34,16 +31,24 @@ class Transformer(val plugin: SinjectPlugin)
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     def getEnclosingModules(sym: ClassSymbol) = {
-      try{
+      println("Getting ; " + sym)
+      if(sym.toString == "class Int") Nil else
+      //try{
         for{
           symbol <- sym.ownerChain.map(_.tpe).drop(1)
           decl <- symbol.decls
-          TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
+          if decl != NoSymbol
           if decl.isModule
+          if decl.companionClass != NoSymbol
+
+          //if decl.asModule.
+          //_ = try{ decl.tpe} catch{ case _ => openRepl("decl" -> decl -> "Symbol")}
+          TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
+
         } yield {
           singleType
         }
-      }catch{case x: Throwable => Nil }
+      //}catch{case x: Throwable => Nil }
     }
 
     override def transform(tree: Tree): Tree = super.transform { tree match {
@@ -126,8 +131,9 @@ class Transformer(val plugin: SinjectPlugin)
         println("Skipping Apply " + a)
         a
 
-      case x => x
-
+      case x =>
+        println("Skipping thing:" + x.shortClass + " " + x)
+        x
     }}
 
     /**
@@ -137,20 +143,11 @@ class Transformer(val plugin: SinjectPlugin)
     def getArgTreesMatching(pred: Symbol => Boolean) = {
       val newArgSymbols =
         List(
-          localTyper.context.owner.owner/*,
-          localTyper.context.owner.owner.owner*/
+          localTyper.context.owner.owner
         ).flatMap(
           _.info.decls
            .filter(pred)
         )
-
-      def recurse: Symbol => List[Symbol] = {
-        case NoSymbol => Nil
-        case x: TermSymbol => recurse(x.owner)
-        case x =>
-          println(x)
-          x.paramss.flatten ++ recurse(x.owner)
-      }
 
       newArgSymbols.map{ sym =>
         val thisTree = This(localTyper.context.owner.owner)
@@ -161,24 +158,23 @@ class Transformer(val plugin: SinjectPlugin)
       }
     }
 
-
-
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
         if name == newTermName("<init>") =>
         val (newvparamss, extend) = vparamss match {
-          case first :+ last =>
-            (first :+ (last ++ newConstrDefs), true)
+          case first :+ last => (first :+ (last ++ newConstrDefs), true)
           case _ => (vparamss :+ newConstrDefs, false)
         }
 
         val res = treeCopy.DefDef(dd, modifiers, name, tparams, newvparamss, tpt, rhs)
 
         res.symbol setInfo recurse(res.symbol.info,newConstrDefs.map(_.symbol), extend)
+
         res
 
       case x => x
     }
+
     def recurse(t: Type, newConstrSyms: List[Symbol], extend: Boolean): Type = t match {
       case NullaryMethodType(resultType) => t
       case MethodType(params, resultType: MethodType) => MethodType(params, recurse(resultType, newConstrSyms, extend))
@@ -186,6 +182,7 @@ class Transformer(val plugin: SinjectPlugin)
         if (extend) MethodType(params ++ newConstrSyms, resultType)
         else MethodType(params, MethodType(newConstrSyms, resultType))
     }
+
     def openRepl(bind: ((String, Any), String)*){
       val repl = new ILoop
       repl.settings = new Settings
@@ -206,11 +203,4 @@ class Transformer(val plugin: SinjectPlugin)
       repl.closeInterpreter()
     }
   }
-
-/*openRepl(
-          "dd" -> dd -> "DefDef",
-          "encl" -> enclosingModules -> "List[Type]"
-        )*/
-
-
 }
