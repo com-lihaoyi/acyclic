@@ -112,7 +112,8 @@ class Transformer(val plugin: SinjectPlugin)
         if a.symbol.owner.isClass
         //&& fun.symbol.tpe.paramss.flatten.exists(_.name.toString.contains(prefix))
         && getEnclosingModules(a.symbol.owner.asClass).length > 0
-        && fun.tpe.resultType == fun.tpe.finalResultType =>
+        && fun.tpe.resultType == fun.tpe.finalResultType
+        && fun.symbol.isClassConstructor=>
 
         println ("Transforming Apply " + a)
         val enclosingVersion = getEnclosingModules(a.symbol.owner.asClass)
