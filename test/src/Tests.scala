@@ -11,7 +11,7 @@ import tools.nsc.reporters.ConsoleReporter
 import tools.nsc.util.ScalaClassLoader.URLClassLoader
 
 class Tests extends FreeSpec{
-  "simplest possible example" in {
+  /*"simplest possible example" in {
     assert(test("test/resources/simple", "simple.Simple") == "Two!lolOne! 10Two!wtfOne! 5")
   }
   "two-level nesting" in {
@@ -24,7 +24,7 @@ class Tests extends FreeSpec{
 
   "injecting into a class with multiple argument lists" in {
     assert(test("test/resources/multiplearglists", "multiplearglists.MultipleArgLists") == "two 4 three args 1 1.5 two 5 three args 2 1.5")
-  }
+  }*/
 
   "injecting into a class with multiple constructors" in {
     assert(test("test/resources/multiconstructor", "multiconstructor.MultiConstructor") == "two 4 three args 1 1.5 two 5 three args 2 1.5")
