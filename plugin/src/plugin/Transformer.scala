@@ -19,68 +19,54 @@ class Transformer(val plugin: SinjectPlugin)
   val global = plugin.global
   import global._
 
-  val runsAfter = List("typer")
-
+  val runsAfter = List("parser")
+  override val runsRightAfter = Some("parser")
   val phaseName = "sinject"
 
   val moduleClass = rootMirror getClassByName newTypeName("sinject.Module")
 
   val prefix = "sinj$"
+
   def typeToString(tpe: Type) = newTermName(prefix + tpe.toString.split('.').map(_ charAt 0).mkString)
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
+    val injections = unit.body.collect{
+      case i @ Import(
+        Select(qualifier, treename),
+        List(ImportSelector(name, namepos, rename, renamepos)))
+        if name == newTermName("dynamic") =>
 
-    def getEnclosingModules(sym: ClassSymbol) = {
+        Select(qualifier, treename.toTypeName)
+      case i @ Import(
+        Ident(treename),
+        List(ImportSelector(name, namepos, rename, renamepos)))
+        if name == newTermName("dynamic")=>
 
-      //if(Seq("class Int", "class Byte", "class Double", "object List").contains(sym.toString)) Nil else
-      for{
-        symbol <- sym.ownerChain.map(_.tpe).drop(1).dropRight(1)
-        decl <- symbol.decls
-
-        if decl.isModule
-        if decl.companionClass != NoSymbol
-        if decl.sourceFile != null
-
-        TypeRef(tpe, sym, Seq(singleType)) <- decl.typeOfThis.parents
-
-      } yield {
-        singleType
-      }
-
+        Ident(treename.toTypeName)
     }
 
     override def transform(tree: Tree): Tree = super.transform { tree match {
       /* add injected class members and constructor parameters */
       case cd @ ClassDef(mods, className, tparams, impl) =>
+        val selfInject = unit.body.collect{
+          case ModuleDef(mods, termName, Template(parents, self, body))
+            if parents.exists(_.toString().contains("sinject.Module")) => true
+        }.headOption.isDefined
 
-        val enclosingModules = getEnclosingModules(cd.symbol.asClass)
+        def makeValDefs(flags: Long) = for {
+          (inj, i)<- injections.zipWithIndex
+        } yield ValDef(Modifiers(flags), newTermName(prefix + i), inj, EmptyTree)
 
-        def makeValDefs(flags: Long, filterThis: Boolean) = for {
-          enclosing <- enclosingModules
-          if !filterThis || enclosing != cd.symbol.tpe
-        } yield {
-          val paramSym = cd.symbol.asInstanceOf[ClassSymbol].newValueParameter(
-            typeToString(enclosing),
-            cd.pos.focus,
-            if (enclosing == cd.symbol.tpe) flags & ~PARAMACCESSOR
-            else flags
-          )
 
-          paramSym setInfo enclosing
+        val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PRIVATE | LOCAL)
+        val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
 
-          localTyper.typedValDef(
-            ValDef(
-              paramSym,
-              if (enclosing != cd.symbol.tpe) EmptyTree
-              else This(cd.symbol)
-            )
-          )
-        }
-
-        val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PRIVATE | LOCAL, false)
-        val newConstrDefs = makeValDefs(PARAMACCESSOR | PARAM, true)
-
-        newValDefs.map(x => cd.symbol.info.decls.enter(x.symbol))
+        val newThisDef = if (selfInject) Some(ValDef (
+          Modifiers(IMPLICIT),
+          newTermName("thisDef"),
+          Ident(className),
+          This(className)
+        )) else None
 
         treeCopy.ClassDef(
           cd,
@@ -91,89 +77,33 @@ class Transformer(val plugin: SinjectPlugin)
             impl,
             impl.parents,
             impl.self,
-            newValDefs ++ constructorTransform(impl.body, newConstrDefs)
+            newThisDef.toList ++ newValDefs ++ constructorTransform(impl.body, newConstrDefs)
           )
         )
-
-      /* Transform calls to Module.apply() to inject the parameter */
-      case a @ Apply(fun @ Select(qualifier, name), List(singleArg))
-          if name == newTermName("apply")
-          && qualifier.symbol.tpe.firstParent.typeSymbol == moduleClass =>
-
-        val newArgTrees = getArgTreesMatching(_.name == typeToString(a.tpe))
-
-        treeCopy.Apply(a, fun, newArgTrees)
-
-
-      /* Transform constructor calls to inject the parameter */
-      case a @ Apply(fun, args)
-        if a.symbol.owner.isClass
-        && getEnclosingModules(a.symbol.owner.asClass).length > 0
-        && fun.tpe.resultType == fun.tpe.finalResultType
-        && fun.symbol.isClassConstructor=>
-
-
-        val enclosingVersion = getEnclosingModules(a.symbol.owner.asClass)
-
-        val newNames = enclosingVersion.map(x => typeToString(x))
-
-        val newArgTrees = getArgTreesMatching(x => newNames.exists(x.name == _))
-
-        val newA = treeCopy.Apply(a, fun, args ++ newArgTrees)
-
-        newA.fun.tpe = recurse(newA.fun.tpe, newArgTrees.map(_.symbol), true)
-
-        newA
-
-
       case x => x
     }}
 
-    /**
-     * Find all declarations in the parent scope which match some predicate
-     * and construct argument Trees
-     */
-    def getArgTreesMatching(pred: Symbol => Boolean) = {
-      val newArgSymbols =
-        List(
-          localTyper.context.owner.owner
-        ).flatMap(
-          _.info.decls
-           .filter(pred)
-        )
 
-      newArgSymbols.map{ sym =>
-        val thisTree = This(localTyper.context.owner.owner)
-        val newTree = Select(thisTree, sym.name)
-
-        newTree.symbol = sym
-        localTyper typed newTree
-      }
-    }
 
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
-        if name == newTermName("<init>") =>
+        if name == newTermName("<init>")
+        && newConstrDefs.length > 0 =>
+
+        println("constr")
         val (newvparamss, extend) = vparamss match {
-          case first :+ last => (first :+ (last ++ newConstrDefs), true)
+          case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
+            (first :+ (last ++ newConstrDefs), true)
           case _ => (vparamss :+ newConstrDefs, false)
         }
 
         val res = treeCopy.DefDef(dd, modifiers, name, tparams, newvparamss, tpt, rhs)
 
-        res.symbol setInfo recurse(res.symbol.info,newConstrDefs.map(_.symbol), extend)
-
         res
 
-      case x => x
-    }
-
-    def recurse(t: Type, newConstrSyms: List[Symbol], extend: Boolean): Type = t match {
-      case NullaryMethodType(resultType) => t
-      case MethodType(params, resultType: MethodType) => MethodType(params, recurse(resultType, newConstrSyms, extend))
-      case MethodType(params, resultType) =>
-        if (extend) MethodType(params ++ newConstrSyms, resultType)
-        else MethodType(params, MethodType(newConstrSyms, resultType))
+      case x =>
+        println("skip " + x + " : " + newConstrDefs.length)
+        x
     }
 
     def openRepl(bind: ((String, Any), String)*){

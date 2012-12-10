@@ -1,4 +1,5 @@
 package sinject.nestedclass
+import Prog.dynamic
 
 class Inner(s: String) {
   def value = "Inner! " + s

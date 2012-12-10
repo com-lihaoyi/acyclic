@@ -41,11 +41,18 @@ class Tests extends FreeSpec{
       assert(second() === "two 8 | three args 5 1.5 | 1.5 f 12 List(three, args) -128 5")
     }
 
-    "sinject.nestedpackage class" in {
+    "class nested in class" in {
       val first = make[nestedclass.Prog](1: Integer, "mooo")
       val second = make[nestedclass.Prog](5: Integer, "cow")
       assert(first() === "Inner! c 11mooo")
       assert(second() === "Inner! c 15cow")
+    }
+
+    "classes with existing implicits" in {
+      val first = make[existingimplicit.Injected](1: Integer, "mooo", 1.5: java.lang.Double)
+      val second = make[existingimplicit.Injected](5: Integer, "cow", 0.9: java.lang.Double)
+      assert(first() === "mooo 1 | mooo 1 1.5 | mooo 1 1 | mooo 1 1 1.5 | mooo 1 1 1.5 64 c 10")
+      assert(second() === "cow 5 | cow 5 0.9 | cow 5 5 | cow 5 5 0.9 | cow 5 5 0.9 64 c 10")
     }
   }
   def getFilePaths(src: String): List[String] = {
@@ -56,7 +63,7 @@ class Tests extends FreeSpec{
   lazy val settings = {
     val s =  new Settings
     s.d.value = "out/compiled"
-    //s.Xprint.value = List("all")
+    s.Xprint.value = List("all")
     val classPath = getFilePaths("/Runtimes/scala-2.10.0-RC2/lib") :+
       "out/production/plugin/"
 

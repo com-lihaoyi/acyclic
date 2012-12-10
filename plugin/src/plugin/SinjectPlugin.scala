@@ -2,8 +2,10 @@ package plugin
 
 import tools.nsc.Global
 import tools.nsc.plugins.{Plugin, PluginComponent}
-import collection.parallel.mutable
-import scala.collection
+
+import scala.collection._
+
+
 
 class SinjectPlugin(val global: Global) extends Plugin {
 

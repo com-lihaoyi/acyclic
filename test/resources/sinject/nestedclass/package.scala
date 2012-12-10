@@ -8,5 +8,3 @@ class Prog(x: Int, val s: String) extends (() => String){
   val value = x
   def apply() = inner.run
 }
-
-

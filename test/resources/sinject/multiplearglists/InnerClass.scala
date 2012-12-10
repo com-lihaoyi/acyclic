@@ -1,4 +1,5 @@
 package sinject.multiplearglists
+import Injected.dynamic
 
 class TwoArgLists(s: String)(x: Int, y: Int){
   def get = s + " " + (Injected().value + x + y)
