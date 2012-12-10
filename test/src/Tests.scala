@@ -12,6 +12,7 @@ import tools.nsc.reporters.ConsoleReporter
 
 class Tests extends FreeSpec{
   "testing injection" - {
+
     "simplest possible example" in {
 
       val first = make[simple.Prog](0: Integer, "fail")
@@ -47,6 +48,21 @@ class Tests extends FreeSpec{
       assert(first() === "mooo 1 | mooo 1 1.5 | mooo 1 1 | mooo 1 1 1.5 | mooo 1 1 1.5 64 c 10")
       assert(second() === "cow 5 | cow 5 0.9 | cow 5 5 | cow 5 5 0.9 | cow 5 5 0.9 64 c 10")
     }
+
+
+
+    "classes with traits" in {
+      val first = make[traits.Prog](1: Integer, 2: Integer)
+      val second = make[traits.Prog](5: Integer, 6: Integer)
+      assert(first() === "cow 1 2 | dog 1 2 4")
+      assert(second() === "cow 5 6 | dog 5 6 12")
+    }
+    /*"classes with inheritence" in {
+      val first = make[inheritence.Prog](1: Integer, "first")
+      val second = make[inheritence.Prog](5: Integer, "second")
+      assert(first() === "cow 1 2 | dog 1 2 4")
+      assert(second() === "cow 5 6 | dog 5 6 12")
+    }*/
   }
   def getFilePaths(src: String): List[String] = {
     val f = new io.File(src)

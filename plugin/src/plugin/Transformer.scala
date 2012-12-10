@@ -41,20 +41,27 @@ class Transformer(val plugin: SinjectPlugin)
         Ident(treename.toTypeName)
     }
 
-    override def transform(tree: Tree): Tree = super.transform { tree match {
+    def makeValDefs(flags: Long) = for {
+      (inj, i)<- injections.zipWithIndex
+    } yield ValDef(Modifiers(flags), newTermName(prefix + i), inj, EmptyTree)
+
+    def makeDefDefs(flags: Long) = for {
+      (inj, i)<- injections.zipWithIndex
+    } yield DefDef(Modifiers(flags), newTermName(prefix + i), List(), List(), inj, EmptyTree)
+
+    override def transform(tree: Tree): Tree =  tree match {
+
       /* add injected class members and constructor parameters */
-      case cd @ ClassDef(mods, className, tparams, impl) =>
+      case cd @ ClassDef(mods, className, tparams, impl)
+        if !mods.hasFlag(TRAIT) =>
+
         val selfInject = unit.body.collect{
           case ModuleDef(mods, termName, Template(parents, self, body))
             if parents.exists(_.toString().contains("sinject.Module")) => true
         }.headOption.isDefined
 
-        def makeValDefs(flags: Long) = for {
-          (inj, i)<- injections.zipWithIndex
-        } yield ValDef(Modifiers(flags), newTermName(prefix + i), inj, EmptyTree)
 
-
-        val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PRIVATE | LOCAL)
+        val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
         val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
 
         val newThisDef = if (selfInject) Some(ValDef (
@@ -76,10 +83,24 @@ class Transformer(val plugin: SinjectPlugin)
             newThisDef.toList ++ newValDefs ++ constructorTransform(impl.body, newConstrDefs)
           )
         )
-      case x => x
-    }}
 
-
+      case cd @ ClassDef(mods, className, tparams, impl)
+        if mods.hasFlag(TRAIT) =>
+        val newDefDefs = makeDefDefs(DEFERRED | IMPLICIT | PROTECTED | LOCAL)
+        treeCopy.ClassDef(
+          cd,
+          mods,
+          className,
+          tparams,
+          treeCopy.Template(
+            impl,
+            impl.parents,
+            impl.self,
+            newDefDefs ++ impl.body
+          )
+        )
+      case x => super.transform {x}
+    }
 
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
