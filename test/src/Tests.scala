@@ -27,18 +27,11 @@ class Tests extends FreeSpec{
       assert(second() === "25")
     }
 
-    "class with no argument lists" in {
-      val first = make[noarglists.Injected](2: Integer)
-      val second = make[noarglists.Injected](25: Integer)
-      assert(first() === "2")
-      assert(second() === "25")
-    }
-
     "class with multiple argument lists" in {
       val first = make[multiplearglists.Injected](3: Integer)
       val second = make[multiplearglists.Injected](5: Integer)
-      assert(first() === "two 6 | three args 3 1.5 | 1.5 f 12 List(three, args) -128 3")
-      assert(second() === "two 8 | three args 5 1.5 | 1.5 f 12 List(three, args) -128 5")
+      assert(first() === "3 | two 6 | three args 3 1.5 | 1.5 f 12 List(three, args) -128 3")
+      assert(second() === "5 | two 8 | three args 5 1.5 | 1.5 f 12 List(three, args) -128 5")
     }
 
     "class nested in class" in {

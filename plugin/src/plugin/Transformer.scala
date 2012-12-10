@@ -23,11 +23,7 @@ class Transformer(val plugin: SinjectPlugin)
   override val runsRightAfter = Some("parser")
   val phaseName = "sinject"
 
-  val moduleClass = rootMirror getClassByName newTypeName("sinject.Module")
-
   val prefix = "sinj$"
-
-  def typeToString(tpe: Type) = newTermName(prefix + tpe.toString.split('.').map(_ charAt 0).mkString)
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     val injections = unit.body.collect{
