@@ -1,4 +1,4 @@
-package com.xmlite
+package sinject
 
 import org.scalatest._
 import reflect.ClassTag
@@ -11,7 +11,7 @@ import plugin.SinjectPlugin
 import sinject._
 
 
-class XMLiteTester extends FreeSpec with ShouldMatchers{
+class SinjectTester extends FreeSpec with ShouldMatchers{
 
 
 
@@ -90,8 +90,12 @@ class XMLiteTester extends FreeSpec with ShouldMatchers{
     override protected def loadRoughPluginsList(): List[Plugin] = List(new SinjectPlugin(this))
 
   }
+  lazy val classPaths =
+    Array("out/compiled/", "out/production/plugin/").map( x =>
+      new java.io.File(x).toURI.toURL
+    )
 
-  lazy val cl = new java.net.URLClassLoader(Array(new java.io.File("out/compiled/").toURI.toURL)){
+  lazy val cl = new java.net.URLClassLoader(classPaths){
     override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
       if (name.startsWith("sinject") && this.findLoadedClass(name) == null){
         println("Loading " + name)

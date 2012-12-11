@@ -9,7 +9,7 @@ import tools.nsc.ast.TreeDSL
 import tools.nsc.interpreter._
 
 
-class Stripper(val plugin: SinjectPlugin)
+class OverrideInjector(val plugin: SinjectPlugin)
     extends PluginComponent
     with Transform
     with TypingTransformers
@@ -20,7 +20,7 @@ class Stripper(val plugin: SinjectPlugin)
 
   val runsAfter = List("typer")
   override val runsRightAfter = Some("typer")
-  val phaseName = "stripper"
+  val phaseName = "overrideInjector"
 
   val prefix = "sinj$"
 
