@@ -22,39 +22,33 @@ class OverrideInjector(val plugin: SinjectPlugin)
   override val runsRightAfter = Some("typer")
   val phaseName = "overrideInjector"
 
-  val prefix = "sinj$"
+
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 
-    println("Transforming: " +unit)
+
     override def transform(tree: Tree): Tree =  tree match {
 
       /* add injected class members and constructor parameters */
 
       case vd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
-        if name.containsName(prefix) =>
-
-        println("\nNAME " + name)
-        println(vd)
-        println("OWNER " + vd.symbol.owner)
+        if name.containsName(plugin.prefix) =>
 
         val inheritedNonDeferred = for{
           parent <- vd.symbol.owner.info.parents
           member <- parent.members
-          if member.name.toString.contains(prefix)
+          if member.name.toString.contains(plugin.prefix)
           if member.tpe == vd.symbol.tpe
           if !member.isDeferred
-        } yield ()
-        println("override now? " + (inheritedNonDeferred.length != 0))
-        println(mods)
-        println(mods.`|`(OVERRIDE))
+        } yield member
 
-        val f = if (inheritedNonDeferred.length == 0) vd
+
+        if (inheritedNonDeferred.length == 0) vd
         else {
           vd.symbol.setFlag(OVERRIDE)
           treeCopy.DefDef(
             vd,
-            mods.`|`(OVERRIDE),
+            mods | OVERRIDE,
             name,
             tparams,
             vparamss,
@@ -63,8 +57,7 @@ class OverrideInjector(val plugin: SinjectPlugin)
           )
         }
 
-        println(f)
-        f
+
 
       case x => super.transform {x}
     }

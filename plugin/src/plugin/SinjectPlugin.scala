@@ -14,6 +14,8 @@ class SinjectPlugin(val global: Global) extends Plugin {
 
   var injections = Map[String, Set[String]]()
 
+  val prefix = "sinj$"
+
   val components = List[PluginComponent](
     new OverrideInjector(this),
     new Transformer(this)

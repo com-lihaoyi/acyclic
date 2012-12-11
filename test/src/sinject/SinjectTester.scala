@@ -64,8 +64,8 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
     "classes with inheritence" in {
       val first = make[inheritence.Prog](1: Integer, "first")
       val second = make[inheritence.Prog](5: Integer, "second")
-      assert(first() === "Self! 1 Parent! 2")
-      assert(second() === "Self! 5 Parent! 10")
+      assert(first() === "Self! 1 Parent! 2 : first first3 first4 1")
+      assert(second() === "Self! 5 Parent! 10 : second second7 second4 5")
     }
   }
   def getFilePaths(src: String): List[String] = {
@@ -73,15 +73,13 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
     else List(src)
   }
-  lazy val vd = new VirtualDirectory("classFiles", None)
+  lazy val vd = new VirtualDirectory("(memory)", None)
   lazy val settings = {
     val s =  new Settings
-    s.d.value = "out/compiled"
-    s.Xprint.value = List("all")
+    //s.Xprint.value = List("all")
     val classPath = getFilePaths("/Runtimes/scala-2.10.0-RC2/lib") :+
       "out/production/plugin/"
 
-    println("classPath")
     classPath.map(new java.io.File(_).getAbsolutePath).foreach{ f =>
       s.classpath.append(f)
       s.bootclasspath.append(f)
@@ -93,26 +91,13 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
     override protected def loadRoughPluginsList(): List[Plugin] = List(new SinjectPlugin(this))
   }
 
-
-
-
-  lazy val classPaths =
-    Array("out/compiled/", "out/production/plugin/").map( x =>
-      new java.io.File(x).toURI.toURL
-    )
-
   lazy val cl = new ClassLoader(){
     override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
 
       try{
-        println("loadClass " + name)
         if (!name.startsWith("sinject")) throw new ClassNotFoundException()
-        println("Loading " + name)
-        val c = findClass(name)
-        println("Loaded " + c)
-         c
+        findClass(name)
       } catch { case e: ClassNotFoundException =>
-        println("Failed")
         getParent.loadClass(name)
       }
     }
@@ -130,17 +115,13 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
             this.defineClass(name, bytes, 0, bytes.length)
         }
       }
-
     }
-
   }
 
 
   /* Instantiates an object of type T passing the given arguments to its first constructor */
 
   def make[T: ClassTag](args: AnyRef*) = {
-
-    new java.io.File("out/compiled").mkdirs()
     val src = "test/resources/" + classTag[T].runtimeClass.getPackage.getName.replace('.', '/')
     println("sources")
     val sources = getFilePaths(src)
