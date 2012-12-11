@@ -45,24 +45,17 @@ class Transformer(val plugin: SinjectPlugin)
       (inj, i)<- injections.zipWithIndex
     } yield ValDef(Modifiers(flags), newTermName(prefix + i), inj, EmptyTree)
 
-    def makeDefDefs(flags: Long) = for {
-      (inj, i)<- injections.zipWithIndex
-    } yield DefDef(Modifiers(flags), newTermName(prefix + i), List(), List(), inj, EmptyTree)
 
+    def newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
+    def newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PRIVATE | LOCAL)
     override def transform(tree: Tree): Tree =  tree match {
-
-      /* add injected class members and constructor parameters */
       case cd @ ClassDef(mods, className, tparams, impl)
-        if !mods.hasFlag(TRAIT) =>
+        if !mods.hasFlag(MODULE) =>
 
         val selfInject = unit.body.collect{
           case ModuleDef(mods, termName, Template(parents, self, body))
             if parents.exists(_.toString().contains("sinject.Module")) => true
         }.headOption.isDefined
-
-
-        val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
-        val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
 
         val newThisDef = if (selfInject) Some(ValDef (
           Modifiers(IMPLICIT),
@@ -71,7 +64,18 @@ class Transformer(val plugin: SinjectPlugin)
           This(className)
         )) else None
 
-        treeCopy.ClassDef(
+        val newBody = impl.body map {
+          case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs) =>
+            val newvparamss = vparamss match {
+              case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
+                first :+ (last ++ newConstrDefs)
+              case all if newConstrDefs.length > 0 => all :+ newConstrDefs
+              case _ => vparamss
+            }
+            treeCopy.DefDef(dd, modifiers, name, tparams, newvparamss, tpt, rhs)
+          case x => x
+        }
+        super.transform(treeCopy.ClassDef(
           cd,
           mods,
           className,
@@ -80,48 +84,16 @@ class Transformer(val plugin: SinjectPlugin)
             impl,
             impl.parents,
             impl.self,
-            newThisDef.toList ++ newValDefs ++ constructorTransform(impl.body, newConstrDefs)
+            newThisDef.toList ++ newValDefs ++ newBody
           )
-        )
+        ))
 
-      case cd @ ClassDef(mods, className, tparams, impl)
-        if mods.hasFlag(TRAIT) =>
-        val newDefDefs = makeDefDefs(DEFERRED | IMPLICIT | PROTECTED | LOCAL)
-        treeCopy.ClassDef(
-          cd,
-          mods,
-          className,
-          tparams,
-          treeCopy.Template(
-            impl,
-            impl.parents,
-            impl.self,
-            newDefDefs ++ impl.body
-          )
-        )
+
+
+
       case x => super.transform {x}
     }
 
-    def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
-      case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
-        if name == newTermName("<init>")
-        && newConstrDefs.length > 0 =>
-
-        println("constr")
-        val (newvparamss, extend) = vparamss match {
-          case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
-            (first :+ (last ++ newConstrDefs), true)
-          case _ => (vparamss :+ newConstrDefs, false)
-        }
-
-        val res = treeCopy.DefDef(dd, modifiers, name, tparams, newvparamss, tpt, rhs)
-
-        res
-
-      case x =>
-        println("skip " + x + " : " + newConstrDefs.length)
-        x
-    }
 
     def openRepl(bind: ((String, Any), String)*){
       val repl = new ILoop

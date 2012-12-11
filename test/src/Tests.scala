@@ -24,8 +24,8 @@ class Tests extends FreeSpec{
     "two-level folder/module nesting" in {
       val first = make[nestedpackage.Outer](1: Integer)
       val second = make[nestedpackage.Outer](5: Integer)
-      assert(first() === "13")
-      assert(second() === "25")
+      assert(first() === "15")
+      assert(second() === "27")
     }
 
     "class with multiple argument lists" in {
@@ -57,12 +57,12 @@ class Tests extends FreeSpec{
       assert(first() === "cow 1 2 | dog 1 2 4")
       assert(second() === "cow 5 6 | dog 5 6 12")
     }
-    /*"classes with inheritence" in {
+    "classes with inheritence" in {
       val first = make[inheritence.Prog](1: Integer, "first")
       val second = make[inheritence.Prog](5: Integer, "second")
       assert(first() === "cow 1 2 | dog 1 2 4")
       assert(second() === "cow 5 6 | dog 5 6 12")
-    }*/
+    }
   }
   def getFilePaths(src: String): List[String] = {
     val f = new io.File(src)
