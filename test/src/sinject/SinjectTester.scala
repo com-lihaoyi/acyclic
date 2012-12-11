@@ -8,7 +8,8 @@ import scala.tools.nsc.{Settings, Global}
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.plugins.Plugin
 import plugin.SinjectPlugin
-import sinject._
+import scala.tools.nsc.interpreter.AbstractFileClassLoader
+import scala.tools.nsc.io._
 
 
 class SinjectTester extends FreeSpec with ShouldMatchers{
@@ -72,6 +73,7 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
     else List(src)
   }
+  lazy val vd = new VirtualDirectory("classFiles", None)
   lazy val settings = {
     val s =  new Settings
     s.d.value = "out/compiled"
@@ -84,31 +86,58 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
       s.classpath.append(f)
       s.bootclasspath.append(f)
     }
+    s.outputDirs.setSingleOutput(vd)
     s
   }
   lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
     override protected def loadRoughPluginsList(): List[Plugin] = List(new SinjectPlugin(this))
-
   }
+
+
+
+
   lazy val classPaths =
     Array("out/compiled/", "out/production/plugin/").map( x =>
       new java.io.File(x).toURI.toURL
     )
 
-  lazy val cl = new java.net.URLClassLoader(classPaths){
+  lazy val cl = new ClassLoader(){
     override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
-      if (name.startsWith("sinject") && this.findLoadedClass(name) == null){
+
+      try{
+        println("loadClass " + name)
+        if (!name.startsWith("sinject")) throw new ClassNotFoundException()
         println("Loading " + name)
-        val cls = this.findClass(name)
-        println("Done " + name)
-        cls
-      } else {
-        super.loadClass(name, resolve)
+        val c = findClass(name)
+        println("Loaded " + c)
+         c
+      } catch { case e: ClassNotFoundException =>
+        println("Failed")
+        getParent.loadClass(name)
       }
     }
+    override protected def findClass(name: String): Class[_] = {
+      Option(findLoadedClass(name)) getOrElse {
+
+        val (pathParts :+ className) = name split '.' toSeq
+
+        val finalDir = pathParts.foldLeft(vd: AbstractFile)((dir, part) => dir.lookupName(part, true))
+
+        finalDir.lookupName(className + ".class", false) match {
+          case null   => throw new ClassNotFoundException()
+          case file   =>
+            val bytes = file.toByteArray
+            this.defineClass(name, bytes, 0, bytes.length)
+        }
+      }
+
+    }
+
   }
-  lazy val vd = new VirtualDirectory("classFiles", None)
+
+
   /* Instantiates an object of type T passing the given arguments to its first constructor */
+
   def make[T: ClassTag](args: AnyRef*) = {
 
     new java.io.File("out/compiled").mkdirs()
@@ -120,9 +149,11 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
     println("Compiling...")
     val run = new compiler.Run()
     run.compile(sources)
+    println(vd.toList)
 
     println("Executing...")
     val cls = cl.loadClass(classTag[T].runtimeClass.getName)
+    println("-------")
     cls.getConstructors()(0).newInstance(args:_*).asInstanceOf[() => String]
   }
 }
