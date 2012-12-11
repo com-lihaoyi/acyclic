@@ -9,6 +9,7 @@ class Inner(s: String) extends Parent(s){
 
 }
 
-class Parent(s: String){
+abstract class Parent(s: String){
   def parentRun = "Parent! " * Prog().value
+
 }

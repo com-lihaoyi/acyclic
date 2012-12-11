@@ -1,17 +1,20 @@
+package com.xmlite
+
+
+import org.scalatest._
 import java.io
-import org.scalatest.path.FreeSpec
+import scala.tools.nsc.{Global, Settings}
+import scala.tools.nsc.reporters.ConsoleReporter
+import scala.tools.nsc.plugins.Plugin
 import plugin.SinjectPlugin
 import reflect.io.VirtualDirectory
-import reflect.{ClassTag, classTag}
-
+import reflect._
 import sinject._
-import tools.nsc.Global
-import tools.nsc.plugins.Plugin
-import tools.nsc.Settings
-import tools.nsc.reporters.ConsoleReporter
 
-class Tests extends FreeSpec{
-  "testing injection" - {
+
+class SinjectTester extends FreeSpec{
+
+  "All Tests" - {
 
     "simplest possible example" in {
 
@@ -119,3 +122,5 @@ class Tests extends FreeSpec{
     cls.getConstructors()(0).newInstance(args:_*).asInstanceOf[() => String]
   }
 }
+
+
