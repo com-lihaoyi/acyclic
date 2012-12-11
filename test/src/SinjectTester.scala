@@ -1,21 +1,21 @@
 package com.xmlite
 
-
 import org.scalatest._
-import java.io
-import scala.tools.nsc.{Global, Settings}
+import reflect.ClassTag
+import reflect.io.VirtualDirectory
+import reflect.{ClassTag, classTag}
+import scala.tools.nsc.{Settings, Global}
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.plugins.Plugin
 import plugin.SinjectPlugin
-import reflect.io.VirtualDirectory
-import reflect._
 import sinject._
 
 
-class SinjectTester extends FreeSpec{
+class XMLiteTester extends FreeSpec with ShouldMatchers{
+
+
 
   "All Tests" - {
-
     "simplest possible example" in {
 
       val first = make[simple.Prog](0: Integer, "fail")
@@ -63,12 +63,12 @@ class SinjectTester extends FreeSpec{
     "classes with inheritence" in {
       val first = make[inheritence.Prog](1: Integer, "first")
       val second = make[inheritence.Prog](5: Integer, "second")
-      assert(first() === "cow 1 2 | dog 1 2 4")
-      assert(second() === "cow 5 6 | dog 5 6 12")
+      assert(first() === "Self! 1 Parent! 2")
+      assert(second() === "Self! 5 Parent! 10")
     }
   }
   def getFilePaths(src: String): List[String] = {
-    val f = new io.File(src)
+    val f = new java.io.File(src)
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
     else List(src)
   }
@@ -80,7 +80,7 @@ class SinjectTester extends FreeSpec{
       "out/production/plugin/"
 
     println("classPath")
-    classPath.map(new io.File(_).getAbsolutePath).foreach{ f =>
+    classPath.map(new java.io.File(_).getAbsolutePath).foreach{ f =>
       s.classpath.append(f)
       s.bootclasspath.append(f)
     }

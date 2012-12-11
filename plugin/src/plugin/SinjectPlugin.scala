@@ -15,7 +15,7 @@ class SinjectPlugin(val global: Global) extends Plugin {
   var injections = Map[String, Set[String]]()
 
   val components = List[PluginComponent](
-//    new OverrideStripper(this),
+    new Stripper(this),
     new Transformer(this)
 
   )
