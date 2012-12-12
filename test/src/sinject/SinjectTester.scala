@@ -14,15 +14,24 @@ import scala.tools.nsc.io._
 
 class SinjectTester extends FreeSpec with ShouldMatchers{
 
-
-
   "All Tests" - {
     "failure" - {
-      "simple" in {
+      "constructor outside of dynamic scope" in {
         intercept[CompilationException.type]{
-          val first = make[failure.simple.Prog](0: Integer, "fail")
+          val first = make[failure.constructor.Prog](0: Integer, "fail")
         }
-
+      }
+      "apply outside of dynamic scope" in {
+        intercept[NotInModuleError.type]{
+          val first = make[failure.apply.Prog](0: Integer, "fail")
+          first()
+        }
+      }
+      "attempting to use `dynamic` function" in {
+        intercept[UsingDynamicError.type]{
+          val first = make[failure.usingdynamic.Prog](0: Integer, "fail")
+          first()
+        }
       }
     }
     "success" - {
@@ -82,24 +91,14 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
     else List(src)
   }
 
-
-
-
-
   /* Instantiates an object of type T passing the given arguments to its first constructor */
-
-
   def make[T: ClassTag](args: AnyRef*) = {
     val src = "test/resources/" + classTag[T].runtimeClass.getPackage.getName.replace('.', '/')
-    println("sources")
     val sources = getFilePaths(src)
-    sources.foreach(println)
 
-    println("Compiling...")
     var vd = new VirtualDirectory("(memory)", None)
     lazy val cl = new ClassLoader(){
       override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
-
         try{
           if (!name.startsWith("sinject")) throw new ClassNotFoundException()
           findClass(name)
@@ -107,10 +106,11 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
           getParent.loadClass(name)
         }
       }
+
       override protected def findClass(name: String): Class[_] = {
         Option(findLoadedClass(name)) getOrElse {
 
-          val (pathParts :+ className) = name split '.' toSeq
+          val (pathParts :+ className) = name.split('.').toSeq
 
           val finalDir = pathParts.foldLeft(vd: AbstractFile)((dir, part) => dir.lookupName(part, true))
 
@@ -145,9 +145,7 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
 
     if (vd.toList.isEmpty) throw CompilationException
 
-    println("Executing...")
     val cls = cl.loadClass(classTag[T].runtimeClass.getName)
-    println("-------")
     cls.getConstructors()(0).newInstance(args:_*).asInstanceOf[() => String]
   }
   object CompilationException extends Exception

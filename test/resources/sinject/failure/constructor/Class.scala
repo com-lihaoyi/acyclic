@@ -1,8 +1,6 @@
-package sinject.failure.simple
+package sinject.failure.constructor
 
 import Prog.dynamic
-import annotation.implicitNotFound
-
 
 class Class(s: String){
   def value = "Two! " + s

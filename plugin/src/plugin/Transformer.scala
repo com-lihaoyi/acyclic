@@ -75,7 +75,7 @@ class Transformer(val plugin: SinjectPlugin)
           else Seq()
 
         val newAnnotation =
-          if(selfInject) Seq(makeAnnotation("Cannot create a dynamic-scoped object without an implicit " + className + " in scope."))
+          if(selfInject) Seq(makeAnnotation("This requires an implicit " + className + " in scope."))
           else Seq()
 
         val newBody = newThisDef.toList ++
