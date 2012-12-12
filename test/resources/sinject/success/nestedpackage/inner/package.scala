@@ -1,8 +1,8 @@
-package sinject.nestedpackage.inner
+package sinject.success.nestedpackage.inner
 
 
-import sinject.nestedpackage.Outer
-import sinject.nestedpackage.Outer.dynamic
+import sinject.success.nestedpackage.Outer
+import sinject.success.nestedpackage.Outer.dynamic
 object Inner extends sinject.Module[Inner]
 class Inner(n: Int){
   val value = Outer().value * 2 + n

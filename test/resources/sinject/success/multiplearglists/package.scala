@@ -1,4 +1,4 @@
-package sinject.multiplearglists
+package sinject.success.multiplearglists
 
 object Injected extends sinject.Module[Injected]
 

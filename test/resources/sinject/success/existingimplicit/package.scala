@@ -1,4 +1,4 @@
-package sinject.existingimplicit
+package sinject.success.existingimplicit
 
 object Injected extends sinject.Module[Injected]
 

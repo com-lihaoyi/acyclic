@@ -1,4 +1,4 @@
-package sinject.existingimplicit
+package sinject.success.existingimplicit
 import Injected.dynamic
 
 class NoListsImplicit(implicit s: String){

@@ -1,4 +1,4 @@
-package sinject.traits
+package sinject.success.traits
 
 import Prog.dynamic
 class BaseClass2(s: String) extends Trait with Trait2{

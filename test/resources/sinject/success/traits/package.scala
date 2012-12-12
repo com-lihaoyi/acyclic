@@ -1,4 +1,4 @@
-package sinject.traits
+package sinject.success.traits
 
 object Prog extends sinject.Module[Prog]
 

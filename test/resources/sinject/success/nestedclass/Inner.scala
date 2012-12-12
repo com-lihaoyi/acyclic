@@ -1,4 +1,4 @@
-package sinject.nestedclass
+package sinject.success.nestedclass
 import Prog.dynamic
 
 class Inner(s: String) {

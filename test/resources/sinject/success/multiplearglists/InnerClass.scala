@@ -1,4 +1,4 @@
-package sinject.multiplearglists
+package sinject.success.multiplearglists
 import Injected.dynamic
 
 class NoArgLists{

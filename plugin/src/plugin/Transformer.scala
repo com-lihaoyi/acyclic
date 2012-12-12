@@ -26,26 +26,21 @@ class Transformer(val plugin: SinjectPlugin)
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     val injections = unit.body.collect{
-      case i @ Import(
-        Select(qualifier, treename),
-        List(ImportSelector(name, namepos, rename, renamepos)))
+      case i @ Import(body, List(ImportSelector(name, _, _, _)))
         if name == newTermName("dynamic") =>
 
-        Select(qualifier, treename.toTypeName)
-      case i @ Import(
-        Ident(treename),
-        List(ImportSelector(name, namepos, rename, renamepos)))
-        if name == newTermName("dynamic")=>
-
-        Ident(treename.toTypeName)
+        body match {
+          case Select(qualifier, treename) => Select(qualifier, treename.toTypeName)
+          case Ident(treename) => Ident(treename.toTypeName)
+        }
     }
 
     def makeValDefs(flags: Long) = for {
-      (inj, i)<- injections.zipWithIndex
+      (inj, i) <- injections.zipWithIndex
     } yield ValDef(Modifiers(flags), newTermName(plugin.prefix + i), inj, EmptyTree)
 
     def makeDefDefs(flags: Long) = for {
-      (inj, i)<- injections.zipWithIndex
+      (inj, i) <- injections.zipWithIndex
     } yield DefDef(Modifiers(flags), newTermName(plugin.prefix + i), List(), List(), inj, EmptyTree)
 
     override def transform(tree: Tree): Tree =  tree match {
@@ -56,34 +51,39 @@ class Transformer(val plugin: SinjectPlugin)
 
         val selfInject = unit.body.exists{
           case m @ ModuleDef(mods, termName, Template(parents, self, body))
-            if parents.exists(_.toString().contains("sinject.Module")) => true
+            if parents.exists(_.toString().contains("sinject.Module"))
+            && termName.toString == className.toString => true
           case _ => false
         }
+
         val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
+
         val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
-        val (first, last) = constructorTransform(impl.body, newConstrDefs).splitAt(impl.body.indexWhere{
+
+        val transformedBody = constructorTransform(impl.body, newConstrDefs)
+
+        // splitting to insert the newly defined implicit val into the
+        // correct position in the list of arguments
+        val (first, last) = transformedBody.splitAt(impl.body.indexWhere{
           case DefDef(mods, name, tparams, vparamss, tpt, rhs) => name == newTermName("<init>")
           case _ => false
         })
 
 
         val newThisDef =
-          if (selfInject)
-            Seq(ValDef (
-              Modifiers(IMPLICIT),
-              newTermName(plugin.prefix + "thisDef"),
-              Ident(className),
-              This(className)
-            ))
-          else
-            Seq()
+          if (selfInject) Seq(thisTree(className))
+          else Seq()
+
+        val newAnnotation =
+          if(selfInject) Seq(makeAnnotation("Cannot create a dynamic-scoped object without an implicit " + className + " in scope."))
+          else Seq()
 
         val newBody = newThisDef.toList ++
                       first ++
                       newValDefs ++
                       last
 
-        cd.copy(impl = impl.copy(body = newBody))
+        cd.copy(mods = mods.copy(annotations = mods.annotations ++ newAnnotation), impl = impl.copy(body = newBody))
 
       case cd @ ClassDef(mods, className, tparams, impl)
         if mods.hasFlag(TRAIT) =>
@@ -98,17 +98,43 @@ class Transformer(val plugin: SinjectPlugin)
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
         if name == newTermName("<init>") && newConstrDefs.length > 0 =>
 
-        val (newvparamss, extend) = vparamss match {
+        val newvparamss = vparamss match {
           case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
-            (first :+ (last ++ newConstrDefs), true)
-          case _ => (vparamss :+ newConstrDefs, false)
+            first :+ (last ++ newConstrDefs)
+          case _ => vparamss :+ newConstrDefs
         }
 
         dd.copy(vparamss = newvparamss)
 
       case x => x
     }
+    def makeAnnotation(msg: String) =
+      Apply(
+        Select(
+          New(
+            Select(
+              Ident(
+                newTermName("annotation")
+              ),
+              newTypeName("implicitNotFound")
+            )
+          ),
+          newTermName("<init>")
+        ),
+        List(
+          Literal(
+            Constant(msg)
+          )
+        )
+      )
 
+    def thisTree(className: TypeName) =
+      ValDef (
+        Modifiers(IMPLICIT | PRIVATE | LOCAL),
+        newTermName(plugin.prefix + "this"),
+        Ident(className),
+        This(className)
+      )
     def openRepl(bind: ((String, Any), String)*){
       val repl = new ILoop
       repl.settings = new Settings

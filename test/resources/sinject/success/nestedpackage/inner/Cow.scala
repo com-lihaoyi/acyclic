@@ -1,7 +1,7 @@
-package sinject.nestedpackage.inner
+package sinject.success.nestedpackage.inner
 import Inner.dynamic
 
-import sinject.nestedpackage.Outer
+import sinject.success.nestedpackage.Outer
 import Outer.dynamic
 
 class Cow() {

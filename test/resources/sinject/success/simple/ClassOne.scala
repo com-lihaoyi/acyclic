@@ -1,4 +1,4 @@
-package sinject.simple
+package sinject.success.simple
 import Prog.dynamic
 
 class ClassOne(n: Int){

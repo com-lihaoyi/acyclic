@@ -1,6 +1,6 @@
-package sinject.inheritence
+package sinject.success.inheritence
 
-import sinject.inheritence.Prog.dynamic
+import sinject.success.inheritence.Prog.dynamic
 
 class MultiInner(n: Int) extends MultiParent(n) {
   def get = Prog().s + " " + pGet + " " + gpGet + " " + n

@@ -1,4 +1,4 @@
-package sinject.simple
+package sinject.success.simple
 
 object Prog extends sinject.Module[Prog]
 

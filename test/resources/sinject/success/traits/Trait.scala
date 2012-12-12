@@ -1,4 +1,4 @@
-package sinject.traits
+package sinject.success.traits
 import Prog.dynamic
 
 trait Trait {

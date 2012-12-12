@@ -1,4 +1,4 @@
-package sinject.inheritence
+package sinject.success.inheritence
 
 object Prog extends sinject.Module[Prog]{}
 

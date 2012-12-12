@@ -1,4 +1,4 @@
-package sinject.nestedclass
+package sinject.success.nestedclass
 
 object Prog extends sinject.Module[Prog]{}
 

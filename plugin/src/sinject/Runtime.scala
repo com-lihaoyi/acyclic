@@ -1,6 +1,6 @@
 package sinject
 
-import annotation.StaticAnnotation
+import annotation.{implicitNotFound, StaticAnnotation}
 
 
 class Module[T] extends StaticAnnotation{
@@ -9,4 +9,4 @@ class Module[T] extends StaticAnnotation{
 
 }
 
-object NotInModuleError extends Error
+object NotInModuleError extends Error("Cannot call Module-local variable from static context.")

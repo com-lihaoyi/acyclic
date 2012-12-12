@@ -1,4 +1,4 @@
-package sinject.inheritence
+package sinject.success.inheritence
 import Prog.dynamic
 
 class Inner(s: String) extends Parent(s){
