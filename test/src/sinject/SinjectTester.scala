@@ -1,14 +1,11 @@
 package sinject
 
 import org.scalatest._
-import reflect.ClassTag
-import reflect.io.VirtualDirectory
 import reflect.{ClassTag, classTag}
 import scala.tools.nsc.{Settings, Global}
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.plugins.Plugin
 import plugin.SinjectPlugin
-import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io._
 
 
@@ -30,6 +27,12 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
       "attempting to use `dynamic` function" in {
         intercept[UsingDynamicError.type]{
           val first = make[failure.usingdynamic.Prog](0: Integer, "fail")
+          first()
+        }
+      }
+      "attempting to use dynamic scope when creating val in object" in {
+        intercept[NotInModuleError.type]{
+          val first = make[failure.objectvals.Prog](0: Integer, "fail")
           first()
         }
       }
@@ -82,6 +85,13 @@ class SinjectTester extends FreeSpec with ShouldMatchers{
         val second = make[success.inheritence.Prog](5: Integer, "second")
         assert(first() === "Self! 1 Parent! 2 : first first3 first4 1")
         assert(second() === "Self! 5 Parent! 10 : second second7 second4 5")
+      }
+
+      "dynamic scope in an object's methods" in {
+        val first = make[success.objectmethods.Prog](1: Integer, "first")
+        val second = make[success.objectmethods.Prog](5: Integer, "second")
+        assert(first() === "first first2 first3 first1")
+        assert(second() === "second second2 second3 second5")
       }
     }
   }

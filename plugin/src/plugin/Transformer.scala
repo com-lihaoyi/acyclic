@@ -8,13 +8,11 @@ import tools.nsc.symtab.Flags._
 import tools.nsc.ast.TreeDSL
 import tools.nsc.interpreter._
 
-
-
 class Transformer(val plugin: SinjectPlugin)
-    extends PluginComponent
-    with Transform
-    with TypingTransformers
-    with TreeDSL{
+extends PluginComponent
+with Transform
+with TypingTransformers
+with TreeDSL{
 
   val global = plugin.global
   import global._
@@ -43,11 +41,18 @@ class Transformer(val plugin: SinjectPlugin)
       (inj, i) <- injections.zipWithIndex
     } yield DefDef(Modifiers(flags), newTermName(plugin.prefix + i), List(), List(), inj, EmptyTree)
 
+    val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
+
     override def transform(tree: Tree): Tree =  tree match {
+      case dd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
+        if name != newTermName("<init>") =>
+
+        val newVparamss = enhanceVparamss(vparamss, newConstrDefs)
+        dd.copy(vparamss = newVparamss)
 
       /* add injected class members and constructor parameters */
       case cd @ ClassDef(mods, className, tparams, impl)
-        if !mods.hasFlag(TRAIT) =>
+        if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
 
         val selfInject = unit.body.exists{
           case m @ ModuleDef(mods, termName, Template(parents, self, body))
@@ -58,7 +63,7 @@ class Transformer(val plugin: SinjectPlugin)
 
         val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
 
-        val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
+
 
         val transformedBody = constructorTransform(impl.body, newConstrDefs)
 
@@ -68,7 +73,6 @@ class Transformer(val plugin: SinjectPlugin)
           case DefDef(mods, name, tparams, vparamss, tpt, rhs) => name == newTermName("<init>")
           case _ => false
         })
-
 
         val newThisDef =
           if (selfInject) Seq(thisTree(className))
@@ -84,9 +88,10 @@ class Transformer(val plugin: SinjectPlugin)
                       last
 
         cd.copy(mods = mods.copy(annotations = mods.annotations ++ newAnnotation), impl = impl.copy(body = newBody))
-
+      /* inject abstract class member into trait */
       case cd @ ClassDef(mods, className, tparams, impl)
         if mods.hasFlag(TRAIT) =>
+
         val newDefDefs = makeDefDefs(DEFERRED | IMPLICIT | PROTECTED | LOCAL)
 
         cd.copy(impl = impl.copy(body = newDefDefs ++ impl.body))
@@ -98,15 +103,18 @@ class Transformer(val plugin: SinjectPlugin)
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
         if name == newTermName("<init>") && newConstrDefs.length > 0 =>
 
-        val newvparamss = vparamss match {
-          case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
-            first :+ (last ++ newConstrDefs)
-          case _ => vparamss :+ newConstrDefs
-        }
+        val newvparamss = enhanceVparamss(vparamss, newConstrDefs)
 
         dd.copy(vparamss = newvparamss)
 
       case x => x
+    }
+    def enhanceVparamss(vparamss: List[List[ValDef]], newConstrDefs: List[ValDef]) = {
+      vparamss match {
+        case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
+          first :+ (last ++ newConstrDefs)
+        case _ => vparamss :+ newConstrDefs
+      }
     }
     def makeAnnotation(msg: String) =
       Apply(

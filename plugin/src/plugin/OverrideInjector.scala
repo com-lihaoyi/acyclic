@@ -10,10 +10,10 @@ import tools.nsc.interpreter._
 
 
 class OverrideInjector(val plugin: SinjectPlugin)
-    extends PluginComponent
-    with Transform
-    with TypingTransformers
-    with TreeDSL{
+extends PluginComponent
+with Transform
+with TypingTransformers
+with TreeDSL{
 
   val global = plugin.global
   import global._
@@ -22,15 +22,9 @@ class OverrideInjector(val plugin: SinjectPlugin)
   override val runsRightAfter = Some("typer")
   val phaseName = "overrideInjector"
 
-
-
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 
-
     override def transform(tree: Tree): Tree =  tree match {
-
-      /* add injected class members and constructor parameters */
-
       case vd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
         if name.containsName(plugin.prefix) =>
 
@@ -56,8 +50,6 @@ class OverrideInjector(val plugin: SinjectPlugin)
             rhs
           )
         }
-
-
 
       case x => super.transform {x}
     }
