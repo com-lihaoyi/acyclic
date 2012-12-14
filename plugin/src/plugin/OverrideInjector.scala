@@ -20,7 +20,7 @@ with TreeDSL{
 
   val runsAfter = List("typer")
   override val runsRightAfter = Some("typer")
-  val phaseName = "overrideInjector"
+  val phaseName = "sinjectOverride"
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 

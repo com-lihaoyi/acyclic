@@ -61,9 +61,7 @@ with TreeDSL{
           case _ => false
         }
 
-        val newValDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
-
-
+        val newBodyVals = makeValDefs(IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
 
         val transformedBody = constructorTransform(impl.body, newConstrDefs)
 
@@ -84,7 +82,7 @@ with TreeDSL{
 
         val newBody = newThisDef.toList ++
                       first ++
-                      newValDefs ++
+                      newBodyVals ++
                       last
 
         cd.copy(mods = mods.copy(annotations = mods.annotations ++ newAnnotation), impl = impl.copy(body = newBody))
