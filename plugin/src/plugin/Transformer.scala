@@ -7,6 +7,7 @@ import tools.nsc.transform.{Transform, TypingTransformers}
 import tools.nsc.symtab.Flags._
 import tools.nsc.ast.TreeDSL
 import tools.nsc.interpreter._
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLBoundOperation.ANONYMOUS
 
 class Transformer(val plugin: SinjectPlugin)
 extends PluginComponent
@@ -22,8 +23,9 @@ with TreeDSL{
 
   val phaseName = "sinject"
 
-  def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
-    val injections = unit.body.collect{
+  def newTransformer(unit: CompilationUnit) = {
+
+    val unitInjections = unit.body.collect{
       case i @ Import(body, List(ImportSelector(name, _, _, _)))
         if name == newTermName("dynamic") =>
 
@@ -33,69 +35,15 @@ with TreeDSL{
         }
     }
 
-    def makeValDefs(flags: Long) = for {
+    def makeValDefs(injections: List[Tree], flags: Long) = for {
       (inj, i) <- injections.zipWithIndex
     } yield ValDef(Modifiers(flags), newTermName(plugin.prefix + i), inj, EmptyTree)
 
-    def makeDefDefs(flags: Long) = for {
+    def makeDefDefs(injections: List[Tree], flags: Long) = for {
       (inj, i) <- injections.zipWithIndex
     } yield DefDef(Modifiers(flags), newTermName(plugin.prefix + i), List(), List(), inj, EmptyTree)
 
-    val newConstrDefs = makeValDefs(IMPLICIT | PARAMACCESSOR | PARAM)
-
-    override def transform(tree: Tree): Tree =  tree match {
-      case dd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
-        if name != newTermName("<init>") =>
-
-        val newVparamss = enhanceVparamss(vparamss, newConstrDefs)
-        dd.copy(vparamss = newVparamss)
-
-      /* add injected class members and constructor parameters */
-      case cd @ ClassDef(mods, className, tparams, impl)
-        if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
-
-        val selfInject = unit.body.exists{
-          case m @ ModuleDef(mods, termName, Template(parents, self, body))
-            if parents.exists(_.toString().contains("sinject.Module"))
-            && termName.toString == className.toString => true
-          case _ => false
-        }
-
-        val newBodyVals = makeValDefs(IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
-
-        val transformedBody = constructorTransform(impl.body, newConstrDefs)
-
-        // splitting to insert the newly defined implicit val into the
-        // correct position in the list of arguments
-        val (first, last) = transformedBody.splitAt(impl.body.indexWhere{
-          case DefDef(mods, name, tparams, vparamss, tpt, rhs) => name == newTermName("<init>")
-          case _ => false
-        })
-
-        val newThisDef =
-          if (selfInject) Seq(thisTree(className))
-          else Seq()
-
-        val newAnnotation =
-          if(selfInject) Seq(makeAnnotation("This requires an implicit " + className + " in scope."))
-          else Seq()
-
-        val newBody = newThisDef.toList ++
-                      first ++
-                      newBodyVals ++
-                      last
-
-        cd.copy(mods = mods.copy(annotations = mods.annotations ++ newAnnotation), impl = impl.copy(body = newBody))
-      /* inject abstract class member into trait */
-      case cd @ ClassDef(mods, className, tparams, impl)
-        if mods.hasFlag(TRAIT) =>
-
-        val newDefDefs = makeDefDefs(DEFERRED | IMPLICIT | PROTECTED | LOCAL)
-
-        cd.copy(impl = impl.copy(body = newDefDefs ++ impl.body))
-
-      case x => super.transform {x}
-    }
+    def newConstrDefs(injections: List[Tree]) = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PARAM)
 
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
@@ -107,6 +55,7 @@ with TreeDSL{
 
       case x => x
     }
+
     def enhanceVparamss(vparamss: List[List[ValDef]], newConstrDefs: List[ValDef]) = {
       vparamss match {
         case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
@@ -114,6 +63,7 @@ with TreeDSL{
         case _ => vparamss :+ newConstrDefs
       }
     }
+
     def makeAnnotation(msg: String) =
       Apply(
         Select(
@@ -141,24 +91,79 @@ with TreeDSL{
         Ident(className),
         This(className)
       )
-    def openRepl(bind: ((String, Any), String)*){
-      val repl = new ILoop
-      repl.settings = new Settings
-      repl.in = SimpleReader()
 
-      repl.settings.Yreplsync.value = true
+    def classTransformer(injections: List[Tree]) = new TypingTransformer(unit){
+      override def transform(tree: Tree) = tree match {
+        /* add injected class members and constructor parameters */
+        case cd @ ClassDef(mods, className, tparams, impl)
+          if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
 
-      repl.createInterpreter()
+          val newBodyVals = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
 
-      repl.bind("global", global)
-      repl.interpret("import global._")
-      repl.bind("att", this: Any)
-      for(((name, value), tpe) <- bind){
-        repl.bind(s"a$name", value: Any)
-        repl.interpret(s"val $name = a$name.asInstanceOf[$tpe]")
+          val transformedBody = constructorTransform(impl.body, newConstrDefs(unitInjections))
+
+          // splitting to insert the newly defined implicit val into the
+          // correct position in the list of arguments
+          val (first, last) = transformedBody.splitAt(impl.body.indexWhere{
+            case DefDef(mods, name, tparams, vparamss, tpt, rhs) => name == newTermName("<init>")
+            case _ => false
+          })
+
+          val newBody =
+            first ++
+            newBodyVals ++
+            last
+
+          super.transform(cd.copy(impl = impl.copy(body = newBody)))
+
+        case cd @ ClassDef(mods, className, tparams, impl) =>
+          super.transform(cd)
+
+        case x => super.transform(x)
       }
-      repl.loop()
-      repl.closeInterpreter()
+    }
+
+    new TypingTransformer(unit) {
+
+      override def transform(tree: Tree): Tree =  tree match {
+        case dd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
+          if name != newTermName("<init>") =>
+
+          val newVparamss = enhanceVparamss(vparamss, newConstrDefs(unitInjections))
+          classTransformer(unitInjections) transform dd.copy(vparamss = newVparamss)
+
+        case cd @ ClassDef(mods, className, tparams, impl)
+          if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
+
+          val selfInject = unit.body.exists{
+            case m @ ModuleDef(mods, termName, Template(parents, self, body))
+              if parents.exists(_.toString().contains("sinject.Module"))
+                && termName.toString == className.toString => true
+            case _ => false
+          }
+          val newThisDef =
+            if (selfInject) List(thisTree(className))
+            else List()
+
+          val newAnnotation =
+            if(selfInject) List(makeAnnotation("This requires an implicit " + className + " in scope."))
+            else List()
+
+          classTransformer(unitInjections) transform cd.copy(
+            mods = mods.copy(annotations = mods.annotations ++ newAnnotation),
+            impl = impl.copy(body = newThisDef ++ impl.body)
+          )
+
+        /* inject abstract class member into trait */
+        case cd @ ClassDef(mods, className, tparams, impl)
+          if mods.hasFlag(TRAIT) =>
+
+          val newDefDefs = makeDefDefs(unitInjections, DEFERRED | IMPLICIT | PROTECTED | LOCAL)
+
+          classTransformer(unitInjections) transform cd.copy(impl = impl.copy(body = newDefDefs ++ impl.body))
+
+        case x => super.transform {x}
+      }
     }
   }
 }
