@@ -66,8 +66,8 @@ class SinjectTester extends FreeSpec{
   "anonymous inner classes and traits" in {
     val first = make[success.anonymous.Prog](1: Integer, 2: Integer)
     val second = make[success.anonymous.Prog](5: Integer, 6: Integer)
-    assert(first() === "first first2 first3 first1")
-    assert(second() === "second second2 second3 second5")
+    assert(first() === "Xcow 1 2 | Xdog 1 2 4 | 4 | 8")
+    assert(second() === "Xcow 5 6 | Xdog 5 6 12 | 12 | 24")
   }
 }
 

@@ -30,20 +30,20 @@ with TreeDSL{
         if name == newTermName("dynamic") =>
 
         body match {
-          case Select(qualifier, treename) => Select(qualifier, treename.toTypeName)
-          case Ident(treename) => Ident(treename.toTypeName)
+          case Select(qualifier, treename) => Select(qualifier, treename.toTypeName) -> treename
+          case Ident(treename) => Ident(treename.toTypeName) -> treename
         }
     }
 
-    def makeValDefs(injections: List[Tree], flags: Long) = for {
-      (inj, i) <- injections.zipWithIndex
-    } yield ValDef(Modifiers(flags), newTermName(plugin.prefix + i), inj, EmptyTree)
+    def makeValDefs(injections: List[(Tree, Name)], flags: Long) = for {
+      ((inj, name), i) <- injections.zipWithIndex
+    } yield ValDef(Modifiers(flags), newTermName(plugin.prefix + name), inj, EmptyTree)
 
-    def makeDefDefs(injections: List[Tree], flags: Long) = for {
-      (inj, i) <- injections.zipWithIndex
-    } yield DefDef(Modifiers(flags), newTermName(plugin.prefix + i), List(), List(), inj, EmptyTree)
+    def makeDefDefs(injections: List[(Tree, Name)], flags: Long) = for {
+      ((inj, name), i) <- injections.zipWithIndex
+    } yield DefDef(Modifiers(flags), newTermName(plugin.prefix + name), List(), List(), inj, EmptyTree)
 
-    def newConstrDefs(injections: List[Tree]) = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PARAM)
+    def newConstrDefs(injections: List[(Tree, Name)]) = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PARAM)
 
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
@@ -87,12 +87,13 @@ with TreeDSL{
     def thisTree(className: TypeName) =
       ValDef (
         Modifiers(IMPLICIT | PRIVATE | LOCAL),
-        newTermName(plugin.prefix + "this"),
+        newTermName(plugin.prefix + className),
         Ident(className),
         This(className)
       )
 
-    def classTransformer(injections: List[Tree]) = new TypingTransformer(unit){
+    def classTransformer(injections: List[(Tree, Name)]) = new TypingTransformer(unit){
+
       override def transform(tree: Tree) = tree match {
         /* add injected class members and constructor parameters */
         case cd @ ClassDef(mods, className, tparams, impl)
@@ -100,7 +101,7 @@ with TreeDSL{
           println("Transforming " + className)
           val newBodyVals = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
 
-          val transformedBody = constructorTransform(impl.body, newConstrDefs(unitInjections))
+          val transformedBody = constructorTransform(impl.body, newConstrDefs(injections))
 
           // splitting to insert the newly defined implicit val into the
           // correct position in the list of arguments
@@ -147,7 +148,7 @@ with TreeDSL{
 
           classTransformer(unitInjections) transform cd.copy(
             mods = mods.copy(annotations = mods.annotations ++ newAnnotation),
-            impl = impl.copy(body = newThisDef ++ impl.body)
+            impl = classTransformer(List(Ident(className) -> className)).transform(impl.copy(body = newThisDef ++ impl.body)).asInstanceOf[Template]
           )
 
         /* inject abstract class member into trait */
