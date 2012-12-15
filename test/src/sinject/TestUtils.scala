@@ -57,7 +57,7 @@ object TestUtils {
 
     lazy val settings = {
       val s =  new Settings
-      s.Xprint.value = List("all")
+      //s.Xprint.value = List("all")
       val classPath = getFilePaths("/Runtimes/scala-2.10.0-RC2/lib") :+
         "out/production/plugin/"
 

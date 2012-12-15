@@ -97,7 +97,7 @@ with TreeDSL{
         /* add injected class members and constructor parameters */
         case cd @ ClassDef(mods, className, tparams, impl)
           if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
-
+          println("Transforming " + className)
           val newBodyVals = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
 
           val transformedBody = constructorTransform(impl.body, newConstrDefs(unitInjections))
@@ -133,21 +133,17 @@ with TreeDSL{
           classTransformer(unitInjections) transform dd.copy(vparamss = newVparamss)
 
         case cd @ ClassDef(mods, className, tparams, impl)
-          if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
-
-          val selfInject = unit.body.exists{
+          if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE)
+          && unit.body.exists{
             case m @ ModuleDef(mods, termName, Template(parents, self, body))
               if parents.exists(_.toString().contains("sinject.Module"))
                 && termName.toString == className.toString => true
             case _ => false
-          }
-          val newThisDef =
-            if (selfInject) List(thisTree(className))
-            else List()
+          } =>
 
-          val newAnnotation =
-            if(selfInject) List(makeAnnotation("This requires an implicit " + className + " in scope."))
-            else List()
+
+          val newThisDef = List(thisTree(className))
+          val newAnnotation = List(makeAnnotation("This requires an implicit " + className + " in scope."))
 
           classTransformer(unitInjections) transform cd.copy(
             mods = mods.copy(annotations = mods.annotations ++ newAnnotation),
@@ -162,6 +158,8 @@ with TreeDSL{
 
           classTransformer(unitInjections) transform cd.copy(impl = impl.copy(body = newDefDefs ++ impl.body))
 
+        case cd @ ClassDef(mods, className, tparams, impl) =>
+          classTransformer(unitInjections) transform cd
         case x => super.transform {x}
       }
     }
