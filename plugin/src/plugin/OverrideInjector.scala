@@ -8,12 +8,16 @@ import tools.nsc.symtab.Flags._
 import tools.nsc.ast.TreeDSL
 import tools.nsc.interpreter._
 
-
+/**
+ * Fixes the usage of `override` for all synthetic members injected by the
+ * plugin. This has to run after the "typer" phase, because information about
+ * each class' inheritence tree is requied to resolve whether each method needs
+ * `override` or not.
+ */
 class OverrideInjector(val plugin: SinjectPlugin)
 extends PluginComponent
 with Transform
-with TypingTransformers
-with TreeDSL{
+with TypingTransformers{
 
   val global = plugin.global
   import global._

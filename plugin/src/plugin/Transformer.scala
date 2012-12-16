@@ -9,11 +9,15 @@ import tools.nsc.ast.TreeDSL
 import tools.nsc.interpreter._
 import com.sun.xml.internal.ws.api.model.wsdl.WSDLBoundOperation.ANONYMOUS
 
+/**
+ * Injects implicit parameters into the top-level method and class signatures
+ * throughout every compilation unit, based upon what imports it finds with
+ * the name `dynamic` within the source file
+ */
 class Transformer(val plugin: SinjectPlugin)
 extends PluginComponent
 with Transform
-with TypingTransformers
-with TreeDSL{
+with TypingTransformers{
 
   val global = plugin.global
   import global._
@@ -35,15 +39,14 @@ with TreeDSL{
         }
     }
 
-    def makeValDefs(injections: List[(Tree, Name)], flags: Long) = for {
+    def makeDefs(injections: List[(Tree, Name)], flags: Long) = for {
       ((inj, name), i) <- injections.zipWithIndex
-    } yield ValDef(Modifiers(flags), newTermName(plugin.prefix + name), inj, EmptyTree)
-
-    def makeDefDefs(injections: List[(Tree, Name)], flags: Long) = for {
-      ((inj, name), i) <- injections.zipWithIndex
-    } yield DefDef(Modifiers(flags), newTermName(plugin.prefix + name), List(), List(), inj, EmptyTree)
-
-    def newConstrDefs(injections: List[(Tree, Name)]) = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PARAM)
+    } yield ValDef(
+      Modifiers(flags),
+      newTermName(plugin.prefix + name),
+      inj,
+      EmptyTree
+    )
 
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
@@ -85,7 +88,7 @@ with TreeDSL{
       )
 
     def thisTree(className: TypeName) =
-      ValDef (
+      ValDef(
         Modifiers(IMPLICIT | PRIVATE | LOCAL),
         newTermName(plugin.prefix + className),
         Ident(className),
@@ -98,10 +101,13 @@ with TreeDSL{
         /* add injected class members and constructor parameters */
         case cd @ ClassDef(mods, className, tparams, impl)
           if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
-          println("Transforming " + className)
-          val newBodyVals = makeValDefs(injections, IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
 
-          val transformedBody = constructorTransform(impl.body, newConstrDefs(injections))
+          val newBodyVals = makeDefs(injections, IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
+
+          val transformedBody = constructorTransform(
+            impl.body,
+            makeDefs(injections, IMPLICIT | PARAMACCESSOR | PARAM)
+          )
 
           // splitting to insert the newly defined implicit val into the
           // correct position in the list of arguments
@@ -117,9 +123,6 @@ with TreeDSL{
 
           super.transform(cd.copy(impl = impl.copy(body = newBody)))
 
-        case cd @ ClassDef(mods, className, tparams, impl) =>
-          super.transform(cd)
-
         case x => super.transform(x)
       }
     }
@@ -127,12 +130,16 @@ with TreeDSL{
     new TypingTransformer(unit) {
 
       override def transform(tree: Tree): Tree =  tree match {
+        /* Inject implicits into top-level methods' parameters */
         case dd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
           if name != newTermName("<init>") =>
 
-          val newVparamss = enhanceVparamss(vparamss, newConstrDefs(unitInjections))
+          val newVparamss = enhanceVparamss(
+            vparamss, makeDefs(unitInjections, IMPLICIT | PARAM)
+          )
           classTransformer(unitInjections) transform dd.copy(vparamss = newVparamss)
 
+        /* Modify sinject.Module[T] classes*/
         case cd @ ClassDef(mods, className, tparams, impl)
           if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE)
           && unit.body.exists{
@@ -144,23 +151,25 @@ with TreeDSL{
 
 
           val newThisDef = List(thisTree(className))
-          val newAnnotation = List(makeAnnotation("This requires an implicit " + className + " in scope."))
+          val newAnnotation = List(makeAnnotation(s"This requires an implicit $className in scope."))
 
           classTransformer(unitInjections) transform cd.copy(
             mods = mods.copy(annotations = mods.annotations ++ newAnnotation),
             impl = classTransformer(List(Ident(className) -> className)).transform(impl.copy(body = newThisDef ++ impl.body)).asInstanceOf[Template]
           )
 
-        /* inject abstract class member into trait */
+        /* Inject abstract class member into trait */
         case cd @ ClassDef(mods, className, tparams, impl)
           if mods.hasFlag(TRAIT) =>
 
-          val newDefDefs = makeDefDefs(unitInjections, DEFERRED | IMPLICIT | PROTECTED | LOCAL)
+          val newDefDefs = makeDefs(unitInjections, DEFERRED | IMPLICIT | PROTECTED | LOCAL)
 
           classTransformer(unitInjections) transform cd.copy(impl = impl.copy(body = newDefDefs ++ impl.body))
 
+        /* Inject implicits into class parameters */
         case cd @ ClassDef(mods, className, tparams, impl) =>
           classTransformer(unitInjections) transform cd
+
         case x => super.transform {x}
       }
     }
