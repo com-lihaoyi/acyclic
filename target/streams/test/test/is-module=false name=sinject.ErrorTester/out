@@ -1,0 +1,9 @@
+[0m[[0minfo[0m] [0m[32mErrorTester:[0m[0m
+[0m[[0minfo[0m] [0m[31m- constructor outside of dynamic scope *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  Expected exception sinject.TestUtils$CompilationException$ to be thrown, but java.lang.ClassNotFoundException was thrown. (ErrorTester.scala:10)[0m[0m
+[0m[[0minfo[0m] [0m[31m- apply outside of dynamic scope *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  Expected exception sinject.NotInModuleError$ to be thrown, but java.lang.ClassNotFoundException was thrown. (ErrorTester.scala:15)[0m[0m
+[0m[[0minfo[0m] [0m[31m- attempting to use `dynamic` function *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  Expected exception sinject.UsingDynamicError$ to be thrown, but java.lang.ClassNotFoundException was thrown. (ErrorTester.scala:21)[0m[0m
+[0m[[0minfo[0m] [0m[31m- attempting to use dynamic scope when creating val in object *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  Expected exception sinject.NotInModuleError$ to be thrown, but java.lang.ClassNotFoundException was thrown. (ErrorTester.scala:27)[0m[0m

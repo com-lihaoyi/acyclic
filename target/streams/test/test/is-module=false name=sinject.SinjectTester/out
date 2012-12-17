@@ -1,0 +1,118 @@
+[0m[[0minfo[0m] [0m[32mSinjectTester:[0m[0m
+[0m[[0minfo[0m] [0m[31m- simplest possible example *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$1.apply$mcV$sp(SinjectTester.scala:12)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$1.apply(SinjectTester.scala:10)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- two-level folder/module nesting *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$2.apply$mcV$sp(SinjectTester.scala:19)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$2.apply(SinjectTester.scala:18)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- class with multiple argument lists *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$3.apply$mcV$sp(SinjectTester.scala:26)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$3.apply(SinjectTester.scala:25)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- class nested in class *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$4.apply$mcV$sp(SinjectTester.scala:33)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$4.apply(SinjectTester.scala:32)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- classes with existing implicits *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$5.apply$mcV$sp(SinjectTester.scala:40)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$5.apply(SinjectTester.scala:39)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- classes with traits *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$6.apply$mcV$sp(SinjectTester.scala:47)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$6.apply(SinjectTester.scala:46)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- classes with inheritence *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$7.apply$mcV$sp(SinjectTester.scala:53)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$7.apply(SinjectTester.scala:52)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- dynamic scope in an objects methods *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$8.apply$mcV$sp(SinjectTester.scala:60)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$8.apply(SinjectTester.scala:59)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m
+[0m[[0minfo[0m] [0m[31m- anonymous inner classes and traits *** FAILED ***[0m[0m
+[0m[[0minfo[0m] [0m[31m  java.lang.ClassNotFoundException: sinject.Module[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:366)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader$1.run(URLClassLoader.java:355)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.security.AccessController.doPrivileged(Native Method)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.net.URLClassLoader.findClass(URLClassLoader.java:354)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:423)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadClass(ClassLoader.java:356)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.TestUtils$.make(TestUtils.scala:28)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$9.apply$mcV$sp(SinjectTester.scala:67)[0m[0m
+[0m[[0minfo[0m] [0m[31m  at sinject.SinjectTester$$anonfun$9.apply(SinjectTester.scala:66)[0m[0m
+[0m[[0minfo[0m] [0m[31m  ...[0m[0m

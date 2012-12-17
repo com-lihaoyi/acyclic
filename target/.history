@@ -1,0 +1,85 @@
+test
+reload
+compile
+reload
+compile
+test
+reload
+test
+reload
+test
+clear
+test
+compile
+reload
+compile
+console
+reload
+console
+compile
+test
+console
+test
+reload
+test
+help
+tasks
+show Test
+show test
+help
+inspect key
+inspect test
+tasks
+package
+package-bin
+package-src
+reload
+compile
+test
+clean
+test
+exit
+test
+gen-idea
+test
+exit
+test
+help test
+test SinjectTester
+help
+tasks
+test-only SinjectTester
+test-only sinject.SinjectTester
+test
+console-project
+test
+help
+show
+inspect test
+settings
+test-options
+test-loader
+reload
+test
+test-compile
+compilers
+compile
+exit
+clean
+compile
+test
+show full-classpath
+show test-classpath
+show managed-classpath
+show unmanaged-classpath
+reload
+test
+run
+test
+console
+testconsole
+project-console
+console-project
+console-test
+console-quick
+test

@@ -1,0 +1,11 @@
+[0m[[0mdebug[0m] [0mStarting sandboxed run...[0m
+[0m[[0mdebug[0m] [0mWaiting for threads to exit or System.exit to be called.[0m
+[0m[[0mdebug[0m] [0mWaiting for thread run-main to exit[0m
+[0m[[0minfo[0m] [0mStarting scala interpreter...[0m
+[0m[[0mdebug[0m] [0m  Boot classpath: C:\Runtimes\Java7\jdk\jre\lib\resources.jar;C:\Runtimes\Java7\jdk\jre\lib\rt.jar;C:\Runtimes\Java7\jdk\jre\lib\sunrsasign.jar;C:\Runtimes\Java7\jdk\jre\lib\jsse.jar;C:\Runtimes\Java7\jdk\jre\lib\jce.jar;C:\Runtimes\Java7\jdk\jre\lib\charsets.jar;C:\Runtimes\Java7\jdk\jre\lib\jfr.jar;C:\Runtimes\Java7\jdk\jre\classes;C:\Users\Haoyi\.sbt\boot\scala-2.10.0-RC2\lib\scala-library.jar[0m
+[0m[[0mdebug[0m] [0m  Classpath: C:\Users\Haoyi\.sbt\boot\scala-2.10.0-RC2\lib\scala-compiler.jar;C:\Users\Haoyi\.ivy2\cache\org.scala-lang\scala-reflect\jars\scala-reflect-2.10.0-RC2.jar;C:\Users\Haoyi\.sbt\boot\scala-2.10.0-RC2\lib\scala-compiler.jar;C:\Users\Haoyi\.sbt\boot\scala-2.10.0-RC2\lib\jansi.jar;C:\Users\Haoyi\.sbt\boot\scala-2.10.0-RC2\lib\jline.jar;C:\Users\Haoyi\.sbt\boot\scala-2.10.0-RC2\lib\scala-reflect.jar[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0mdebug[0m] [0m	Thread run-main exited.[0m
+[0m[[0mdebug[0m] [0mInterrupting remaining threads (should be all daemons).[0m
+[0m[[0mdebug[0m] [0mSandboxed run complete..[0m
+[0m[[0mdebug[0m] [0mExited with code 0[0m
