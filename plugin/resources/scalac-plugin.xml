@@ -1,4 +1,0 @@
-<plugin>
-    <name>sinject</name>
-    <classname>plugin.SinjectPlugin</classname>
-</plugin>
