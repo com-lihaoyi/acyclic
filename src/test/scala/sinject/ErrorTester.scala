@@ -5,7 +5,7 @@ import org.scalatest.{ParallelTestExecution, FreeSpec}
 
 
 class ErrorTester extends FreeSpec{
-  println("MODUKLE=================== " + ClassLoader.getSystemClassLoader.loadClass("sinject.Module"))
+
   "constructor outside of dynamic scope" in {
     intercept[CompilationException.type]{
       val first = make[failure.constructor.Prog](0: Integer, "fail")

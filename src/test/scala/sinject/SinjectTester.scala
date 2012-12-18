@@ -6,7 +6,7 @@ import org.scalatest._
 
 class SinjectTester extends FreeSpec{
   import TestUtils._
-  println("MODUKLE=================== " + ClassLoader.getSystemClassLoader.loadClass("sinject.Module"))
+
   "simplest possible example" in {
 
     val first = make[success.simple.Prog](0: Integer, "fail")

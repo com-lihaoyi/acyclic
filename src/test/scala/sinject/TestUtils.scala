@@ -7,6 +7,7 @@ import tools.nsc.{Global, Settings}
 import tools.nsc.reporters.ConsoleReporter
 import tools.nsc.plugins.Plugin
 import plugin.SinjectPlugin
+import java.net.URLClassLoader
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +17,8 @@ import plugin.SinjectPlugin
  * To change this template use File | Settings | File Templates.
  */
 object TestUtils {
+
+
   def getFilePaths(src: String): List[String] = {
     val f = new java.io.File(src)
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
@@ -30,7 +33,7 @@ object TestUtils {
     val sources = getFilePaths(src)
 
     var vd = new VirtualDirectory("(memory)", None)
-    lazy val cl = new ClassLoader(){
+    lazy val cl = new ClassLoader(this.getClass.getClassLoader){
       override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
         try{
           if (!name.startsWith("sinject")) throw new ClassNotFoundException()
@@ -85,6 +88,7 @@ object TestUtils {
     if (vd.toList.isEmpty) throw CompilationException
 
     val cls = cl.loadClass(classTag[T].runtimeClass.getName)
+
     cls.getConstructors()(0).newInstance(args:_*).asInstanceOf[{def apply(): String}]
   }
   object CompilationException extends Exception
