@@ -25,7 +25,7 @@ object TestUtils {
   /* Instantiates an object of type T passing the given arguments to its first constructor */
   def make[T: ClassTag](args: AnyRef*) = {
 
-    println("MODUKLE=================== " + ClassLoader.getSystemClassLoader.loadClass("sinject.Module"))
+
     val src = "src/test/resources/" + classTag[T].runtimeClass.getPackage.getName.replace('.', '/')
     val sources = getFilePaths(src)
 

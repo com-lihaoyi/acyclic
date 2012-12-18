@@ -4,7 +4,7 @@
 		module="default-d881ef"
 		revision="0.1-SNAPSHOT"
 		status="integration"
-		publication="20121217001559"
+		publication="20121217142510"
 		e:scalaVersion="2.9.2" e:sbtVersion="0.12"
 	>
 		<description>
@@ -34,7 +34,7 @@
 	<dependencies>
 		<dependency org="org.scala-sbt" name="sbt" rev="0.12.1" conf="provided->default(compile)"/>
 		<dependency org="org.scala-lang" name="scala-library" rev="2.9.2" conf="provided->default(compile)"/>
-		<dependency org="com.github.mpeltonen" name="sbt-idea" rev="1.1.0" conf="compile->default(compile)" e:scalaVersion="2.9.2" e:sbtVersion="0.12"/>
+		<dependency org="com.github.mpeltonen" name="sbt-idea" rev="1.2.0" conf="compile->default(compile)" e:scalaVersion="2.9.2" e:sbtVersion="0.12"/>
 		<exclude org="org.scala-lang" module="scala-library" artifact="*" type="jar" ext="*" matcher="exact"/>
 		<exclude org="org.scala-lang" module="scala-compiler" artifact="*" type="jar" ext="*" matcher="exact"/>
 		<override org="org.scala-lang" module="scala-library" matcher="exact" rev="2.9.2"/>

@@ -1,5 +1,7 @@
 organization  := "sinject"
 
+name := "sinject"
+
 version       := "0.1"
 
 scalaVersion  := "2.10.0-RC2"
@@ -10,3 +12,5 @@ libraryDependencies ++= Seq(
 )
 
 unmanagedSourceDirectories in Test <+= baseDirectory(_ / "src" / "test" / "resources")
+
+

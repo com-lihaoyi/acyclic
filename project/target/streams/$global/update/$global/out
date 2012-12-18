@@ -7,29 +7,79 @@
 [0m[[0mdebug[0m] [0mresolving dependencies for configuration 'compile'[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [compile][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=compile[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->default(compile)][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile[0m
-[0m[[0mdebug[0m] [0m	using sbt-chain to resolve com.github.mpeltonen#sbt-idea;1.1.0[0m
-[0m[[0minfo[0m] [0mResolving com.github.mpeltonen#sbt-idea;1.1.0 ...[0m
-[0m[[0mdebug[0m] [0msbt-chain: Checking cache for: dependency: com.github.mpeltonen#sbt-idea;1.1.0 {compile=[default(compile)]}[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->default(compile)][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile[0m
+[0m[[0mdebug[0m] [0m	using sbt-chain to resolve com.github.mpeltonen#sbt-idea;1.2.0[0m
+[0m[[0minfo[0m] [0mResolving com.github.mpeltonen#sbt-idea;1.2.0 ...[0m
+[0m[[0mdebug[0m] [0msbt-chain: Checking cache for: dependency: com.github.mpeltonen#sbt-idea;1.2.0 {compile=[default(compile)]}[0m
 [0m[[0mdebug[0m] [0msbt-chain: no namespace defined: using system[0m
-[0m[[0mdebug[0m] [0mNo entry is found in the ModuleDescriptorCache : C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.1.0.xml[0m
-[0m[[0mdebug[0m] [0mpost 1.3 ivy file: using exact as default matcher[0m
-[0m[[0mdebug[0m] [0m	found ivy file in cache for com.github.mpeltonen#sbt-idea;1.1.0 (resolved by public): C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.1.0.xml[0m
-[0m[[0mdebug[0m] [0msbt-chain: module revision found in cache: com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0m	no ivy file in cache for com.github.mpeltonen#sbt-idea;1.2.0: tried C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.2.0.xml[0m
 [0m[[0mdebug[0m] [0msbt-chain: no latest strategy defined: using default[0m
 [0m[[0mdebug[0m] [0mtypesafe-ivy-releases: no namespace defined: using system[0m
-[0m[[0mdebug[0m] [0mEntry is found in the ModuleDescriptorCache : C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.1.0.xml[0m
-[0m[[0mdebug[0m] [0m	found ivy file in cache for com.github.mpeltonen#sbt-idea;1.1.0 (resolved by public): C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.1.0.xml[0m
-[0m[[0mdebug[0m] [0m	typesafe-ivy-releases: revision in cache: com.github.mpeltonen#sbt-idea;1.1.0[0m
-[0m[[0mdebug[0m] [0m	checking com.github.mpeltonen#sbt-idea;1.1.0 from public against [none][0m
-[0m[[0mdebug[0m] [0m	module revision kept as first found: com.github.mpeltonen#sbt-idea;1.1.0 from public[0m
-[0m[[0mdebug[0m] [0m	found com.github.mpeltonen#sbt-idea;1.1.0 in public[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->runtime][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->compile][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
+[0m[[0mdebug[0m] [0m	no ivy file in cache for com.github.mpeltonen#sbt-idea;1.2.0: tried C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.2.0.xml[0m
+[0m[[0mdebug[0m] [0m	 trying http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0m		tried http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0mHTTP response status: 404 url=http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0mCLIENT ERROR: Not Found url=http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0m	typesafe-ivy-releases: resource not reachable for com.github.mpeltonen#sbt-idea;1.2.0: res=http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0m	typesafe-ivy-releases: no ivy file found for com.github.mpeltonen#sbt-idea;1.2.0[0m
+[0m[[0mdebug[0m] [0msbt-plugin-releases: no namespace defined: using system[0m
+[0m[[0mdebug[0m] [0m	no ivy file in cache for com.github.mpeltonen#sbt-idea;1.2.0: tried C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.2.0.xml[0m
+[0m[[0mdebug[0m] [0m	 trying http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0m		tried http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0mHTTP response status: 404 url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0mCLIENT ERROR: Not Found url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0m	sbt-plugin-releases: resource not reachable for com.github.mpeltonen#sbt-idea;1.2.0: res=http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/scala_2.9.2/sbt_0.12/1.2.0/ivys/ivy.xml[0m
+[0m[[0mdebug[0m] [0m	sbt-plugin-releases: no ivy file found for com.github.mpeltonen#sbt-idea;1.2.0[0m
+[0m[[0mdebug[0m] [0mlocal: no namespace defined: using system[0m
+[0m[[0mdebug[0m] [0m	no ivy file in cache for com.github.mpeltonen#sbt-idea;1.2.0: tried C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.2.0.xml[0m
+[0m[[0mdebug[0m] [0m	 trying C:\Users\Haoyi\.ivy2\local\com.github.mpeltonen\sbt-idea\scala_2.9.2\sbt_0.12\1.2.0\ivys\ivy.xml[0m
+[0m[[0mdebug[0m] [0m		tried C:\Users\Haoyi\.ivy2\local\com.github.mpeltonen\sbt-idea\scala_2.9.2\sbt_0.12\1.2.0\ivys\ivy.xml[0m
+[0m[[0mdebug[0m] [0m	local: resource not reachable for com.github.mpeltonen#sbt-idea;1.2.0: res=C:\Users\Haoyi\.ivy2\local\com.github.mpeltonen\sbt-idea\scala_2.9.2\sbt_0.12\1.2.0\ivys\ivy.xml[0m
+[0m[[0mdebug[0m] [0m	local: no ivy file found for com.github.mpeltonen#sbt-idea;1.2.0[0m
+[0m[[0mdebug[0m] [0mpublic: no namespace defined: using system[0m
+[0m[[0mdebug[0m] [0m	no ivy file in cache for com.github.mpeltonen#sbt-idea;1.2.0: tried C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.2.0.xml[0m
+[0m[[0mdebug[0m] [0m	 trying http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom[0m
+[0m[[0mdebug[0m] [0m		tried http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom[0m
+[0m[[0mdebug[0m] [0m	public: found md file for com.github.mpeltonen#sbt-idea;1.2.0[0m
+[0m[[0mdebug[0m] [0m		=> http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom (1.2.0)[0m
+[0m[[0mdebug[0m] [0m	parser = sbt.CustomPomParser@7b92174d[0m
+[0m[[0mdebug[0m] [0m	no ivy file in cache for com.github.mpeltonen#sbt-idea;1.2.0: tried C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.2.0.xml[0m
+[0m[[0mdebug[0m] [0mdownloading http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom ...[0m
+[0m[[0mdebug[0m] [0m	public: downloading http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom[0m
+[0m[[0mdebug[0m] [0m		to C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\ivy-1.2.0.xml.original.part[0m
+[0m[[0mdebug[0m] [0msha1 file found for http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom: checking...[0m
+[0m[[0mdebug[0m] [0m	public: downloading http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom.sha1[0m
+[0m[[0mdebug[0m] [0m		to C:\Users\Haoyi\AppData\Local\Temp\ivytmp8665982422483616410sha1[0m
+[0m[[0mdebug[0m] [0msha1 OK for http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.pom[0m
+[0m[[0mdebug[0m] [0m	[SUCCESSFUL ] com.github.mpeltonen#sbt-idea;1.2.0!sbt-idea.pom(pom.original) (233ms)[0m
+[0m[[0mdebug[0m] [0m	 trying http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m		tried http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0mHTTP response status: 404 url=http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0mCLIENT ERROR: Not Found url=http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m	typesafe-ivy-releases: resource not reachable for com.github.mpeltonen#sbt-idea;1.2.0: res=http://repo.typesafe.com/typesafe/ivy-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m	 trying http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m		tried http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0mHTTP response status: 404 url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0mCLIENT ERROR: Not Found url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m	sbt-plugin-releases: resource not reachable for com.github.mpeltonen#sbt-idea;1.2.0: res=http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.github.mpeltonen/sbt-idea/1.2.0/jars/sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m	 trying C:\Users\Haoyi\.ivy2\local\com.github.mpeltonen\sbt-idea\1.2.0\jars\sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m		tried C:\Users\Haoyi\.ivy2\local\com.github.mpeltonen\sbt-idea\1.2.0\jars\sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m	local: resource not reachable for com.github.mpeltonen#sbt-idea;1.2.0: res=C:\Users\Haoyi\.ivy2\local\com.github.mpeltonen\sbt-idea\1.2.0\jars\sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m	 trying http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0mdebug[0m] [0m		tried http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0mdebug[0m] [0mHTTP response status: 404 url=http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0mdebug[0m] [0mCLIENT ERROR: Not Found url=http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0mdebug[0m] [0m	public: resource not reachable for com/github/mpeltonen#sbt-idea;1.2.0: res=http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0mdebug[0m] [0m	default-cache: parsed downloaded md file for com.github.mpeltonen#sbt-idea;1.2.0; parsed=com.github.mpeltonen#sbt-idea;1.2.0[0m
+[0m[[0mdebug[0m] [0m	checking com.github.mpeltonen#sbt-idea;1.2.0 from public against [none][0m
+[0m[[0mdebug[0m] [0m	module revision kept as first found: com.github.mpeltonen#sbt-idea;1.2.0 from public[0m
+[0m[[0mdebug[0m] [0m	found com.github.mpeltonen#sbt-idea;1.2.0 in public[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->runtime][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->compile][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile[0m
 [0m[[0mdebug[0m] [0m	using sbt-chain to resolve commons-io#commons-io;2.0.1[0m
 [0m[[0minfo[0m] [0mResolving commons-io#commons-io;2.0.1 ...[0m
@@ -44,41 +94,41 @@
 [0m[[0mdebug[0m] [0m	checking commons-io#commons-io;2.0.1 from public against [none][0m
 [0m[[0mdebug[0m] [0m	module revision kept as first found: commons-io#commons-io;2.0.1 from public[0m
 [0m[[0mdebug[0m] [0m	found commons-io#commons-io;2.0.1 in public[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->master][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->master][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile[0m
 [0m[[0mdebug[0m] [0mresolving dependencies for configuration 'runtime'[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [runtime][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=runtime[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [compile][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=runtime[0m
 [0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->default(compile)][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->runtime][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->default(compile)][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->runtime][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime[0m
 [0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->compile][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->compile][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime[0m
 [0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
-[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime[0m
-[0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime[0m
 [0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime[0m
 [0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->master][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime[0m
+[0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->master][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime[0m
 [0m[[0mdebug[0m] [0mruntime is loaded and no conf to load.  Skip loading[0m
 [0m[[0mdebug[0m] [0mresolving dependencies for configuration 'test'[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [test][0m
@@ -89,27 +139,27 @@
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [compile][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=test[0m
 [0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->default(compile)][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->runtime][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->default(compile)][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->runtime][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test[0m
 [0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->compile][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->compile][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test[0m
 [0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
-[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test[0m
-[0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test[0m
 [0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test[0m
 [0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->master][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test[0m
+[0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->master][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test[0m
 [0m[[0mdebug[0m] [0mtest is loaded and no conf to load.  Skip loading[0m
 [0m[[0mdebug[0m] [0mresolving dependencies for configuration 'provided'[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [provided][0m
@@ -1444,27 +1494,27 @@
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [compile][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=compile-internal[0m
 [0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->default(compile)][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile-internal[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->runtime][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->default(compile)][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->runtime][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile-internal[0m
 [0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->compile][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->compile][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile-internal[0m
 [0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile-internal[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
-[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile-internal[0m
-[0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile-internal[0m
 [0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile-internal[0m
 [0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->master][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=compile-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=compile-internal[0m
+[0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->master][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=compile-internal[0m
 [0m[[0mdebug[0m] [0mcompile-internal is loaded and no conf to load.  Skip loading[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [optional][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=compile-internal[0m
@@ -2302,27 +2352,27 @@
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [compile][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=runtime-internal[0m
 [0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->default(compile)][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime-internal[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->runtime][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->default(compile)][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->runtime][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime-internal[0m
 [0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->compile][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->compile][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime-internal[0m
 [0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime-internal[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
-[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime-internal[0m
-[0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime-internal[0m
 [0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime-internal[0m
 [0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->master][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=runtime-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=runtime-internal[0m
+[0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->master][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=runtime-internal[0m
 [0m[[0mdebug[0m] [0mruntime-internal is loaded and no conf to load.  Skip loading[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [optional][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=runtime-internal[0m
@@ -2339,27 +2389,27 @@
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [compile][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=test-internal[0m
 [0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->default(compile)][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test-internal[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->runtime][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->default(compile)][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->runtime][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test-internal[0m
 [0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->compile][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->compile][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test-internal[0m
 [0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->master(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test-internal[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
-[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test-internal[0m
-[0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [compile->compile(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test-internal[0m
 [0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.1.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->runtime(*)][0m
 [0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test-internal[0m
 [0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
-[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.1.0 [compile->master][0m
-[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.1.0 of rootConf=test-internal[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies com.github.mpeltonen#sbt-idea;1.2.0->commons-io#commons-io;2.0.1 [runtime->compile][0m
+[0m[[0mdebug[0m] [0mloadData of commons-io#commons-io;2.0.1 of rootConf=test-internal[0m
+[0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
+[0m[[0mdebug[0m] [0m== resolving dependencies default#default-d881ef;0.1-SNAPSHOT->com.github.mpeltonen#sbt-idea;1.2.0 [compile->master][0m
+[0m[[0mdebug[0m] [0mloadData of com.github.mpeltonen#sbt-idea;1.2.0 of rootConf=test-internal[0m
 [0m[[0mdebug[0m] [0mtest-internal is loaded and no conf to load.  Skip loading[0m
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [optional][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=test-internal[0m
@@ -3201,13 +3251,13 @@
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#default-d881ef;0.1-SNAPSHOT [pom][0m
 [0m[[0mdebug[0m] [0mloadData of default#default-d881ef;0.1-SNAPSHOT of rootConf=pom[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 43[0m
-[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.1.0 / Number of dependencies = 3[0m
+[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.2.0 / Number of dependencies = 3[0m
 [0m[[0mdebug[0m] [0mNon matching revision detected when sorting.  com.github.mpeltonen#sbt-idea depends on org.scala-sbt#sbt;0.12.0, doesn't match org.scala-sbt#sbt;0.12.1[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-lang#scala-library;2.9.2 / Number of dependencies = 0[0m
 [0m[[0mdebug[0m] [0mSort done for : org.scala-lang#scala-library;2.9.2[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : commons-io#commons-io;2.0.1 / Number of dependencies = 1[0m
 [0m[[0mdebug[0m] [0mSort done for : commons-io#commons-io;2.0.1[0m
-[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.2.0[0m
 [0m[[0mdebug[0m] [0mModule descriptor is processed : commons-io#commons-io;2.0.1[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-sbt#sbt;0.12.1 / Number of dependencies = 6[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-sbt#main;0.12.1 / Number of dependencies = 12[0m
@@ -3449,7 +3499,16 @@
 [0m[[0mdebug[0m] [0morg.scala-lang#scala-compiler;2.9.2 in compile-internal: excluding org.scala-lang#scala-compiler;2.9.2!scala-compiler.jar[0m
 [0m[[0mdebug[0m] [0m	resolved ivy file produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\default\default-d881ef\scala_2.9.2\sbt_0.12\0.1-SNAPSHOT\resolved.xml.xml[0m
 [0m[[0mdebug[0m] [0m:: downloading artifacts ::[0m
-[0m[[0mdebug[0m] [0m	[NOT REQUIRED] com.github.mpeltonen#sbt-idea;1.1.0!sbt-idea.jar[0m
+[0m[[0mdebug[0m] [0m	 trying http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0mdebug[0m] [0m		tried http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0minfo[0m] [0mdownloading http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.jar ...[0m
+[0m[[0mdebug[0m] [0m	public: downloading http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0mdebug[0m] [0m		to C:\Users\Haoyi\.ivy2\cache\scala_2.9.2\sbt_0.12\com.github.mpeltonen\sbt-idea\jars\sbt-idea-1.2.0.jar.part[0m
+[0m[[0mdebug[0m] [0msha1 file found for http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.jar: checking...[0m
+[0m[[0mdebug[0m] [0m	public: downloading http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.jar.sha1[0m
+[0m[[0mdebug[0m] [0m		to C:\Users\Haoyi\AppData\Local\Temp\ivytmp6656816006134145490sha1[0m
+[0m[[0mdebug[0m] [0msha1 OK for http://repo1.maven.org/maven2/com/github/mpeltonen/sbt-idea_2.9.2_0.12/1.2.0/sbt-idea-1.2.0.jar[0m
+[0m[[0minfo[0m] [0m	[SUCCESSFUL ] com.github.mpeltonen#sbt-idea;1.2.0!sbt-idea.jar (2076ms)[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] commons-io#commons-io;2.0.1!commons-io.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-sbt#sbt;0.12.1!sbt.jar[0m
 [0m[[0mdebug[0m] [0morg.scala-lang#scala-library;2.9.2 in test-internal: excluding org.scala-lang#scala-library;2.9.2!scala-library.jar[0m
@@ -3503,26 +3562,26 @@
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-sbt#cache;0.12.1!cache.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-sbt#test-agent;0.12.1!test-agent.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-tools.testing#test-interface;0.5!test-interface.jar[0m
-[0m[[0mdebug[0m] [0m:: resolution report :: resolve 3710ms :: artifacts dl 124ms[0m
+[0m[[0mdebug[0m] [0m:: resolution report :: resolve 4823ms :: artifacts dl 2169ms[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 2[0m
-[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.1.0 / Number of dependencies = 3[0m
+[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.2.0 / Number of dependencies = 3[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : commons-io#commons-io;2.0.1 / Number of dependencies = 1[0m
 [0m[[0mdebug[0m] [0mSort done for : commons-io#commons-io;2.0.1[0m
-[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.2.0[0m
 [0m[[0mdebug[0m] [0mModule descriptor is processed : commons-io#commons-io;2.0.1[0m
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT compile produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\compile-resolved.xml[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 2[0m
-[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.1.0 / Number of dependencies = 3[0m
+[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.2.0 / Number of dependencies = 3[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : commons-io#commons-io;2.0.1 / Number of dependencies = 1[0m
 [0m[[0mdebug[0m] [0mSort done for : commons-io#commons-io;2.0.1[0m
-[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.2.0[0m
 [0m[[0mdebug[0m] [0mModule descriptor is processed : commons-io#commons-io;2.0.1[0m
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT runtime produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\runtime-resolved.xml[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 2[0m
-[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.1.0 / Number of dependencies = 3[0m
+[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.2.0 / Number of dependencies = 3[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : commons-io#commons-io;2.0.1 / Number of dependencies = 1[0m
 [0m[[0mdebug[0m] [0mSort done for : commons-io#commons-io;2.0.1[0m
-[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.2.0[0m
 [0m[[0mdebug[0m] [0mModule descriptor is processed : commons-io#commons-io;2.0.1[0m
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT test produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\test-resolved.xml[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 41[0m
@@ -3763,13 +3822,13 @@
 [0m[[0mdebug[0m] [0mNbr of module to sort : 0[0m
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT optional produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\optional-resolved.xml[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 43[0m
-[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.1.0 / Number of dependencies = 3[0m
+[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.2.0 / Number of dependencies = 3[0m
 [0m[[0mdebug[0m] [0mNon matching revision detected when sorting.  com.github.mpeltonen#sbt-idea depends on org.scala-sbt#sbt;0.12.0, doesn't match org.scala-sbt#sbt;0.12.1[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-lang#scala-library;2.9.2 / Number of dependencies = 0[0m
 [0m[[0mdebug[0m] [0mSort done for : org.scala-lang#scala-library;2.9.2[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : commons-io#commons-io;2.0.1 / Number of dependencies = 1[0m
 [0m[[0mdebug[0m] [0mSort done for : commons-io#commons-io;2.0.1[0m
-[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.2.0[0m
 [0m[[0mdebug[0m] [0mModule descriptor is processed : commons-io#commons-io;2.0.1[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-sbt#sbt;0.12.1 / Number of dependencies = 6[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-sbt#main;0.12.1 / Number of dependencies = 12[0m
@@ -4005,20 +4064,20 @@
 [0m[[0mdebug[0m] [0mModule descriptor is processed : org.scala-sbt#precompiled-2_10_0-m7;0.12.1[0m
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT compile-internal produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\compile-internal-resolved.xml[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 2[0m
-[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.1.0 / Number of dependencies = 3[0m
+[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.2.0 / Number of dependencies = 3[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : commons-io#commons-io;2.0.1 / Number of dependencies = 1[0m
 [0m[[0mdebug[0m] [0mSort done for : commons-io#commons-io;2.0.1[0m
-[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.2.0[0m
 [0m[[0mdebug[0m] [0mModule descriptor is processed : commons-io#commons-io;2.0.1[0m
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT runtime-internal produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\runtime-internal-resolved.xml[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 43[0m
-[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.1.0 / Number of dependencies = 3[0m
+[0m[[0mdebug[0m] [0mSort dependencies of : com.github.mpeltonen#sbt-idea;1.2.0 / Number of dependencies = 3[0m
 [0m[[0mdebug[0m] [0mNon matching revision detected when sorting.  com.github.mpeltonen#sbt-idea depends on org.scala-sbt#sbt;0.12.0, doesn't match org.scala-sbt#sbt;0.12.1[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-lang#scala-library;2.9.2 / Number of dependencies = 0[0m
 [0m[[0mdebug[0m] [0mSort done for : org.scala-lang#scala-library;2.9.2[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : commons-io#commons-io;2.0.1 / Number of dependencies = 1[0m
 [0m[[0mdebug[0m] [0mSort done for : commons-io#commons-io;2.0.1[0m
-[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.1.0[0m
+[0m[[0mdebug[0m] [0mSort done for : com.github.mpeltonen#sbt-idea;1.2.0[0m
 [0m[[0mdebug[0m] [0mModule descriptor is processed : commons-io#commons-io;2.0.1[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-sbt#sbt;0.12.1 / Number of dependencies = 6[0m
 [0m[[0mdebug[0m] [0mSort dependencies of : org.scala-sbt#main;0.12.1 / Number of dependencies = 12[0m
@@ -4261,5 +4320,5 @@
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT docs produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\docs-resolved.xml[0m
 [0m[[0mdebug[0m] [0mNbr of module to sort : 0[0m
 [0m[[0mdebug[0m] [0m	report for default#default-d881ef;0.1-SNAPSHOT pom produced in C:\Dropbox\Workspace\Sinject\project\target\resolution-cache\reports\default-default-d881ef\pom-resolved.xml[0m
-[0m[[0mdebug[0m] [0m	resolve done (3710ms resolve - 124ms download)[0m
+[0m[[0mdebug[0m] [0m	resolve done (4823ms resolve - 2169ms download)[0m
 [0m[[0minfo[0m] [0mDone updating.[0m
