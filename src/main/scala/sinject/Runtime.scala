@@ -16,4 +16,3 @@ object NotInModuleError extends Error(
   "You need to be within the implicit-scope to access this."
 )
 
-class Omg{}

@@ -39,6 +39,10 @@ with TypingTransformers{
         }
     }
 
+    /**
+     * Creates the `val` trees for a set of classes I want to inject, with the
+     * given flags
+     */
     def makeDefs(injections: List[(Tree, Name)], flags: Long) = for {
       ((inj, name), i) <- injections.zipWithIndex
     } yield ValDef(
@@ -48,6 +52,10 @@ with TypingTransformers{
       EmptyTree
     )
 
+    /**
+     * Takes the body of the class, looks for the constructor and injects
+     * the given implicit parameters into the method signature
+     */
     def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
       case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
         if name == newTermName("<init>") && newConstrDefs.length > 0 =>
@@ -59,6 +67,11 @@ with TypingTransformers{
       case x => x
     }
 
+    /**
+     * Adds the given implicits [arams to a method's parameters *properly*.
+     * That is, it inserts it into the last parameter list if the last list is
+     * implicit, otherwise it adds them as an extra, implicit parameter list
+     */
     def enhanceVparamss(vparamss: List[List[ValDef]], newConstrDefs: List[ValDef]) = {
       vparamss match {
         case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
@@ -67,6 +80,10 @@ with TypingTransformers{
       }
     }
 
+    /**
+     * Constructs the implicitNotFound annotation to give better error
+     * messages when an injected class is used without a module
+     */
     def makeAnnotation(msg: String) =
       Apply(
         Select(
@@ -86,7 +103,9 @@ with TypingTransformers{
           )
         )
       )
-
+    /**
+     * Constructs an implicit `MyClass.this` tree
+     */
     def thisTree(className: TypeName) =
       ValDef(
         Modifiers(IMPLICIT | PRIVATE | LOCAL),
@@ -98,7 +117,9 @@ with TypingTransformers{
     def classTransformer(injections: List[(Tree, Name)]) = new TypingTransformer(unit){
 
       override def transform(tree: Tree) = tree match {
-        /* add injected class members and constructor parameters */
+        /**
+         * add injected class members and constructor parameters
+         */
         case cd @ ClassDef(mods, className, tparams, impl)
           if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
 
@@ -130,7 +151,9 @@ with TypingTransformers{
     new TypingTransformer(unit) {
 
       override def transform(tree: Tree): Tree =  tree match {
-        /* Inject implicits into top-level methods' parameters */
+        /**
+         * Inject implicits into top-level methods' parameters
+         */
         case dd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
           if name != newTermName("<init>") =>
 
@@ -139,7 +162,9 @@ with TypingTransformers{
           )
           classTransformer(unitInjections) transform dd.copy(vparamss = newVparamss)
 
-        /* Modify sinject.Module[T] classes*/
+        /**
+         * Modify sinject.Module[T] classes
+         */
         case cd @ ClassDef(mods, className, tparams, impl)
           if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE)
           && unit.body.exists{
@@ -158,7 +183,9 @@ with TypingTransformers{
             impl = classTransformer(List(Ident(className) -> className)).transform(impl.copy(body = newThisDef ++ impl.body)).asInstanceOf[Template]
           )
 
-        /* Inject abstract class member into trait */
+        /**
+         * Inject abstract class member into trait
+         */
         case cd @ ClassDef(mods, className, tparams, impl)
           if mods.hasFlag(TRAIT) =>
 
@@ -166,7 +193,9 @@ with TypingTransformers{
 
           classTransformer(unitInjections) transform cd.copy(impl = impl.copy(body = newDefDefs ++ impl.body))
 
-        /* Inject implicits into class parameters */
+        /**
+         * Inject implicits into class parameters
+         */
         case cd @ ClassDef(mods, className, tparams, impl) =>
           classTransformer(unitInjections) transform cd
 
