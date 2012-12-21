@@ -22,7 +22,7 @@ class Third(s: String, d: Double){ ... }
 
 object Module{
     def doStuff(s: String){ ... }
-    def getValues(i: Int) = ...
+    def getValues(i: Int) = ... /* actually use the Context */ ...
 }
 ```
 Removing a whole lot of pollution from the signatures of your `class`s and `def`s, keeping your code [DRY](http://en.wikipedia.org/wiki/Don%27t_repeat_yourself).
@@ -84,7 +84,7 @@ import Context.dynamic
 class Entity(){ ... }
 ```
 
-is not much shorter than simply including the implicit directly:
+is not much shorter than simply including an implicit parameter:
 
 ```scala
 class Thing()(implicit ctx: Context){ ... }
@@ -165,7 +165,7 @@ If a trait has a `Context` injected into it, it can only be mixed into a class w
 
 ```scala
 import Context.dynamic
-trait MyTrait{ ... }
+trait MyTrait{ /* I can use Context() here */ }
 ```
 
 can be mixed into
@@ -195,14 +195,12 @@ class Outer{ ... }
 // inner.scala
 import Outer.dynamic
 object Inner extends sinject.Module[Inner]
-class Inner{ ... }
+class Inner{ /* I can use Outer() here */ }
 
 // myclass.scala
 import Inner.dynamic
 import Outer.dynamic
-class MyClass {
-   ...
-}
+class MyClass { /* I can use both Outer() and Inner() here */ }
 ```
 
 As you would expect, an `Inner` can only be created inside the body of an `Outer`, and a `MyClass` can only be created within the body of an `Inner`. Inside `Inner`, you have `Outer()` to access the current `Outer`, and inside `MyClass`, you have both `Inner()` and `Outer()`, which would behave as you expect.
@@ -241,7 +239,7 @@ object Module{
 }
 ```
 
-In this example, you can see that only `getValues` actually uses the `Context`. This is a pattern that comes up a lot, where your `Context` could be:
+In this example, you can see that only `getValues` actually uses the `Context`, but in the end almost everyone needs to pass it around. This is a situation that comes up a lot, where your `Context` could be:
 
 - Configuration information (language, etc.)
 - Current User
@@ -264,17 +262,33 @@ This is the approach taken by the Play! framework, as can be seen in [these](htt
 This is pretty painful and results in the code I showed you above. The pain can be mitigated slightly by using implicits:
 
 ```scala
-class Thing(d: Double)(implicit ctx: Context){ ... new SecondThing(10) ... }
-class SecondThing(i: Int)(implicit ctx: Context){ ... new Third("lol", 1.5) ... }
-class Third(s: String, d: Double)(implicit ctx: Context){ ... doStuff(s) ... }
+class Thing(d: Double)(implicit ctx: Context){ ... }
+class SecondThing(i: Int)(implicit ctx: Context){ ... }
+class Third(s: String, d: Double)(implicit ctx: Context){ ... }
 
 object Module{
-    def doStuff(s: String)(implicit ctx: Context){ ... getValues(s.length) ... }
-    def getValues(i: Int)(implicit ctx: Context) = ... /* actually use the Context */ ...
+    def doStuff(s: String)(implicit ctx: Context){ ... }
+    def getValues(i: Int)(implicit ctx: Context) = ...
 }
 ```
 
 But only slightly: You no longer need to pass it in at every call site, but your method/class signatures get correspondingly longer, so it's debatable whether or not it's actually a "win".
+
+In comparison Sinject allows you to write
+
+```scala
+import Context.dynamic
+class Thing(d: Double){ ... }
+class SecondThing(i: Int){ ... }
+class Third(s: String, d: Double){ ... }
+
+object Module{
+    def doStuff(s: String){ ... }
+    def getValues(i: Int) = ...
+}
+```
+
+which is much less repetitive.
 
 Magic Globals!
 --------------
@@ -284,20 +298,145 @@ What is actually happening is something like this
 
 ```scala
 // request comes in
-S = ... // set the S object
-runYourCode()
-S = null // unset the S object
+S = ... // set S
+runYourCode() // use S
+S = null // unset S
 ```
 
 Every time before the framework starts running your code, it will set the S object to the current Session, so all your code can see is the current Session. It then unsets it, and re-sets it to the new context when the next request comes in.
 
 This goes against essentially all the things we learn about structured programming: immutability, locality, avoiding side-effects. Instead, we have this big, globally visible, mutable variable. Instead of referential transparency, we (the framework) have to do a little dance to set/unset this mutable variable everytime before/after we run the application code.
 
-Despite this, this technique is probably the most common way of getting around the "pass it everywhere" problem. It's used to access the Session variables in the [Play 2.0 Java api](http://www.playframework.org/documentation/2.0.4/JavaSessionFlash), in the python world it's used in the [Flask Web Microframework](http://flask.pocoo.org/docs/reqcontext/) and [Pyramid Web Framework](http://pyramid.readthedocs.org/en/latest/narr/threadlocals.html) to access the request information.
+Despite this, this technique is probably the most common way of getting around the "pass it everywhere" problem. It's used to access the Session variables in the [Play 2.0 Java api](http://www.playframework.org/documentation/2.0.4/JavaSessionFlash), in the python world it's used in the [Flask Web Microframework](http://flask.pocoo.org/docs/reqcontext/) and [Pyramid Web Framework](http://pyramid.readthedocs.org/en/latest/narr/threadlocals.html) to access the request information. Scala's [DynamicVariable](http://www.scala-lang.org/api/current/scala/util/DynamicVariable.html) does essentially this.
+
+This pattern works perfectly, as long as the control flow of your program is purely stack based. However, it breaks once you start working with more complex control flows, such as futures:
+
+```scala
+S = ... // set S
+Future{
+    runYourCode() // use S
+}
+S = null // unset S
+```
+
+Now by the time the Future ends up reading the value of S, it may have been unset! Or it may have been set again by the next request that comes in, and we may see somebody else's context.
+
+Naturally, it is possible to work around this by making your Executor do the proper set/unset dance before every `Future` it runs for every Magic Global which is required. However, this means the Executor needs to know about every Magic Global that it needs to set/unset. Compare this to the Pass it Everywhere pattern above, where there is no such problem, since the variables are automatically captured by the `Future` due to closure, like any other variable would be.
+
+Nested `def`s and `class`s
+--------------------------
+This works by placing all the classes and functions which need the `Context` into a larger `def` or `class`, such that they can all share an outer scope which contains the `Context` but is not global.
+
+```scala
+// program.scala
+class Outer(ctx: Context){
+    class Thing(d: Double){ ... }
+    class SecondThing(i: Int){ ... }
+    class Third(s: String, d: Double){ ... }
+
+    object Module{
+        def doStuff(s: String){ ... }
+        def getValues(i: Int) = ...
+    }
+}
+```
+
+Hence, you just need to instantiate a
+
+```scala
+val outer = new Outer(ctx)
+```
+
+and all the classes inside will be able to see its `Context` without having to pass it around. Furthermore, the `Context` is properly scoped to the `Outer`: you can have multiple `Outer`s existing at the same time without worrying about their `Context`s getting mixed up, or doing the set/unset dance like in the Magic Globals technique.
+
+This seems ideal, except for one thing: a `class` cannot span more than one file. If our classes are large, and we want to keep our file sizes reasonable, we need to break this up into multiple files using Traits, the way it is done in the [Cake Pattern](http://stackoverflow.com/questions/5172188/understanding-scalas-cake-pattern):
+
+```scala
+// program.scala
+class Outer(ctx: Context)
+extends FirstPart
+with SecondPart
+with ThirdPart
+with FourthPart{
+    ...
+}
+
+// FirstPart.scala
+trait FirstPart{ this: Outer =>
+    class Thing(d: Double){ ... }
+}
+
+// SecondPart.scala
+trait SecondPart{ this: Outer =>
+    class SecondThing(i: Int){ ... }
+}
+
+// ThirdPart.scala
+trait ThirdPart{ this: Outer =>
+    class Third(s: String, d: Double){ ... }
+}
+
+// FourthPart.scala
+trait FourthPart{ this: Outer =>
+    object Module{
+        def doStuff(s: String){ ... }
+        def getValues(i: Int) = ...
+    }
+}
+```
+
+Which works. However, there is a huge amount of boilerplate: Every file needs to be chucked into a separate trait, who serves only to be composed together as a full class by Outer. This gives us a whole lot of flexiblity (we can inherit different sets of traits if we want, changing the classes we have available in Outer) which we do not want (we just want to not have to pass the damn `Context` around), which is almost the [definition of boilerplate](http://en.wikipedia.org/wiki/Boilerplate_code).
+
+Furthermore, `Outer` needs the `extends FirstPart with SecondPart with ThirdPart with FourthPart`. Even with four separate files it is getting somewhat unwieldy, with larger projects it starts becoming annoying:
+
+```scala
+class Page(override val request: Request[AnyContent])
+extends XPage
+with BaseSlice
+with AboutSlice
+with BlogSlice
+with HomeSlice
+with LibSlice
+with ProfileSlice
+with RankingSlice
+with StockSlice
+with StatefulSlice{
+    ...
+}
+```
+
+In comparison, Sinject allows you to write:
+
+```scala
+// program.scala
+object Outer extends sinject.Module[Outer]
+class Outer(ctx: Context){ ... }
+
+// FirstPart.scala
+import Outer.dynamic
+class Thing(d: Double){ ... }
+
+// SecondPart.scala
+import Outer.dynamic
+class SecondThing(i: Int){ ... }
+
+// ThirdPart.scala
+import Outer.dynamic
+class Third(s: String, d: Double){ ... }
+
+// FourthPart.scala
+import Outer.dynamic
+object Module{
+    def doStuff(s: String){ ... }
+    def getValues(i: Int) = ...
+}
+```
+
+Which again is much less verbose.
 
 How it Works
 ============
-Sinject basically turns this.
+Sinject uses a [Scala compiler plugin](http://www.scala-lang.org/node/140) which does most of its work before typechecking. Basically, it turns this
 
 ```scala
 import Context.dynamic
@@ -330,3 +469,7 @@ by looking for marker imports at the top of the file, in this case:
 ```scala
 import Context.dynamic
 ```
+
+After that, the auto-passing of context from class to class and method to method is handled entirely by the Scala compiler during typechecking, since the context just becomes another implicit.
+
+The `Context()` function is simply shorthand for getting the implicit `Context` in scope, and behaves identically to `implicitly[Context]`.
