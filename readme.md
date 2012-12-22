@@ -322,12 +322,14 @@ Despite this, this technique is probably the most common way of getting around t
 
 This pattern works perfectly, as long as the control flow of your program is purely stack based. However, it breaks once you start working with more complex control flows, such as futures:
 
+```scala
 def receive = {
   case SomeMessage =>
     context.system.scheduleOnce(5 seconds) {
       sender ! DelayedResponse  // Danger!
     }
 }
+```
 
 Now by the time the scheduled action ends up reading the value of `sender`, it may have been unset! Or it may have been set again by the next request that comes in, and we may see somebody else's context. This example was taken from [this post](http://helenaedelson.com/?p=879), which has a more detailed explanation of the dangers involved.
 
