@@ -12,16 +12,18 @@ object Module{
     def getValues(i: Int)(ctx: Context) = ... /* actually use the Context */ ...
 }
 ```
-into 
+
+into
+
 ```scala
 import Context.dynamic
 
-class Thing(d: Double){ ... }
-class SecondThing(i: Int){ ... }
-class Third(s: String, d: Double){ ... }
+class Thing(d: Double){ ... new SecondThing(10) ... }
+class SecondThing(i: Int){ ... new Third("lol", 1.5) ... }
+class Third(s: String, d: Double){ ... doStuff(s) ... }
 
 object Module{
-    def doStuff(s: String){ ... }
+    def doStuff(s: String){ ... getValues(s.length) ... }
     def getValues(i: Int) = ... /* actually use the Context */ ...
 }
 ```
@@ -69,10 +71,10 @@ You will get
 
     lollolrofl    
 
-As you can see, `print` could grab the value "rofl" from the surrounding `Context` without you needing to add it to the parameter list explicitly. In fact, now that we are injecting `Context` into `Thing`, a `Thing` can only be instantiated within a `Context`. So if you try to do this
+As you can see, when you call `print` could grab the value "rofl" from the surrounding `Context` without you needing to add it to the parameter list explicitly. In fact, now that we are injecting `Context` into `Thing`, a `Thing` can only be instantiated within a `Context`. So if you try to do this
 
 ```scala
-val thing = new Thing("lol", 2)
+val thing = new Thing("lol", 2) // compile error
 ```
 
 when not inside a `Context`, it will fail with a compile error.
@@ -81,7 +83,7 @@ When you only have a single `Thing`,
 
 ```scala
 import Context.dynamic
-class Entity(){ ... }
+class Thing(){ ... }
 ```
 
 is not much shorter than simply including an implicit parameter:
@@ -90,9 +92,7 @@ is not much shorter than simply including an implicit parameter:
 class Thing()(implicit ctx: Context){ ... }
 ```
 
-And the two are basically equivalent: you can use your `Context` inside the `Thing`, it is automatically passed in (if you have an implicit `Context` in scope), you can't create a `Thing` without a `Context`, etc.
-
-However, when you have a larger number of classes which all need this implicit `Context` to be passed in:
+In fact, this is exactly what Sinject converts it to under the covers. However, when you have a larger number of classes which all need this implicit `Context` to be passed in:
 
 ```scala
 class Thing()(implicit ctx: Context){ ... }
@@ -101,7 +101,7 @@ class Cow(weight: Double)(implicit ctx: Context){ ... }
 class Car(mileage: Double, capacity: Int)(implicit ctx: Context){ ... }
 ```
 
-It is much more elegant to use Sinject to inject the implicits automatically:
+It starts getting somewhat annoying to have to keep declaring the implicit everwhere, and it's nice to only have to declare it once at the top of the file:
 
 ```scala
 import Context.dynamic
@@ -112,7 +112,7 @@ class Cow(weight: Double){ ... }
 class Car(mileage: Double, capacity: Int){ ... }
 ```
 
-That way you can keep your code DRY and avoid having the annoying implicit parameter list cluttering up all your class signatures.
+And have the `Context` automatically, implicitly passed in to every instance of these classes you create, conveniently accessible via `Context()`.
 
 More
 ====
@@ -140,11 +140,11 @@ would also print
 
     lollolrofl    
 
-Since `Second` got the context injected into it when it was created inside the `Thing`
+Since `Thing` had the `Context` injected into it when it was created inside the `Context`, and `Second` got the context injected into it when it was created inside the `Thing`
 
 `def`s
 ----
-Sinject also injects the context into the method `def`s of top level `object`s. e.g.
+Sinject also injects the context into the method `def`s of static `object`s. e.g.
 
 ```scala
 import Context.dynamic
@@ -158,6 +158,8 @@ object Cow{
 using the same `Context` defined earlier, would print
 
     rofl
+
+Again, this means you can only call `Cow.moo` when inside a `Context`, or inside a class which had the `Context` injected into it.
 
 `trait`s
 --------
@@ -257,22 +259,24 @@ This becomes a problem, as suddenly every class and every method in your applica
 
 Pass it Everywhere
 ------------------
-This is the approach taken by the Play! framework, as can be seen in [these](http://stackoverflow.com/questions/9751752/play-2-0-access-to-request-in-templates) [answers](http://stackoverflow.com/questions/9629250/how-to-avoid-passing-parameters-everywhere-in-play2] on stackoverflow. This is basically the problem I mentioned above.
+This is the approach taken by the Play! framework, as can be seen in [these](http://stackoverflow.com/questions/9751752/play-2-0-access-to-request-in-templates) [answers](http://stackoverflow.com/questions/9629250/how-to-avoid-passing-parameters-everywhere-in-play2) on stackoverflow. This is basically the problem I mentioned above.
 
 This is pretty painful and results in the code I showed you above. The pain can be mitigated slightly by using implicits:
 
 ```scala
-class Thing(d: Double)(implicit ctx: Context){ ... }
-class SecondThing(i: Int)(implicit ctx: Context){ ... }
-class Third(s: String, d: Double)(implicit ctx: Context){ ... }
+import Context.dynamic
+
+class Thing(d: Double)(implicit ctx: Context){ ... new SecondThing(10) ... }
+class SecondThing(i: Int)(implicit ctx: Context){ ... new Third("lol", 1.5) ... }
+class Third(s: String, d: Double)(implicit ctx: Context){ ... doStuff(s) ... }
 
 object Module{
-    def doStuff(s: String)(implicit ctx: Context){ ... }
-    def getValues(i: Int)(implicit ctx: Context) = ...
+    def doStuff(s: String)(implicit ctx: Context){ ... getValues(s.length) ... }
+    def getValues(i: Int) = ... /* actually use the Context */ ...
 }
 ```
 
-But only slightly: You no longer need to pass it in at every call site, but your method/class signatures get correspondingly longer, so it's debatable whether or not it's actually a "win".
+But only slightly: You save the `ctx` at every call site, but you add a `implicit` at every delaration site, so it's not any less verbose and it's debatable whether or not it's actually a "win".
 
 In comparison Sinject allows you to write
 
@@ -288,19 +292,26 @@ object Module{
 }
 ```
 
-which is much less repetitive.
+Letting you only state the type once (at the top of the file) and having it automatically injected into every class and method in the file.
 
 Magic Globals!
 --------------
-Another popular approach is to use global (thread-local) variables that always seem to magically have the value you need, when you need them. An example is the [Lift S variable](http://exploring.liftweb.net/master/index-9.html#sub:Advanced-S-Object), an object that magically always has your current Session when your code is executed.
+Another popular approach is to use global (thread-local) variables that always seem to magically have the value you need, when you need them. An example is the [Lift S variable](http://exploring.liftweb.net/master/index-9.html#sub:Advanced-S-Object), an object that magically always has your current Session when your code is executed, or the Akka `sender` variable, which always magically has the actor which sent you the last message.
 
-What is actually happening is something like this
+```scala
+def receive = {
+  case SomeMessage =>
+    sender ! Response
+}
+```
+
+You just pull the `sender` variable out of thin air, and it always just has your last sender. What is actually happening is something like this
 
 ```scala
 // request comes in
-S = ... // set S
-runYourCode() // use S
-S = null // unset S
+this.sender = ... // set S
+this.receive(message) // use S
+this.sender = null // unset S
 ```
 
 Every time before the framework starts running your code, it will set the S object to the current Session, so all your code can see is the current Session. It then unsets it, and re-sets it to the new context when the next request comes in.
@@ -311,17 +322,27 @@ Despite this, this technique is probably the most common way of getting around t
 
 This pattern works perfectly, as long as the control flow of your program is purely stack based. However, it breaks once you start working with more complex control flows, such as futures:
 
-```scala
-S = ... // set S
-Future{
-    runYourCode() // use S
+def receive = {
+  case SomeMessage =>
+    context.system.scheduleOnce(5 seconds) {
+      sender ! DelayedResponse  // Danger!
+    }
 }
-S = null // unset S
+
+Now by the time the scheduled action ends up reading the value of `sender`, it may have been unset! Or it may have been set again by the next request that comes in, and we may see somebody else's context. This example was taken from [this post](http://helenaedelson.com/?p=879), which has a more detailed explanation of the dangers involved.
+
+Naturally, it is possible to work around this by making your Executor do the proper set/unset dance before every scheduled task it runs for every Magic Global which is required. However, this means the Executor needs to know about every Magic Global that it needs to set/unset. Compare this to the Pass it Everywhere pattern above:
+
+```scala
+def receive(sender: Actor) = {
+  case SomeMessage =>
+    context.system.scheduleOnce(5 seconds) {
+      sender ! DelayedResponse  // Danger!
+    }
+}
 ```
 
-Now by the time the Future ends up reading the value of S, it may have been unset! Or it may have been set again by the next request that comes in, and we may see somebody else's context.
-
-Naturally, it is possible to work around this by making your Executor do the proper set/unset dance before every `Future` it runs for every Magic Global which is required. However, this means the Executor needs to know about every Magic Global that it needs to set/unset. Compare this to the Pass it Everywhere pattern above, where there is no such problem, since the variables are automatically captured by the `Future` due to closure, like any other variable would be.
+Despite it being more verbose and annoying to keep typing, this problem with scheduled tasks (and non stack-based control flow in general) does not exist, since `ctx` is automatically captured by the `Future` due to closure, like any other variable would be.
 
 Nested `def`s and `class`s
 --------------------------
@@ -405,7 +426,27 @@ with StatefulSlice{
 }
 ```
 
-In comparison, Sinject allows you to write:
+or even
+
+```scala
+trait Analyzer extends AnyRef
+with Contexts
+with Namers
+with Typers
+with Infer
+with Implicits
+with Variances
+with EtaExpansion
+with SyntheticMethods
+with Unapplies
+with Macros
+with NamesDefaults
+with TypeDiagnostics
+with ContextErrors
+with StdAttachments
+```
+
+as the size of the project (and thus the number of files) increases. In comparison, Sinject allows you to write:
 
 ```scala
 // program.scala
@@ -432,7 +473,7 @@ object Module{
 }
 ```
 
-Which again is much less verbose.
+Replacing the annoying `trait FirstPart{ this: Outer =>` in every file which a much less conspicuous `import Outer.dynamic`, and saving the big chain of `with`s in the definition of `Outer`.
 
 How it Works
 ============
@@ -440,7 +481,7 @@ Sinject uses a [Scala compiler plugin](http://www.scala-lang.org/node/140) which
 
 ```scala
 import Context.dynamic
-class Entity(v: String, d: Double){
+class Thing(v: String, d: Double){
     ...
 }
 
@@ -454,7 +495,7 @@ object Thing{
 into this:
 
 ```scala
-class Entity(v: String, d: Double)(implicit ctx: Context){
+class Thing(v: String, d: Double)(implicit ctx: Context){
     ...
 }
 
