@@ -1,30 +1,31 @@
 package acyclic
 
 import utest._
-import TestUtils.make
-import acyclic.TestUtils.CompilationException
+import TestUtils.{make, makeFail}
+
 
 object CycleTests extends TestSuite{
 
   def tests = TestSuite{
     "fail" - {
-      "simple" - {
-        TestUtils.makeFail("fail/simple", Seq(
-            "src/test/resources/fail/simple/A.scala" -> Set(6),
-            "src/test/resources/fail/simple/B.scala" -> Set(4, 5)
-          )
+      "simple" - makeFail("fail/simple", Seq(
+          "A.scala" -> Set(6),
+          "B.scala" -> Set(4, 5)
         )
-      }
+      )
+      "indirect" - makeFail("fail/indirect", Seq(
+          "A.scala" -> Set(6),
+          "B.scala" -> Set(3),
+          "C.scala" -> Set(4)
+        )
+      )
     }
     "success" - {
-      "simple" - {
-        TestUtils.make("success/simple")
-      }
+      "simple" - make("success/simple")
+      "dag" - make("success/dag")
 
     }
-    "self" - {
-      TestUtils.make("../../main/scala")
-    }
+    "self" - make("../../main/scala")
   }
 }
 

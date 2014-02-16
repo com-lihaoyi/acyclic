@@ -42,7 +42,7 @@ object TestUtils {
     var cycles: Option[Seq[Seq[(String, Set[Int])]]] = None
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
       override protected def loadRoughPluginsList(): List[Plugin] = {
-        List(new plugin.Plugin(this, c => cycles = Some(c)))
+        List(new plugin.Plugin(this, foundCycles => cycles = Some(foundCycles)))
       }
     }
     val run = new compiler.Run()
@@ -54,8 +54,11 @@ object TestUtils {
   def makeFail(path: String, expected: Seq[(String, Set[Int])]*) = {
     val cycles = intercept[CompilationException]{
       make(path)
-    }.cycles.distinct
-    assert(cycles.toSet == expected.toSet)
+    }.cycles.distinct.toSet
+
+    val fullExpected = expected.map(_.map(x => x.copy(_1 = "src/test/resources/" + path + "/" + x._1))).toSet
+
+    assert(cycles == fullExpected)
   }
   case class CompilationException(cycles: Seq[Seq[(String, Set[Int])]]) extends Exception
 }
