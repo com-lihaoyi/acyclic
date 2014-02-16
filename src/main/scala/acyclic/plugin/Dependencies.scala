@@ -1,13 +1,11 @@
 //acyclic
-
 package acyclic.plugin
-
+import acyclic.file
 import scala.tools.nsc.Global
-
-
 object Dependencies{
-  def apply(global: Global)(unit: global.CompilationUnit) = {
+  def apply(global: Global)(unit: global.CompilationUnit): Set[(global.Symbol, global.Tree)] = {
     import global._
+
 
     class CollectTypeTraverser[T](pf: PartialFunction[Type, T]) extends TypeTraverser {
       var collected: List[T] = Nil
@@ -30,7 +28,8 @@ object Dependencies{
     class ExtractDependenciesByMemberRefTraverser extends ExtractDependenciesTraverser {
       override def traverse(tree: Tree): Unit = {
         tree match {
-          case Import(expr, selectors) =>
+          case i @ Import(expr, selectors) =>
+
             selectors.foreach {
               case ImportSelector(nme.WILDCARD, _, null, _) =>
               // in case of wildcard import we do not rely on any particular name being defined

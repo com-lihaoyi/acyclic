@@ -21,11 +21,10 @@ object TestUtils {
    * Attempts to compile a resource folder as a compilation run, in order
    * to test whether it succeeds or fails correctly.
    */
-  def make(path: String) = {
+  def make(path: String, extraIncludes: Seq[String] = Seq("src/main/scala/acyclic/package.scala")) = {
     val src = "src/test/resources/" + path
-    val sources = getFilePaths(src)
-    println("make")
-    println(sources)
+    val sources = getFilePaths(src) ++ extraIncludes
+
     val vd = new VirtualDirectory("(memory)", None)
     lazy val settings = new Settings
     val loader = getClass.getClassLoader.asInstanceOf[URLClassLoader]
@@ -33,7 +32,7 @@ object TestUtils {
     settings.outputDirs.setSingleOutput(vd)
 
     // annoyingly, the Scala library is not in our classpath, so we have to add it manually
-    val sclpath = entries.find(_.endsWith("scala-compiler.jar")).map(
+    val sclpath = entries.map(
       _.replaceAll("scala-compiler.jar", "scala-library.jar")
     )
 

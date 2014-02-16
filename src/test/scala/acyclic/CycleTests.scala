@@ -2,12 +2,14 @@ package acyclic
 
 import utest._
 import TestUtils.{make, makeFail}
+import scala.tools.nsc.util.ScalaClassLoader.URLClassLoader
 
 
 object CycleTests extends TestSuite{
 
   def tests = TestSuite{
     "fail" - {
+
       "simple" - makeFail("fail/simple", Seq(
         "A.scala" -> Set(6),
         "B.scala" -> Set(4, 5)
@@ -40,7 +42,7 @@ object CycleTests extends TestSuite{
       "cyclicunmarked" - make("success/cyclicunmarked")
       "dag" - make("success/dag")
     }
-    "self" - make("../../main/scala")
+    "self" - make("../../main/scala", extraIncludes = Nil)
   }
 }
 

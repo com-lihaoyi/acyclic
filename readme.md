@@ -1,6 +1,6 @@
 Acyclic
 =======
-**Sinject** is a Scala compiler acyclic.plugin that allows you to mark files within a build as `acyclic`, causing cyclic dependencies to become compilation errors.
+**Acyclic** is a Scala compiler acyclic.plugin that allows you to mark files within a build as `acyclic`, causing cyclic dependencies to become compilation errors.
 
 For example, the following two files have a circular dependency between them:
 
