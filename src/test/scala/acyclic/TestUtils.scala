@@ -40,13 +40,16 @@ object TestUtils {
 
     settings.classpath.value = ClassPath.join(entries ++ sclpath : _*)
 
+    var cycles: Option[Seq[Seq[(String, Set[Int])]]] = None
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
-      override protected def loadRoughPluginsList(): List[Plugin] = List(new plugin.Plugin(this))
+      override protected def loadRoughPluginsList(): List[Plugin] = {
+        List(new plugin.Plugin(this, c => cycles = Some(c)))
+      }
     }
     val run = new compiler.Run()
     run.compile(sources)
 
-    if (vd.toList.isEmpty) throw CompilationException
+    if (vd.toList.isEmpty) throw CompilationException(cycles.get)
   }
-  object CompilationException extends Exception
+  case class CompilationException(cycles: Seq[Seq[(String, Set[Int])]]) extends Exception
 }
