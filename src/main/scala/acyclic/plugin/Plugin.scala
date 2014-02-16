@@ -1,3 +1,5 @@
+//acyclic
+
 package acyclic.plugin
 
 import tools.nsc.Global
@@ -7,8 +9,7 @@ class Plugin(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]] => 
   val name = "Sinject"
   val description = "Automatically creates implicit parameters"
 
-  println("SinjectPlugin")
   val components = List[tools.nsc.plugins.PluginComponent](
-    new PluginPhase(this, cycleReporter)
+    new PluginPhase(this.global, cycleReporter)
   )
 }

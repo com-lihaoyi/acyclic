@@ -1,14 +1,14 @@
 package acyclic
 
-import reflect._
-import io.VirtualDirectory
-import tools.nsc.io._
 import tools.nsc.{Global, Settings}
 import tools.nsc.reporters.ConsoleReporter
 import tools.nsc.plugins.Plugin
 
 import java.net.URLClassLoader
 import scala.tools.nsc.util.ClassPath
+import utest._
+import scala.reflect.io.VirtualDirectory
+
 
 object TestUtils {
   def getFilePaths(src: String): List[String] = {
@@ -22,11 +22,10 @@ object TestUtils {
    * to test whether it succeeds or fails correctly.
    */
   def make(path: String) = {
-
-
-    val src = "src/test/resources/" + path.replace('.', '/')
+    val src = "src/test/resources/" + path
     val sources = getFilePaths(src)
-
+    println("make")
+    println(sources)
     val vd = new VirtualDirectory("(memory)", None)
     lazy val settings = new Settings
     val loader = getClass.getClassLoader.asInstanceOf[URLClassLoader]
@@ -50,6 +49,13 @@ object TestUtils {
     run.compile(sources)
 
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
+  }
+
+  def makeFail(path: String, expected: Seq[(String, Set[Int])]*) = {
+    val cycles = intercept[CompilationException]{
+      make(path)
+    }.cycles.distinct
+    assert(cycles.toSet == expected.toSet)
   }
   case class CompilationException(cycles: Seq[Seq[(String, Set[Int])]]) extends Exception
 }

@@ -1,3 +1,5 @@
+//acyclic
+
 package acyclic.plugin
 
 import scala.tools.nsc.Global

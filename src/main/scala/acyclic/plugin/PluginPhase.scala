@@ -1,6 +1,8 @@
+//acyclic
+
 package acyclic.plugin
 
-import scala.tools.nsc.Phase
+import scala.tools.nsc.{Global, Phase}
 import tools.nsc.plugins.PluginComponent
 
 case class DepNode(path: String,
@@ -39,9 +41,9 @@ object DepNode{
  * throughout every compilation unit, based upon what imports it finds with
  * the name `dynamic` within the source file
  */
-class PluginPhase(val plugin: Plugin, cycleReporter: Seq[Seq[(String, Set[Int])]] => Unit) extends PluginComponent { t =>
+class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]] => Unit) extends PluginComponent { t =>
 
-  val global = plugin.global
+
   import global._
 
   val runsAfter = List("typer")
