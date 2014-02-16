@@ -1,4 +1,4 @@
-package sinject
+package acyclic
 
 import reflect._
 import io.VirtualDirectory
@@ -6,27 +6,21 @@ import tools.nsc.io._
 import tools.nsc.{Global, Settings}
 import tools.nsc.reporters.ConsoleReporter
 import tools.nsc.plugins.Plugin
-import plugin.SinjectPlugin
+
 import java.net.URLClassLoader
 import scala.tools.nsc.util.ClassPath
 
-/**
- * Created with IntelliJ IDEA.
- * User: Haoyi
- * Date: 12/13/12
- * Time: 11:53 PM
- * To change this template use File | Settings | File Templates.
- */
 object TestUtils {
-
-
   def getFilePaths(src: String): List[String] = {
     val f = new java.io.File(src)
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
     else List(src)
   }
 
-  /* Instantiates an object of type T passing the given arguments to its first constructor */
+  /**
+   * Attempts to compile a resource folder as a compilation run, in order
+   * to test whether it succeeds or fails correctly.
+   */
   def make(path: String) = {
 
 
@@ -47,7 +41,7 @@ object TestUtils {
     settings.classpath.value = ClassPath.join(entries ++ sclpath : _*)
 
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
-      override protected def loadRoughPluginsList(): List[Plugin] = List(new SinjectPlugin(this))
+      override protected def loadRoughPluginsList(): List[Plugin] = List(new plugin.Plugin(this))
     }
     val run = new compiler.Run()
     run.compile(sources)

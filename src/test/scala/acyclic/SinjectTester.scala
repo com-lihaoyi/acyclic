@@ -1,11 +1,11 @@
-package sinject
+package acyclic
 
 import utest._
 
 object SinjectTester extends TestSuite{
   def tests = TestSuite{
     "simplestPossibleExample" - {
-      TestUtils.make("simple.hello")
+      TestUtils.make("fail.simple")
     }
   }
 }

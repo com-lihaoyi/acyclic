@@ -1,4 +1,4 @@
 <plugin>
-    <name>sinject</name>
-    <classname>plugin.SinjectPlugin</classname>
+    <name>acyclic</name>
+    <classname>acyclic.plugin.Plugin</classname>
 </plugin>

@@ -1,14 +1,14 @@
 
-organization  := "sinject"
+organization  := "com.lihaoyi.acyclic"
 
-name := "sinject"
+name := "acyclic"
 
 version       := "0.1"
 
 scalaVersion  := "2.10.3"
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi.utest" % "utest_2.10" % "0.1.1",
+  "com.lihaoyi.utest" % "utest_2.10" % "0.1.1" % "test",
   "org.scala-lang" % "scala-compiler" % "2.10.3"
 )
 
