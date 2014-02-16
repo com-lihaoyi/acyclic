@@ -21,8 +21,9 @@ object DepNode{
     val nodes = nodesList.map(n => n.path -> n).toMap
 
     def rec(node: DepNode, path: List[DepNode]): Stream[List[DepNode]] = {
-      if (path.exists(_.path == node.path) && node.acyclic) {
-        Stream(path.reverse.dropWhile(_ != node))
+      if (path.exists(_.path == node.path)) {
+        if (!node.acyclic) Stream()
+        else Stream(path.reverse.dropWhile(_ != node))
       } else {
         def newNode(key: String) = node.copy(dependencies = Map(key -> node.dependencies(key)))
         node.dependencies
@@ -42,7 +43,6 @@ object DepNode{
  * the name `dynamic` within the source file
  */
 class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]] => Unit) extends PluginComponent { t =>
-
 
   import global._
 

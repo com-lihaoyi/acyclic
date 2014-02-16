@@ -52,13 +52,22 @@ object TestUtils {
   }
 
   def makeFail(path: String, expected: Seq[(String, Set[Int])]*) = {
-    val cycles = intercept[CompilationException]{
-      make(path)
-    }.cycles.distinct.toSet
+    def canonicalize(cycle: Seq[(String, Set[Int])]): Seq[(String, Set[Int])] = {
+      val startIndex = cycle.indexOf(cycle.minBy(_._1))
+      cycle.drop(startIndex) ++ cycle.take(startIndex)
+    }
+    val ex = intercept[CompilationException]{ make(path) }
+    val cycles = ex.cycles
+                   .filter(!_.isEmpty)
+                   .map(canonicalize)
+                   .toSet
 
-    val fullExpected = expected.map(_.map(x => x.copy(_1 = "src/test/resources/" + path + "/" + x._1))).toSet
+    val fullExpected = expected.map(_.map(x => x.copy(_1 = "src/test/resources/" + path + "/" + x._1)))
+                               .map(canonicalize)
+                               .toSet
 
     assert(cycles == fullExpected)
   }
+
   case class CompilationException(cycles: Seq[Seq[(String, Set[Int])]]) extends Exception
 }
