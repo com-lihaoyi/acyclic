@@ -28,179 +28,118 @@ with TypingTransformers{
   val phaseName = "sinject"
 
   def newTransformer(unit: CompilationUnit) = {
+    val a = extractDependenciesByInheritance(unit)
+    val b = extractDependenciesByMemberRef(unit)
+    println()
+    println(unit.source)
+    println(a)
+    println(b)
+    println(a.map(_.sourceFile))
+    println(b.map(_.sourceFile))
+    new TypingTransformer(unit){}
+  }
 
-    val unitInjections = unit.body.collect{
-      case i @ Import(body, List(ImportSelector(name, _, _, _)))
-        if name == newTermName("dynamic") =>
-
-        body match {
-          case Select(qualifier, treename) => Select(qualifier, treename.toTypeName) -> treename
-          case Ident(treename) => Ident(treename.toTypeName) -> treename
-        }
-    }
-
-    /**
-     * Creates the `val` trees for a set of classes I want to inject, with the
-     * given flags
-     */
-    def makeDefs(injections: List[(Tree, Name)], flags: Long) = for {
-      ((inj, name), i) <- injections.zipWithIndex
-    } yield ValDef(
-      Modifiers(flags),
-      newTermName(plugin.prefix + name),
-      inj,
-      EmptyTree
-    )
-
-    /**
-     * Takes the body of the class, looks for the constructor and injects
-     * the given implicit parameters into the method signature
-     */
-    def constructorTransform(body: List[Tree], newConstrDefs: List[ValDef]): List[Tree] = body map {
-      case dd @ DefDef(modifiers, name, tparams, vparamss, tpt, rhs)
-        if name == newTermName("<init>") && newConstrDefs.length > 0 =>
-
-        val newvparamss = enhanceVparamss(vparamss, newConstrDefs)
-
-        dd.copy(vparamss = newvparamss)
-
-      case x => x
-    }
-
-    /**
-     * Adds the given implicits [arams to a method's parameters *properly*.
-     * That is, it inserts it into the last parameter list if the last list is
-     * implicit, otherwise it adds them as an extra, implicit parameter list
-     */
-    def enhanceVparamss(vparamss: List[List[ValDef]], newConstrDefs: List[ValDef]) = {
-      vparamss match {
-        case first :+ last if !last.isEmpty && last.forall(_.mods.hasFlag(IMPLICIT)) =>
-          first :+ (last ++ newConstrDefs)
-        case _ => vparamss :+ newConstrDefs
-      }
-    }
-
-    /**
-     * Constructs the implicitNotFound annotation to give better error
-     * messages when an injected class is used without a module
-     */
-    def makeAnnotation(msg: String) =
-      Apply(
-        Select(
-          New(
-            Select(
-              Ident(
-                newTermName("annotation")
-              ),
-              newTypeName("implicitNotFound")
-            )
-          ),
-          newTermName("<init>")
-        ),
-        List(
-          Literal(
-            Constant(msg)
-          )
-        )
-      )
-    /**
-     * Constructs an implicit `MyClass.this` tree
-     */
-    def thisTree(className: TypeName) =
-      ValDef(
-        Modifiers(IMPLICIT | PRIVATE | LOCAL),
-        newTermName(plugin.prefix + className),
-        Ident(className),
-        This(className)
-      )
-
-    def classTransformer(injections: List[(Tree, Name)]) = new TypingTransformer(unit){
-
-      override def transform(tree: Tree) = tree match {
-        /**
-         * add injected class members and constructor parameters
-         */
-        case cd @ ClassDef(mods, className, tparams, impl)
-          if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE) =>
-
-          val newBodyVals = makeDefs(injections, IMPLICIT | PARAMACCESSOR | PROTECTED | LOCAL)
-
-          val transformedBody = constructorTransform(
-            impl.body,
-            makeDefs(injections, IMPLICIT | PARAMACCESSOR | PARAM)
-          )
-
-          // splitting to insert the newly defined implicit val into the
-          // correct position in the list of arguments
-          val (first, last) = transformedBody.splitAt(impl.body.indexWhere{
-            case DefDef(mods, name, tparams, vparamss, tpt, rhs) => name == newTermName("<init>")
-            case _ => false
-          })
-
-          val newBody =
-            first ++
-            newBodyVals ++
-            last
-
-          super.transform(cd.copy(impl = impl.copy(body = newBody)))
-
-        case x => super.transform(x)
-      }
-    }
-
-    new TypingTransformer(unit) {
-
-      override def transform(tree: Tree): Tree =  tree match {
-        /**
-         * Inject implicits into top-level methods' parameters
-         */
-        case dd @ DefDef(mods, name, tparams, vparamss, tpt, rhs)
-          if name != newTermName("<init>") =>
-
-          val newVparamss = enhanceVparamss(
-            vparamss, makeDefs(unitInjections, IMPLICIT | PARAM)
-          )
-          classTransformer(unitInjections) transform dd.copy(vparamss = newVparamss)
-
-        /**
-         * Modify sinject.Module[T] classes
-         */
-        case cd @ ClassDef(mods, className, tparams, impl)
-          if !mods.hasFlag(TRAIT) && !mods.hasFlag(MODULE)
-          && unit.body.exists{
-            case m @ ModuleDef(mods, termName, Template(parents, self, body))
-              if parents.exists(_.toString().contains("sinject.Module"))
-                && termName.toString == className.toString => true
-            case _ => false
-          } =>
-
-
-          val newThisDef = List(thisTree(className))
-          val newAnnotation = List(makeAnnotation(s"This requires an implicit $className in scope."))
-
-          classTransformer(unitInjections) transform cd.copy(
-            mods = mods.copy(annotations = mods.annotations ++ newAnnotation),
-            impl = classTransformer(List(Ident(className) -> className)).transform(impl.copy(body = newThisDef ++ impl.body)).asInstanceOf[Template]
-          )
-
-        /**
-         * Inject abstract class member into trait
-         */
-        case cd @ ClassDef(mods, className, tparams, impl)
-          if mods.hasFlag(TRAIT) =>
-
-          val newDefDefs = makeDefs(unitInjections, DEFERRED | IMPLICIT | PROTECTED | LOCAL)
-
-          classTransformer(unitInjections) transform cd.copy(impl = impl.copy(body = newDefDefs ++ impl.body))
-
-        /**
-         * Inject implicits into class parameters
-         */
-        case cd @ ClassDef(mods, className, tparams, impl) =>
-          classTransformer(unitInjections) transform cd
-
-        case x => super.transform {x}
-      }
+  /**
+   * Traverses given type and collects result of applying a partial function `pf`.
+   *
+   * NOTE: This class exists in Scala 2.10 as CollectTypeCollector but does not in earlier
+   * versions (like 2.9) of Scala compiler that incremental cmpiler supports so we had to
+   * reimplement that class here.
+   */
+  private final class CollectTypeTraverser[T](pf: PartialFunction[Type, T]) extends TypeTraverser {
+    var collected: List[T] = Nil
+    def traverse(tpe: Type): Unit = {
+      if (pf.isDefinedAt(tpe))
+        collected = pf(tpe) :: collected
+      mapOver(tpe)
     }
   }
+
+  private abstract class ExtractDependenciesTraverser extends Traverser {
+    protected val depBuf = collection.mutable.ArrayBuffer.empty[Symbol]
+    protected def addDependency(dep: Symbol): Unit = depBuf += dep
+    def dependencies: collection.immutable.Set[Symbol] = {
+      // convert to immutable set and remove NoSymbol if we have one
+      depBuf.toSet - NoSymbol
+    }
+  }
+
+  private class ExtractDependenciesByMemberRefTraverser extends ExtractDependenciesTraverser {
+    override def traverse(tree: Tree): Unit = {
+      tree match {
+        case Import(expr, selectors) =>
+          selectors.foreach {
+            case ImportSelector(nme.WILDCARD, _, null, _) =>
+            // in case of wildcard import we do not rely on any particular name being defined
+            // on `expr`; all symbols that are being used will get caught through selections
+            case ImportSelector(name: Name, _, _, _) =>
+              def lookupImported(name: Name) = expr.symbol.info.member(name)
+              // importing a name means importing both a term and a type (if they exist)
+              addDependency(lookupImported(name.toTermName))
+              addDependency(lookupImported(name.toTypeName))
+          }
+        case select: Select =>
+          addDependency(select.symbol)
+        /*
+         * Idents are used in number of situations:
+         *  - to refer to local variable
+         *  - to refer to a top-level package (other packages are nested selections)
+         *  - to refer to a term defined in the same package as an enclosing class;
+         *    this looks fishy, see this thread:
+         *    https://groups.google.com/d/topic/scala-internals/Ms9WUAtokLo/discussion
+         */
+        case ident: Ident =>
+          addDependency(ident.symbol)
+        case typeTree: TypeTree =>
+          val typeSymbolCollector = new CollectTypeTraverser({
+            case tpe if tpe != null && !tpe.typeSymbol.isPackage => tpe.typeSymbol
+          })
+          typeSymbolCollector.traverse(typeTree.tpe)
+          val deps = typeSymbolCollector.collected.toSet
+          deps.foreach(addDependency)
+        case Template(parents, self, body) =>
+          traverseTrees(body)
+        case other => ()
+      }
+      super.traverse(tree)
+    }
+  }
+
+  def extractDependenciesByMemberRef(unit: CompilationUnit): collection.immutable.Set[Symbol] = {
+    val traverser = new ExtractDependenciesByMemberRefTraverser
+    traverser.traverse(unit.body)
+    val dependencies = traverser.dependencies
+    dependencies.map(enclosingTopLevelClass)
+  }
+
+
+
+  private final class ExtractDependenciesByInheritanceTraverser extends ExtractDependenciesTraverser {
+    override def traverse(tree: Tree): Unit = tree match {
+      case Template(parents, self, body) =>
+        // we are using typeSymbol and not typeSymbolDirect because we want
+        // type aliases to be expanded
+        val parentTypeSymbols = parents.filter(_.tpe != null).map(_.tpe.typeSymbol).toSet
+        debuglog("Parent type symbols for " + tree.pos + ": " + parentTypeSymbols.map(_.fullName))
+        parentTypeSymbols.foreach(addDependency)
+        traverseTrees(body)
+      case tree => super.traverse(tree)
+    }
+  }
+
+  def extractDependenciesByInheritance(unit: CompilationUnit): collection.immutable.Set[Symbol] = {
+    val traverser = new ExtractDependenciesByInheritanceTraverser
+    traverser.traverse(unit.body)
+    val dependencies = traverser.dependencies
+    dependencies.map(enclosingTopLevelClass)
+  }
+
+  /**
+   * We capture enclosing classes only because that's what CompilationUnit.depends does and we don't want
+   * to deviate from old behaviour too much for now.
+   */
+  private def enclosingTopLevelClass(sym: Symbol): Symbol =
+  // for Scala 2.8 and 2.9 this method is provided through SymbolCompat
+    sym.enclosingTopLevelClass
+
 }

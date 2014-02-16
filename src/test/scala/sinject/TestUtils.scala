@@ -8,6 +8,7 @@ import tools.nsc.reporters.ConsoleReporter
 import tools.nsc.plugins.Plugin
 import plugin.SinjectPlugin
 import java.net.URLClassLoader
+import scala.tools.nsc.util.ClassPath
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,59 +27,25 @@ object TestUtils {
   }
 
   /* Instantiates an object of type T passing the given arguments to its first constructor */
-  def make[T: ClassTag](args: AnyRef*) = {
+  def make(path: String) = {
 
 
-    val src = "src/test/resources/" + classTag[T].runtimeClass.getPackage.getName.replace('.', '/')
+    val src = "src/test/resources/" + path.replace('.', '/')
     val sources = getFilePaths(src)
 
-    var vd = new VirtualDirectory("(memory)", None)
-    lazy val cl = new ClassLoader(this.getClass.getClassLoader){
-      override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
-        try{
-          if (!name.startsWith("sinject")) throw new ClassNotFoundException()
-          findClass(name)
+    val vd = new VirtualDirectory("(memory)", None)
+    lazy val settings = new Settings
+    val loader = getClass.getClassLoader.asInstanceOf[URLClassLoader]
+    val entries = loader.getURLs map(_.getPath)
+    settings.outputDirs.setSingleOutput(vd)
 
-        } catch { case e: Throwable =>
-          try{
-            getParent.loadClass(name)
-          }catch{case e: Throwable =>
-            e.printStackTrace()
-            null
-          }
-        }
-      }
+    // annoyingly, the Scala library is not in our classpath, so we have to add it manually
+    val sclpath = entries.find(_.endsWith("scala-compiler.jar")).map(
+      _.replaceAll("scala-compiler.jar", "scala-library.jar")
+    )
 
-      override protected def findClass(name: String): Class[_] = {
-        Option(findLoadedClass(name)) getOrElse {
+    settings.classpath.value = ClassPath.join(entries ++ sclpath : _*)
 
-          val (pathParts :+ className) = name.split('.').toSeq
-
-          val finalDir = pathParts.foldLeft(vd: AbstractFile)((dir, part) => dir.lookupName(part, true))
-
-          finalDir.lookupName(className + ".class", false) match {
-            case null   => throw new ClassNotFoundException()
-            case file   =>
-              val bytes = file.toByteArray
-              this.defineClass(name, bytes, 0, bytes.length)
-          }
-        }
-      }
-    }
-
-    lazy val settings = {
-      val s =  new Settings
-      //s.Xprint.value = List("all")
-      val classPath = getFilePaths("/Runtimes/scala-2.10.0-RC2/lib") :+
-        "target/scala-2.10/classes"
-
-      classPath.map(new java.io.File(_).getAbsolutePath).foreach{ f =>
-        s.classpath.append(f)
-        s.bootclasspath.append(f)
-      }
-      s.outputDirs.setSingleOutput(vd)
-      s
-    }
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
       override protected def loadRoughPluginsList(): List[Plugin] = List(new SinjectPlugin(this))
     }
@@ -86,10 +53,6 @@ object TestUtils {
     run.compile(sources)
 
     if (vd.toList.isEmpty) throw CompilationException
-
-    val cls = cl.loadClass(classTag[T].runtimeClass.getName)
-
-    cls.getConstructors()(0).newInstance(args:_*).asInstanceOf[{def apply(): String}]
   }
   object CompilationException extends Exception
 }
