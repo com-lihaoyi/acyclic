@@ -6,7 +6,6 @@ object Dependencies{
   def apply(global: Global)(unit: global.CompilationUnit): Set[(global.Symbol, global.Tree)] = {
     import global._
 
-
     class CollectTypeTraverser[T](pf: PartialFunction[Type, T]) extends TypeTraverser {
       var collected: List[T] = Nil
       def traverse(tpe: Type): Unit = {

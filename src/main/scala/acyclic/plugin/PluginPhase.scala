@@ -12,7 +12,9 @@ import tools.nsc.plugins.PluginComponent
  * throughout every compilation unit, based upon what imports it finds with
  * the name `dynamic` within the source file
  */
-class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]] => Unit) extends PluginComponent { t =>
+class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]] => Unit)
+                  extends PluginComponent
+                  with Cycles { t =>
 
   import global._
 
@@ -36,33 +38,34 @@ class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]
           if sym != NoSymbol
           if sym.sourceFile != null
           if sym.sourceFile.path != unit.source.path
-        } yield sym.sourceFile.path -> tree.pos.line
+        } yield sym.sourceFile.path -> tree.pos
 
         DepNode(
           unit.source.path,
           connections.groupBy(_._1)
-                     .mapValues(_.map(x => x._2 -> unit.source.lineToString(x._2 - 1))),
+                     .mapValues(_.map(_._2)),
           acyclic
         )
       }
 
       val cycles = DepNode.findCycle(nodes)
-                          .map(DepNode.canonicalize)
+                          .map(CycleNode.canonicalize)
                           .distinct
 
-      cycleReporter(cycles.map(_.map(n => n.path -> n.dependencies.values.head.map(_._1))))
+      cycleReporter(cycles.map(_.map(n => n.path -> n.deps.map(_.line))))
       cycles.foreach{cycle =>
+        global.error("Circular dependency between acyclic files:")
         for {
-          depNode <- cycle
-          unit <- global.currentRun.units.find(_.source.path == depNode.path)
+          cycNode <- cycle
+          unit <- global.currentRun.units.find(_.source.path == cycNode.path)
         }{
-
-          unit.error(depNode.)
+          val firstDep :: rest = cycNode.deps.toList
+          unit.echo(firstDep, if (cycNode.acyclic) "acyclic" else "")
+          val filteredRest = rest.map(_.line).distinct.filter(_ != firstDep.line)
+          if (filteredRest != Nil)
+            global.inform("Other dependencies at lines: " + filteredRest.mkString(", "))
         }
 
-        global.error(
-          "Unwanted cyclic dependency found!\n" + cycle.map(_.prettyPrint).mkString("\n")
-        )
       }
     }
 

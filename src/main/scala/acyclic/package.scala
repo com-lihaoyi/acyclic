@@ -1,4 +1,5 @@
 
 package object acyclic {
-  def file = ???
+  val file = ???
+  def pkg = ???
 }
