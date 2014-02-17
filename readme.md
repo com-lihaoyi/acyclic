@@ -1,6 +1,6 @@
 Acyclic
 =======
-**Acyclic** is a Scala compiler acyclic.plugin that allows you to mark files within a build as `acyclic`, causing cyclic dependencies to become compilation errors.
+**Acyclic** is a Scala compiler plugin that allows you to mark files within a build as `acyclic`, turning circular dependencies between files into compilation errors.
 
 For example, the following two files have a circular dependency between them:
 
@@ -63,7 +63,7 @@ A more realistic example of a cycle that **Acyclic** may find is this one taken 
 
 As you can see, there is a dependency cycle between `Formatter.scala`, `Model.scala`, `package.scala` and `TestSuite.scala`. `package.scala` has been explicitly marked `acyclic`, and so compilation fails with an error. Apart from the line shown, **Acyclic** also gives other lines in the same file which contain dependencies contributing to this cycle.
 
-Spotting this dependency cycle, and knowing exactly which pieces of code are causing it, is something that is virtually impossible to do manually via inspection or code-review, and thus many projects end up with dependency graphs which are far more intertwined than need be. Using **Acyclic**, there is no chance of accidentally introducing a dependency cycle you don't want, and even when you do, it shows you exactly what's causing the cycle that you need to fix to make it go away.
+Spotting this dependency cycle spanning 4 different files, and knowing exactly which pieces of code are causing it, is something that is virtually impossible to do manually via inspection or code-review. Using **Acyclic**, there is no chance of accidentally introducing a dependency cycle you don't want, and even when you do, it shows you exactly what's causing the cycle that you need to fix to make it go away.
 
 How to Use
 ==========
