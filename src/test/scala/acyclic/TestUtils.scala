@@ -41,7 +41,7 @@ object TestUtils {
     var cycles: Option[Seq[Seq[(String, Set[Int])]]] = None
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
       override protected def loadRoughPluginsList(): List[Plugin] = {
-        List(new plugin.Plugin(this, foundCycles => cycles = Some(foundCycles)))
+        List(new plugin.TestPlugin(this, foundCycles => cycles = Some(foundCycles)))
       }
     }
     val run = new compiler.Run()

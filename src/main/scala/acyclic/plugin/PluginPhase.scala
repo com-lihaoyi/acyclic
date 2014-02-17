@@ -19,6 +19,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]
   import global._
 
   val runsAfter = List("typer")
+
   override val runsRightAfter = Some("typer")
 
   val phaseName = "acyclic"

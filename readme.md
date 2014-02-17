@@ -35,9 +35,21 @@ src/test/resources/fail/simple/A.scala:6: acyclic
 src/test/resources/fail/simple/B.scala:4:
   val a1: A = new A
               ^
-Other dependencies at lines: 5
 ```
 
 This applies to term-dependencies, type-dependencies, as well as cycles that span more than two files. Circular dependencies between files is something that people often don't want, but are difficult to avoid as introducing cycles is hard to detect while working or during code review. **Acyclic** is designed to help you guard against unwanted cycles at compile-time.
 
+How to Use
+==========
 
+To use, add the following to your `build.sbt`:
+
+```scala
+libraryDependencies += "com.lihaoyi.acyclic" %% "acyclic" % "0.1.0" % "provided"
+
+autoCompilerPlugins := true
+
+addCompilerPlugin("com.lihaoyi.acyclic" %% "acyclic" % "0.1.0")
+```
+
+**Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), as well as being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/src/main/scala/acyclic/plugin/PluginPhase.scala#L3).
