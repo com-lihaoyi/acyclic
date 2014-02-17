@@ -1,4 +1,4 @@
 <plugin>
     <name>acyclic</name>
-    <classname>acyclic.plugin.Plugin</classname>
+    <classname>acyclic.plugin.RuntimePlugin</classname>
 </plugin>

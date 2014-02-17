@@ -33,7 +33,7 @@ object CycleTests extends TestSuite{
           "A.scala" -> Set(5),
           "E.scala" -> Set(6),
           "D.scala" -> Set(6),
-          "C.scala" -> Set(4)
+          "C.scala" -> Set(4, 5)
         )
       )
     }

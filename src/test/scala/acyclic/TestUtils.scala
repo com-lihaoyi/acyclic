@@ -58,7 +58,6 @@ object TestUtils {
     val ex = intercept[CompilationException]{ make(path) }
     val cycles = ex.cycles
                    .filter(!_.isEmpty)
-                   .map(canonicalize)
                    .toSet
 
     val fullExpected = expected.map(_.map(x => x.copy(_1 = "src/test/resources/" + path + "/" + x._1)))

@@ -2,7 +2,7 @@ package acyclic.plugin
 import acyclic.file
 
 case class DepNode(path: String,
-                   dependencies: Map[String, Set[Int]],
+                   dependencies: Map[String, Set[(Int, String)]],
                    acyclic: Boolean){
   def prettyPrint = Seq(
     path,
@@ -20,7 +20,6 @@ object DepNode{
       if (path.exists(_.path == node.path)) {
         if (!node.acyclic) Stream()
         else Stream(path.reverse.dropWhile(_.path != node.path))
-
       } else {
         def newNode(key: String) = node.copy(dependencies = Map(key -> node.dependencies(key)))
         node.dependencies
@@ -30,5 +29,9 @@ object DepNode{
     }
 
     nodes.values.toStream.flatMap(rec(_, Nil))
+  }
+  def canonicalize(cycle: Seq[DepNode]): Seq[DepNode] = {
+    val startIndex = cycle.indexOf(cycle.minBy(_.path))
+    cycle.drop(startIndex) ++ cycle.take(startIndex)
   }
 }

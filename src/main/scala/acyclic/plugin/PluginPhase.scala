@@ -1,4 +1,4 @@
-//acyclic
+
 package acyclic.plugin
 import acyclic.file
 
@@ -23,11 +23,12 @@ class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]
 
   override def newPhase(prev: Phase): Phase = new Phase(prev) {
     override def run() {
+
       val nodes = for (unit <- global.currentRun.units.toSeq) yield {
         val acyclic = unit.body.children.collect{
           case Import(expr, List(sel)) =>
             expr.symbol.toString == "package acyclic" && sel.name.toString == "file"
-        }.isDefinedAt(0)
+        }.exists(x => x)
 
         val deps = Dependencies(t.global)(unit)
         val connections = for{
@@ -40,17 +41,27 @@ class PluginPhase(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]
         DepNode(
           unit.source.path,
           connections.groupBy(_._1)
-                     .mapValues(_.map(_._2)),
+                     .mapValues(_.map(x => x._2 -> unit.source.lineToString(x._2 - 1))),
           acyclic
         )
       }
 
       val cycles = DepNode.findCycle(nodes)
+                          .map(DepNode.canonicalize)
+                          .distinct
 
-      cycleReporter(cycles.map(_.map(n => n.path -> n.dependencies.values.head)))
-      cycles.headOption.foreach{cycle =>
+      cycleReporter(cycles.map(_.map(n => n.path -> n.dependencies.values.head.map(_._1))))
+      cycles.foreach{cycle =>
+        for {
+          depNode <- cycle
+          unit <- global.currentRun.units.find(_.source.path == depNode.path)
+        }{
+
+          unit.error(depNode.)
+        }
+
         global.error(
-          cycle.map(_.prettyPrint).mkString("\n")
+          "Unwanted cyclic dependency found!\n" + cycle.map(_.prettyPrint).mkString("\n")
         )
       }
     }
