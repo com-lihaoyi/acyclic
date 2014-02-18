@@ -2,7 +2,7 @@
 package acyclic.plugin
 import acyclic.file
 import scala.tools.nsc.Global
-object Dependencies{
+object DependencyExtraction{
   def apply(global: Global)(unit: global.CompilationUnit): Set[(global.Symbol, global.Tree)] = {
     import global._
 

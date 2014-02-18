@@ -41,7 +41,10 @@ object TestUtils {
     var cycles: Option[Seq[Seq[(String, Set[Int])]]] = None
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
       override protected def loadRoughPluginsList(): List[Plugin] = {
-        List(new plugin.TestPlugin(this, foundCycles => cycles = Some(foundCycles)))
+        List(new plugin.TestPlugin(this, foundCycles => cycles = cycles match{
+          case None => Some(Seq(foundCycles))
+          case Some(oldCycles) => Some(oldCycles :+ foundCycles)
+        }))
       }
     }
     val run = new compiler.Run()
@@ -57,7 +60,7 @@ object TestUtils {
     }
     val ex = intercept[CompilationException]{ make(path) }
     val cycles = ex.cycles
-                   .filter(!_.isEmpty)
+                   .map(canonicalize)
                    .toSet
 
     val fullExpected = expected.map(_.map(x => x.copy(_1 = "src/test/resources/" + path + "/" + x._1)))

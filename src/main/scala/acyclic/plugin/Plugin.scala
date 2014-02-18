@@ -3,7 +3,7 @@ import acyclic.file
 import tools.nsc.Global
 
 class RuntimePlugin(global: Global) extends TestPlugin(global)
-class TestPlugin(val global: Global, cycleReporter: Seq[Seq[(String, Set[Int])]] => Unit = _ => ()) extends tools.nsc.plugins.Plugin {
+class TestPlugin(val global: Global, cycleReporter: Seq[(String, Set[Int])] => Unit = _ => ()) extends tools.nsc.plugins.Plugin {
 
   val name = "Acyclic"
   val description = "Allows the developer to prohibit inter-file dependencies"
