@@ -71,7 +71,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
           if sym != NoSymbol
           if sym.sourceFile != null
           if sym.sourceFile.path != unit.source.path
-        } yield (sym.sourceFile.path, tree.pos)
+        } yield (sym.sourceFile.path, tree)
 
         Node[Value.File](
           Value.File(unit.source.path, pkgName(unit)),
@@ -123,29 +123,29 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
                                .map{ case Seq(a, b) => (a.value, a.dependencies(b.value))}
                                .toSeq
         cycleReporter(
-          cycleInfo.map{ case (a, b) => a -> b.map(_.line).toSet }
+          cycleInfo.map{ case (a, b) => a -> b.map(_.pos.line).toSet }
         )
 
         global.error("Unwanted cyclic dependency")
         for ((value, locs) <- cycleInfo){
           val blurb = value match{
-            case Value.Pkg(pkg) => "package " + pkg.mkString(".")
+            case Value.Pkg(pkg) => "from package " + pkg.mkString(".")
             case Value.File(_, _) => ""
           }
           currentRun.units
-                    .find(_.source.path == locs.head.source.path)
+                    .find(_.source.path == locs.head.pos.source.path)
                     .get
-                    .echo(locs.head, blurb)
+                    .echo(locs.head.pos, "")
 
           val otherLines = locs.tail
-                               .map(_.line)
-                               .filter(_ != locs.head.line)
-
+                               .map(_.pos.line)
+                               .filter(_ != locs.head.pos.line)
+          global.inform("symbol: " + locs.head.symbol.toString + " " + blurb)
           if (!otherLines.isEmpty){
             global.inform("More dependencies at lines " + otherLines.mkString(" "))
           }
         }
-
+        global.inform("\n")
         usedNodes ++= cycle
       }
     }

@@ -33,16 +33,19 @@ class A {
 And attempting to compile these files together will then result in a compilation error:
 
 ```scala
-error: Circular dependency between acyclic files:
-src/test/resources/fail/simple/A.scala:6: acyclic
-  val b: B = null
-      ^
+error: Unwanted cyclic dependency
 src/test/resources/fail/simple/B.scala:4:
   val a1: A = new A
-              ^
+                  ^
+symbol: class A
+More dependencies at lines 5
+src/test/resources/fail/simple/A.scala:6:
+  val b: B = null
+      ^
+symbol: class B
 ```
 
-This applies to term-dependencies, type-dependencies, as well as cycles that span more than two files. Circular dependencies between files is something that people often don't want, but are difficult to avoid as introducing cycles is hard to detect while working or during code review. **Acyclic** is designed to help you guard against unwanted cycles at compile-time.
+This applies to term-dependencies, type-dependencies, as well as cycles that span more than two files. Circular dependencies between files is something that people often don't want, but are difficult to avoid as introducing cycles is hard to detect while working or during code review. **Acyclic** is designed to help you guard against unwanted cycles at compile-time, and tells you exactly where the cycles are when they appear so you can deal with them.
 
 A more realistic example of a cycle that **Acyclic** may find is this one taken from a cycle in [uTest](https://github.com/lihaoyi/utest):
 
@@ -117,12 +120,14 @@ These 6 files do not have any file-level cycles: `a.A1` depends on `b.B1` and `b
 
 ```scala
 error: Unwanted cyclic dependency
-src/test/resources/fail/cyclicpackage/a/A1.scala:5: package fail.cyclicpackage.a
-class A1 extends b.B1{
-                   ^
-src/test/resources/fail/cyclicpackage/b/B2.scala:5: package fail.cyclicpackage.b
+src/test/resources/fail/cyclicpackage/b/B2.scala:5:
 class B2 extends a.A2
          ^
+symbol: constructor A2 from package fail.cyclicpackage.b
+src/test/resources/fail/cyclicpackage/a/A1.scala:5:
+class A1 extends b.B1{
+         ^
+symbol: value <local A1> from package fail.cyclicpackage.a
 ```
 
 As you can see, it tells you exactly where the dependencies are in the source file, giving you an opportunity to find and remove them.

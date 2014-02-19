@@ -5,10 +5,15 @@ import collection.mutable
 
 sealed trait Value{
   def pkg: List[String]
+  def prettyPrint: String
 }
 object Value{
-  case class File(path: String, pkg: List[String] = Nil) extends Value
-  case class Pkg(pkg: List[String]) extends Value
+  case class File(path: String, pkg: List[String] = Nil) extends Value{
+    def prettyPrint = s"file $path"
+  }
+  case class Pkg(pkg: List[String]) extends Value{
+    def prettyPrint = s"package ${pkg.mkString(".")}"
+  }
   object Pkg{
     def apply(s: String): Pkg = apply(s.split('.').toList)
   }
@@ -18,7 +23,7 @@ trait GraphAnalysis{
   val global: Global
   import global._
 
-  case class Node[+T <: Value](value: T, dependencies: Map[Value, Set[Position]]){
+  case class Node[+T <: Value](value: T, dependencies: Map[Value, Set[Tree]]){
     override def toString = s"DepNode(\n  $value, \n  ${dependencies.keys}\n)"
   }
 
