@@ -2,13 +2,29 @@ package acyclic.plugin
 import acyclic.file
 import scala.tools.nsc.Global
 import collection.mutable
+
+sealed trait Value{
+  def pkg: List[String]
+}
+object Value{
+  case class File(path: String, pkg: List[String] = Nil) extends Value
+  case class Pkg(pkg: List[String]) extends Value
+  object Pkg{
+    def apply(s: String): Pkg = apply(s.split('.').toList)
+  }
+}
+
 trait GraphAnalysis{
   val global: Global
   import global._
 
-  case class DepNode(path: String, pkg: List[String], dependencies: Map[String, Set[Position]]){
-    override def toString = s"DepNode($path)"
+  case class Node[+T <: Value](value: T, dependencies: Map[Value, Set[Position]]){
+    override def toString = s"DepNode(\n  $value, \n  ${dependencies.keys}\n)"
   }
+
+  type DepNode = Node[Value]
+  type FileNode = Node[Value.File]
+  type PkgNode = Node[Value.Pkg]
 
   object DepNode{
     /**
@@ -16,7 +32,7 @@ trait GraphAnalysis{
      * from `from` within the DepNodes in `among`.
      */
     def smallestCycle(from: DepNode, among: Set[DepNode]): Seq[DepNode] = {
-      val nodeMap = among.map(n => n.path -> n).toMap
+      val nodeMap = among.map(n => n.value -> n).toMap
       val distances = mutable.Map(from -> 0)
       val queue = mutable.Queue(from)
       while(queue.nonEmpty){
@@ -31,7 +47,7 @@ trait GraphAnalysis{
       }
       var route = List(from)
       while(route.length == 1 || route.head != from){
-        route ::= among.filter(x => x.dependencies.keySet.contains(route.head.path))
+        route ::= among.filter(x => x.dependencies.keySet.contains(route.head.value))
                        .minBy(distances)
       }
       route.tail
@@ -44,7 +60,7 @@ trait GraphAnalysis{
      */
     def stronglyConnectedComponents(nodes: List[DepNode]): Set[Set[DepNode]] = {
       
-      val nodeMap = nodes.map(n => n.path -> n).toMap
+      val nodeMap = nodes.map(n => n.value -> n).toMap
 
       val components = mutable.Map.empty[DepNode, Int] ++ nodes.zipWithIndex.toMap
       val visited = mutable.Set.empty[DepNode]
@@ -54,7 +70,7 @@ trait GraphAnalysis{
       def rec(node: DepNode, path: List[DepNode]): Unit = {
         if (path.contains(node)) {
           val cycle = path.reverse
-                          .dropWhile(_.path != node.path)
+                          .dropWhile(_.value != node.value)
           
           val involved = cycle.map(components)
           val firstIndex = involved.head

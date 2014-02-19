@@ -8,7 +8,7 @@ import java.net.URLClassLoader
 import scala.tools.nsc.util.ClassPath
 import utest._
 import scala.reflect.io.VirtualDirectory
-
+import acyclic.plugin.Value
 
 object TestUtils {
   def getFilePaths(src: String): List[String] = {
@@ -38,7 +38,7 @@ object TestUtils {
 
     settings.classpath.value = ClassPath.join(entries ++ sclpath : _*)
 
-    var cycles: Option[Seq[Seq[(String, Set[Int])]]] = None
+    var cycles: Option[Seq[Seq[(acyclic.plugin.Value, Set[Int])]]] = None
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
       override protected def loadRoughPluginsList(): List[Plugin] = {
         List(new plugin.TestPlugin(this, foundCycles => cycles = cycles match{
@@ -53,22 +53,33 @@ object TestUtils {
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
   }
 
-  def makeFail(path: String, expected: Seq[(String, Set[Int])]*) = {
-    def canonicalize(cycle: Seq[(String, Set[Int])]): Seq[(String, Set[Int])] = {
-      val startIndex = cycle.indexOf(cycle.minBy(_._1))
+  def makeFail(path: String, expected: Seq[(Value, Set[Int])]*) = {
+    def canonicalize(cycle: Seq[(Value, Set[Int])]): Seq[(Value, Set[Int])] = {
+      val startIndex = cycle.indexOf(cycle.minBy(_._1.toString))
       cycle.drop(startIndex) ++ cycle.take(startIndex)
     }
     val ex = intercept[CompilationException]{ make(path) }
     val cycles = ex.cycles
                    .map(canonicalize)
+                   .map(
+                     _.map{
+                       case (Value.File(p, pkg), v) => (Value.File(p, Nil), v)
+                       case x => x
+                     }
+                   )
                    .toSet
 
-    val fullExpected = expected.map(_.map(x => x.copy(_1 = "src/test/resources/" + path + "/" + x._1)))
+    def expand(v: Value) = v match{
+      case Value.File(filePath, pkg) => Value.File("src/test/resources/" + path + "/" + filePath, Nil)
+      case v => v
+    }
+
+    val fullExpected = expected.map(_.map(x => x.copy(_1 = expand(x._1))))
                                .map(canonicalize)
                                .toSet
 
     assert(cycles == fullExpected)
   }
 
-  case class CompilationException(cycles: Seq[Seq[(String, Set[Int])]]) extends Exception
+  case class CompilationException(cycles: Seq[Seq[(Value, Set[Int])]]) extends Exception
 }
