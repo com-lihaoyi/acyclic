@@ -127,11 +127,15 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
         )
 
         global.error("Unwanted cyclic dependency")
-        for ((path, locs) <- cycleInfo){
+        for ((value, locs) <- cycleInfo){
+          val blurb = value match{
+            case Value.Pkg(pkg) => "package " + pkg.mkString(".")
+            case Value.File(_, _) => ""
+          }
           currentRun.units
                     .find(_.source.path == locs.head.source.path)
                     .get
-                    .echo(locs.head, "")
+                    .echo(locs.head, blurb)
 
           val otherLines = locs.tail
                                .map(_.line)

@@ -22,12 +22,17 @@ class B {
 In this case it is very obvious that there is a circular dependency, but in larger projects the fact that a circular dependency exists can be difficult to spot. Wih **Acyclic**, you can annotate either source file with an `acyclic` import:
 
 ```scala
+package fail.simple
 import acyclic.file
+
+class A {
+  val b: B = null
+}
 ```
 
 And attempting to compile these files together will then result in a compilation error:
 
-```
+```scala
 error: Circular dependency between acyclic files:
 src/test/resources/fail/simple/A.scala:6: acyclic
   val b: B = null
@@ -41,7 +46,7 @@ This applies to term-dependencies, type-dependencies, as well as cycles that spa
 
 A more realistic example of a cycle that **Acyclic** may find is this one taken from a cycle in [uTest](https://github.com/lihaoyi/utest):
 
-```
+```scala
 [error] Circular dependency between acyclic files:
 [info] /Users/haoyi/Dropbox (Personal)/Workspace/utest/shared/main/scala/utest/Formatter.scala:15:
 [info]   def formatSingle(path: Seq[String], r: Result): String
@@ -64,6 +69,63 @@ A more realistic example of a cycle that **Acyclic** may find is this one taken 
 As you can see, there is a dependency cycle between `Formatter.scala`, `Model.scala`, `package.scala` and `TestSuite.scala`. `package.scala` has been explicitly marked `acyclic`, and so compilation fails with an error. Apart from the line shown, **Acyclic** also gives other lines in the same file which contain dependencies contributing to this cycle.
 
 Spotting this dependency cycle spanning 4 different files, and knowing exactly which pieces of code are causing it, is something that is virtually impossible to do manually via inspection or code-review. Using **Acyclic**, there is no chance of accidentally introducing a dependency cycle you don't want, and even when you do, it shows you exactly what's causing the cycle that you need to fix to make it go away.
+
+Package Cycles
+==============
+
+**Acyclic** also allows you to annotate entire packages as `acyclic` by placing a `import acyclic.pkg` inside the package object. Consider two packages `a` and `b` with three files in each:
+
+```scala
+package fail.cyclicpackage
+package a
+
+class A1 extends b.B1
+```
+```scala
+package fail.cyclicpackage.a
+class A2
+```
+```scala
+package fail.cyclicpackage
+
+package object a {
+  import acyclic.pkg
+}
+```
+```scala
+package fail.cyclicpackage.b
+import acyclic.file
+class B1
+```
+```scala
+package fail.cyclicpackage
+package b
+import acyclic.file
+
+class B2 extends a.A2
+```
+```scala
+package fail.cyclicpackage
+
+package object b {
+  import acyclic.pkg
+}
+
+```
+
+These 6 files do not have any file-level cycles: `a.A1` depends on `b.B1` and `b.B2` depends upon `a.A2`, forming two distinct, acyclic dependency graphs. However, we may want to preserve the invariant that the two packages `a` and `b` do not have any cyclic dependencies between them. By annotating the two packages as `acyclic.pkg` in their package objects as shown above, we can make this circular package dependency error out:
+
+```scala
+error: Unwanted cyclic dependency
+src/test/resources/fail/cyclicpackage/a/A1.scala:5: package fail.cyclicpackage.a
+class A1 extends b.B1{
+                   ^
+src/test/resources/fail/cyclicpackage/b/B2.scala:5: package fail.cyclicpackage.b
+class B2 extends a.A2
+         ^
+```
+
+As you can see, it tells you exactly where the dependencies are in the source file, giving you an opportunity to find and remove them.
 
 How to Use
 ==========
