@@ -34,15 +34,18 @@ And attempting to compile these files together will then result in a compilation
 
 ```scala
 error: Unwanted cyclic dependency
+
 src/test/resources/fail/simple/B.scala:4:
   val a1: A = new A
                   ^
 symbol: class A
 More dependencies at lines 5
+
 src/test/resources/fail/simple/A.scala:6:
   val b: B = null
       ^
 symbol: class B
+
 ```
 
 This applies to term-dependencies, type-dependencies, as well as cycles that span more than two files. Circular dependencies between files is something that people often don't want, but are difficult to avoid as introducing cycles is hard to detect while working or during code review. **Acyclic** is designed to help you guard against unwanted cycles at compile-time, and tells you exactly where the cycles are when they appear so you can deal with them.
@@ -76,61 +79,75 @@ Spotting this dependency cycle spanning 4 different files, and knowing exactly w
 Package Cycles
 ==============
 
-**Acyclic** also allows you to annotate entire packages as `acyclic` by placing a `import acyclic.pkg` inside the package object. Consider two packages `a` and `b` with three files in each:
+**Acyclic** also allows you to annotate entire packages as `acyclic` by placing a `import acyclic.pkg` inside the package object. Consider the following set of files:
 
 ```scala
-package fail.cyclicpackage
-package a
+// c/C1.scala
+package fail.halfpackagecycle.c
 
-class A1 extends b.B1
+object C1
 ```
 ```scala
-package fail.cyclicpackage.a
-class A2
+// c/C2.scala
+package fail.halfpackagecycle
+package c
+
+class C2 {
+  lazy val b = new B
+}
 ```
 ```scala
-package fail.cyclicpackage
+// c/package.scala
+package fail.halfpackagecycle
 
-package object a {
+package object c {
   import acyclic.pkg
 }
 ```
 ```scala
-package fail.cyclicpackage.b
-import acyclic.file
-class B1
-```
-```scala
-package fail.cyclicpackage
-package b
-import acyclic.file
+// A.scala
+package fail.halfpackagecycle
 
-class B2 extends a.A2
-```
-```scala
-package fail.cyclicpackage
-
-package object b {
-  import acyclic.pkg
+class A {
+  val thing = c.C1
 }
+```
+```scala
+// B.scala
+package fail.halfpackagecycle
 
+class B extends A
 ```
 
-These 6 files do not have any file-level cycles: `a.A1` depends on `b.B1` and `b.B2` depends upon `a.A2`, forming two distinct, acyclic dependency graphs. However, we may want to preserve the invariant that the two packages `a` and `b` do not have any cyclic dependencies between them. By annotating the two packages as `acyclic.pkg` in their package objects as shown above, we can make this circular package dependency error out:
+These 5 files do not have any file-level cycles, and form a nice linear dependency chain:
+
+```
+c/C2.scala -> B.scala -> A.scala -> c/C1.scala
+```
+
+However, we may want to preserve the invariant that the package `c` does not have any cyclic dependencies with other packages or files.. By annotating the package with `import acyclic.pkg` in its package objects as shown above, we can make this circular package dependency error out:
 
 ```scala
 error: Unwanted cyclic dependency
-src/test/resources/fail/cyclicpackage/b/B2.scala:5:
-class B2 extends a.A2
-         ^
-symbol: constructor A2 from package fail.cyclicpackage.b
-src/test/resources/fail/cyclicpackage/a/A1.scala:5:
-class A1 extends b.B1{
-         ^
-symbol: value <local A1> from package fail.cyclicpackage.a
+
+src/test/resources/fail/halfpackagecycle/B.scala:3:
+class B extends A
+        ^
+symbol: constructor A
+
+src/test/resources/fail/halfpackagecycle/A.scala:4:
+  val thing = c.C1
+      ^
+symbol: object C1
+
+package fail.halfpackagecycle.c
+src/test/resources/fail/halfpackagecycle/c/C2.scala:5:
+  lazy val b = new B
+           ^
+symbol: class B
 ```
 
-As you can see, it tells you exactly where the dependencies are in the source file, giving you an opportunity to find and remove them.
+Since, `c` as a whole must be acyclic, the dependency cycle between `c`, `B.scala` and `A.scala` is prohibited, and **Acyclic** errors out. As you can see, it tells you exactly where the dependencies are in the source files, giving you an opportunity to find and remove them.
 
 How to Use
 ==========

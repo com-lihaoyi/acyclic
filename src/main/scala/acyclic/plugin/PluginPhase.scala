@@ -31,20 +31,21 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
         .flatMap(_.split('.'))
   }
 
+  def units = global.currentRun.units.toSet
+
   def findAcyclics() = {
     val acyclicNodePaths = for {
-      unit <- global.currentRun.units.toSet
+      unit <- units
       if unit.body.children.collect{
         case Import(expr, List(sel)) =>
           expr.symbol.toString == "package acyclic" && sel.name.toString == "file"
       }.exists(x => x)
     } yield {
-
       Value.File(unit.source.path, pkgName(unit))
     }
 
     val acyclicPkgNames = for {
-      unit <- global.currentRun.units.toSeq
+      unit <- units
       pkgObject <- unit.body.collect{case x: ModuleDef if x.name.toString == "package" => x }
       if !pkgObject.impl.children.collect{case Import(expr, List(sel)) =>
         expr.symbol.toString == "package acyclic" && sel.name.toString == "pkg"
@@ -61,8 +62,8 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
 
   override def newPhase(prev: Phase): Phase = new Phase(prev) {
     override def run() {
-      val unitMap = global.currentRun.units.map(u => u.source.path -> u).toMap
-      val nodes = for (unit <- global.currentRun.units.toList) yield {
+      val unitMap = units.map(u => u.source.path -> u).toMap
+      val nodes = for (unit <- units) yield {
 
         val deps = DependencyExtraction(t.global)(unit)
 
@@ -83,7 +84,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
       val nodeMap = nodes.map(n => n.value -> n).toMap
 
       val (acyclicFiles, acyclicPkgs) = findAcyclics()
-
+      val allAcyclics = Set.empty[Value] ++ acyclicFiles ++ acyclicPkgs
       // synthetic nodes for packages, which aggregate the dependencies of
       // their contents
       val pkgNodes = acyclicPkgs.map{ value =>
@@ -96,7 +97,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
         )
       }
 
-      val linkedNodes = (nodes ++ pkgNodes).map{ d =>
+      val linkedNodes: Set[DepNode] = (nodes ++ pkgNodes).map{ d =>
         val extraLinks = for{
           (value: Value.File, pos) <- d.dependencies
           acyclicPkg <- acyclicPkgs
@@ -115,7 +116,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
         c <- components
         n <- c
         if !usedNodes.contains(n)
-        if acyclicFiles.toSeq.contains(n.value) || acyclicPkgs.contains(n.value)
+        if allAcyclics.contains(n.value)
       }{
         val cycle = DepNode.smallestCycle(n, c)
         val cycleInfo =
@@ -127,25 +128,29 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
         )
 
         global.error("Unwanted cyclic dependency")
-        for ((value, locs) <- cycleInfo){
-          val blurb = value match{
-            case Value.Pkg(pkg) => "from package " + pkg.mkString(".")
-            case Value.File(_, _) => ""
+        for (Seq((value, locs), (nextValue, _)) <- (cycleInfo :+ cycleInfo.head).sliding(2)){
+          global.inform("")
+          value match{
+            case Value.Pkg(pkg) => global.inform(s"package ${pkg.mkString(".")}")
+            case Value.File(_, _) =>
           }
-          currentRun.units
-                    .find(_.source.path == locs.head.pos.source.path)
-                    .get
-                    .echo(locs.head.pos, "")
+
+          units.find(_.source.path == locs.head.pos.source.path)
+               .get
+               .echo(locs.head.pos, "")
 
           val otherLines = locs.tail
                                .map(_.pos.line)
                                .filter(_ != locs.head.pos.line)
-          global.inform("symbol: " + locs.head.symbol.toString + " " + blurb)
+
+          global.inform("symbol: " + locs.head.symbol.toString)
+
           if (!otherLines.isEmpty){
             global.inform("More dependencies at lines " + otherLines.mkString(" "))
           }
+
         }
-        global.inform("\n")
+        global.inform("")
         usedNodes ++= cycle
       }
     }

@@ -38,6 +38,11 @@ object CycleTests extends TestSuite{
           Pkg("fail.cyclicpackage.a") -> Set(5)
         )
       )
+      "halfpackagecycle" - makeFail("fail/halfpackagecycle", Seq(
+        File("B.scala") -> Set(3),
+        File("A.scala") -> Set(4),
+        Pkg("fail.halfpackagecycle.c") -> Set(5)
+      ))
     }
     "success" - {
       "simple" - make("success/simple")

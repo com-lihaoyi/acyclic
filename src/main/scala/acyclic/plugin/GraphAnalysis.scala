@@ -63,7 +63,7 @@ trait GraphAnalysis{
      * by finding cycles in a Depth-First manner and collapsing any components
      * whose nodes are involved in the cycle.
      */
-    def stronglyConnectedComponents(nodes: List[DepNode]): Set[Set[DepNode]] = {
+    def stronglyConnectedComponents(nodes: Set[DepNode]): Set[Set[DepNode]] = {
       
       val nodeMap = nodes.map(n => n.value -> n).toMap
 
