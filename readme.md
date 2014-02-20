@@ -54,17 +54,17 @@ A more realistic example of a cycle that **Acyclic** may find is this one taken 
 
 ```scala
 [error] Circular dependency between acyclic files:
-[info] /Users/haoyi/Dropbox (Personal)/Workspace/utest/shared/main/scala/utest/Formatter.scala:15:
-[info]   def formatSingle(path: Seq[String], r: Result): String
-[info]                                          ^
-[info] Other dependencies at lines: 66, 20, 54, 44, 67, 40, 58, 2, 45, 42
+[info] /Users/haoyi/Dropbox (Personal)/Workspace/utest/shared/main/scala/utest/Formatter.scala:58: acyclic
+[info]       val traceStr = r.value match{
+[info]                        ^
+[info] Other dependencies at lines: 20, 54, 44, 66, 40, 15, 67, 2, 45, 42
 [info] /Users/haoyi/Dropbox (Personal)/Workspace/utest/shared/main/scala/utest/framework/Model.scala:76:
 [info]           v.runAsync(onComplete, path :+ i, strPath :+ v.value.name, thisError)
 [info]           ^
 [info] Other dependencies at lines: 120
-[info] /Users/haoyi/Dropbox (Personal)/Workspace/utest/shared/main/scala/utest/package.scala:74: acyclic
-[info]   type TestSuite  = framework.TestSuite
-[info]                               ^
+[info] /Users/haoyi/Dropbox (Personal)/Workspace/utest/shared/main/scala/utest/package.scala:72:
+[info]   val TestSuite = framework.TestSuite
+[info]       ^
 [info] Other dependencies at lines: 73
 [info] /Users/haoyi/Dropbox (Personal)/Workspace/utest/shared/main/scala/utest/framework/TestSuite.scala:37:
 [info]         log(formatter.formatSingle(path, s))
@@ -147,7 +147,26 @@ src/test/resources/fail/halfpackagecycle/c/C2.scala:5:
 symbol: class B
 ```
 
-Since, `c` as a whole must be acyclic, the dependency cycle between `c`, `B.scala` and `A.scala` is prohibited, and **Acyclic** errors out. As you can see, it tells you exactly where the dependencies are in the source files, giving you an opportunity to find and remove them.
+Since, `c` as a whole must be acyclic, the dependency cycle between `c`, `B.scala` and `A.scala` is prohibited, and **Acyclic** errors out. As you can see, it tells you exactly where the dependencies are in the source files, giving you an opportunity to find and remove them. Here's a realistic example from Scala.Rx:
+
+```scala
+[error] Unwanted cyclic dependency
+[info]
+[info] /Users/haoyi/Dropbox (Personal)/Workspace/scala.rx/shared/main/scala/rx/core/Dynamic.scala:10:
+[info] import rx.ops.Spinlock
+[info]        ^
+[info] symbol: value <import>
+[info] More dependencies at lines 29 60 33 41 27 23
+[info]
+[info] package rx.ops
+[info] /Users/haoyi/Dropbox (Personal)/Workspace/scala.rx/shared/main/scala/rx/ops/Async.scala:78:
+[info]       super.ping(incoming)
+[info]             ^
+[info] symbol: method ping
+[info] More dependencies at lines 69 101 97 95 67
+```
+
+As you can see, `Dynamic.scala` in `rx.core` was accidentally depending on `Spinlock` in `rx.ops`. That cross-module dependency from `rx.core` to `rx.ops` should not exist, and the proper solution was to move `Spinlock` over to `rx.core`. Without **Acyclic**, this circular dependency would likely have gone un-noticed.
 
 How to Use
 ==========
@@ -155,14 +174,16 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi.acyclic" %% "acyclic" % "0.1.0" % "provided"
+libraryDependencies += "com.lihaoyi.acyclic" %% "acyclic" % "0.1.1" % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi.acyclic" %% "acyclic" % "0.1.0")
+addCompilerPlugin("com.lihaoyi.acyclic" %% "acyclic" % "0.1.1")
 ```
 
 **Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/src/main/scala/acyclic/plugin/PluginPhase.scala#L3). It currently only supports Scala 2.10.
+
+If you're using incremental compilation, you may need to do a clean compile for **Acyclic** to find all unwanted cycles in the compilation run.
 
 MIT License
 ===========

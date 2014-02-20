@@ -5,14 +5,14 @@ import collection.mutable
 import scala.tools.nsc.{Global, Phase}
 import tools.nsc.plugins.PluginComponent
 
-
-
 /**
  * - Break dependency graph into strongly connected components
- * - Any strongly connected component which includes in acyclic.file is a failure
+ * - Turn acyclic packages into virtual "files" in the dependency graph, as
+ *   aggregates of all the files within them
+ * - Any strongly connected component which includes an acyclic.file or
+ *   acyclic.pkg is a failure
  *   - Pick an arbitrary cycle and report it
- * - Any strongly connected component which is partially in a acyclic.pkg is a failure
- *   - Pick an arbitrary cycle and report it
+ * - Don't report more than one cycle per file/pkg, to avoid excessive spam
  */
 class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => Unit)
                   extends PluginComponent
@@ -47,16 +47,18 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
     val acyclicPkgNames = for {
       unit <- units
       pkgObject <- unit.body.collect{case x: ModuleDef if x.name.toString == "package" => x }
-      if !pkgObject.impl.children.collect{case Import(expr, List(sel)) =>
+      if pkgObject.impl.children.collect{case Import(expr, List(sel)) =>
         expr.symbol.toString == "package acyclic" && sel.name.toString == "pkg"
-      }.isEmpty
-    } yield Value.Pkg(
+      }.exists(x => x)
+    } yield {
+      Value.Pkg(
         pkgObject.symbol
-                 .enclosingPackageClass
-                 .fullName
-                 .split('.')
-                 .toList
+          .enclosingPackageClass
+          .fullName
+          .split('.')
+          .toList
       )
+    }
     (acyclicNodePaths, acyclicPkgNames)
   }
 
@@ -84,7 +86,9 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
       val nodeMap = nodes.map(n => n.value -> n).toMap
 
       val (acyclicFiles, acyclicPkgs) = findAcyclics()
+
       val allAcyclics = Set.empty[Value] ++ acyclicFiles ++ acyclicPkgs
+
       // synthetic nodes for packages, which aggregate the dependencies of
       // their contents
       val pkgNodes = acyclicPkgs.map{ value =>

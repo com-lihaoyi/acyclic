@@ -32,10 +32,10 @@ object CycleTests extends TestSuite{
           File("A.scala") -> Set(5)
         )
       )
-      "cyclicpackage" - makeFail("fail/cyclicpackage",
+      "mutualcyclic" - makeFail("fail/cyclicpackage",
         Seq(
-          Pkg("fail.cyclicpackage.b") -> Set(5),
-          Pkg("fail.cyclicpackage.a") -> Set(5)
+          Pkg("fail.mutualcyclic.b") -> Set(5),
+          Pkg("fail.mutualcyclic.a") -> Set(5)
         )
       )
       "halfpackagecycle" - makeFail("fail/halfpackagecycle", Seq(
@@ -48,9 +48,12 @@ object CycleTests extends TestSuite{
       "simple" - make("success/simple")
       "cyclicunmarked" - make("success/cyclicunmarked")
       "dag" - make("success/dag")
-      "singlepackage" - make("success/singlepackage")
-      "cyclicpackage" - make("success/cyclicpackage")
-      "halfacyclicpackage" - make("success/halfacyclicpackage")
+      "pkg"-{
+        "single" - make("success/pkg/single")
+        "mutualcyclic" - make("success/pkg/mutualcyclic")
+        "halfacyclic" - make("success/pkg/halfacyclic")
+        "innercycle" - make("success/pkg/innercycle")
+      }
     }
     "self" - make("../../main/scala", extraIncludes = Nil)
   }
