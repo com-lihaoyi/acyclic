@@ -1,5 +1,5 @@
 
-organization  := "com.lihaoyi.acyclic"
+organization  := "com.lihaoyi"
 
 name := "acyclic"
 
