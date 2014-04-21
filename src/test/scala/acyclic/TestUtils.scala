@@ -9,6 +9,7 @@ import scala.tools.nsc.util.ClassPath
 import utest._
 import scala.reflect.io.VirtualDirectory
 import acyclic.plugin.Value
+import scala.collection.SortedSet
 
 object TestUtils {
   def getFilePaths(src: String): List[String] = {
@@ -38,7 +39,7 @@ object TestUtils {
 
     settings.classpath.value = ClassPath.join(entries ++ sclpath : _*)
 
-    var cycles: Option[Seq[Seq[(acyclic.plugin.Value, Set[Int])]]] = None
+    var cycles: Option[Seq[Seq[(acyclic.plugin.Value, SortedSet[Int])]]] = None
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
       override protected def loadRoughPluginsList(): List[Plugin] = {
         List(new plugin.TestPlugin(this, foundCycles => cycles = cycles match{
@@ -53,10 +54,10 @@ object TestUtils {
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
   }
 
-  def makeFail(path: String, expected: Seq[(Value, Set[Int])]*) = {
-    def canonicalize(cycle: Seq[(Value, Set[Int])]): Seq[(Value, Set[Int])] = {
+  def makeFail(path: String, expected: Seq[(Value, SortedSet[Int])]*) = {
+    def canonicalize(cycle: Seq[(Value, SortedSet[Int])]): Seq[(Value, SortedSet[Int])] = {
       val startIndex = cycle.indexOf(cycle.minBy(_._1.toString))
-      cycle.drop(startIndex) ++ cycle.take(startIndex)
+      cycle.toList.drop(startIndex) ++ cycle.toList.take(startIndex)
     }
     val ex = intercept[CompilationException]{ make(path) }
     val cycles = ex.cycles
@@ -81,5 +82,6 @@ object TestUtils {
     assert(cycles == fullExpected)
   }
 
-  case class CompilationException(cycles: Seq[Seq[(Value, Set[Int])]]) extends Exception
+  case class CompilationException(cycles: Seq[Seq[(Value, SortedSet[Int])]]) extends Exception
+
 }

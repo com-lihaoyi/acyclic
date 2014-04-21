@@ -1,7 +1,7 @@
 
 package acyclic.plugin
 import acyclic.file
-import collection.mutable
+import scala.collection.{SortedSet, mutable}
 import scala.tools.nsc.{Global, Phase}
 import tools.nsc.plugins.PluginComponent
 
@@ -14,7 +14,7 @@ import tools.nsc.plugins.PluginComponent
  *   - Pick an arbitrary cycle and report it
  * - Don't report more than one cycle per file/pkg, to avoid excessive spam
  */
-class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => Unit)
+class PluginPhase(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])] => Unit)
                   extends PluginComponent
                   with GraphAnalysis { t =>
 
@@ -31,7 +31,10 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
         .flatMap(_.split('.'))
   }
 
-  def units = global.currentRun.units.toSet
+  def units = global.currentRun
+                    .units
+                    .toSeq
+                    .sortBy(_.source.content.mkString.hashCode())
 
   def findAcyclics() = {
     val acyclicNodePaths = for {
@@ -87,7 +90,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
 
       val (acyclicFiles, acyclicPkgs) = findAcyclics()
 
-      val allAcyclics = Set.empty[Value] ++ acyclicFiles ++ acyclicPkgs
+      val allAcyclics = acyclicFiles ++ acyclicPkgs
 
       // synthetic nodes for packages, which aggregate the dependencies of
       // their contents
@@ -97,11 +100,11 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
           nodes.filter(_.value.pkg.startsWith(value.pkg))
                .flatMap(_.dependencies.toSeq)
                .groupBy(_._1)
-               .mapValues(_.flatMap(_._2).toSet)
+               .mapValues(_.flatMap(_._2))
         )
       }
 
-      val linkedNodes: Set[DepNode] = (nodes ++ pkgNodes).map{ d =>
+      val linkedNodes: Seq[DepNode] = (nodes ++ pkgNodes).map{ d =>
         val extraLinks = for{
           (value: Value.File, pos) <- d.dependencies
           acyclicPkg <- acyclicPkgs
@@ -128,7 +131,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
                                .map{ case Seq(a, b) => (a.value, a.dependencies(b.value))}
                                .toSeq
         cycleReporter(
-          cycleInfo.map{ case (a, b) => a -> b.map(_.pos.line).toSet }
+          cycleInfo.map{ case (a, b) => a -> b.map(_.pos.line).to[SortedSet]}
         )
 
         global.error("Unwanted cyclic dependency")
@@ -161,4 +164,6 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, Set[Int])] => U
 
     def name: String = "acyclic"
   }
+
+
 }

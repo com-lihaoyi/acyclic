@@ -3,7 +3,7 @@ package acyclic.plugin
 import acyclic.file
 import scala.tools.nsc.Global
 object DependencyExtraction{
-  def apply(global: Global)(unit: global.CompilationUnit): Set[(global.Symbol, global.Tree)] = {
+  def apply(global: Global)(unit: global.CompilationUnit): Seq[(global.Symbol, global.Tree)] = {
     import global._
 
     class CollectTypeTraverser[T](pf: PartialFunction[Type, T]) extends TypeTraverser {
@@ -92,6 +92,6 @@ object DependencyExtraction{
       traverser.dependencies
     }
 
-    byMembers() | byInheritence()
+    (byMembers() | byInheritence()).toSeq
   }
 }

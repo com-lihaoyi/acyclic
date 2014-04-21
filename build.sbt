@@ -3,14 +3,14 @@ organization  := "com.lihaoyi"
 
 name := "acyclic"
 
-version       := "0.1.1"
+version := "0.1.2"
 
-scalaVersion  := "2.10.3"
+scalaVersion  := "2.10.4"
 
-crossScalaVersions := List("2.10.3", "2.11.0-M8")
+crossScalaVersions := Seq("2.10.4", "2.11.0")
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi.utest" %% "utest" % "0.1.1" % "test",
+  "com.lihaoyi" %% "utest" % "0.1.3" % "test",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 

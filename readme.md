@@ -174,16 +174,25 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi.acyclic" %% "acyclic" % "0.1.1" % "provided"
+libraryDependencies += "com.lihaoyi.acyclic" %% "acyclic" % "0.1.2" % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi.acyclic" %% "acyclic" % "0.1.1")
+addCompilerPlugin("com.lihaoyi.acyclic" %% "acyclic" % "0.1.2")
 ```
 
 **Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/src/main/scala/acyclic/plugin/PluginPhase.scala#L3). It currently only supports Scala 2.10.
 
 If you're using incremental compilation, you may need to do a clean compile for **Acyclic** to find all unwanted cycles in the compilation run.
+
+Limitations
+===========
+
+Acyclic has problems in a number of cases:
+
+- If you use curly-braced `package XXX {}` acyclic inside your source files, it does the wrong thing. Acyclic assumes all packages are listed in a sequence of statements at the top of each file
+- Under incremental compilation, Acyclic does not always find all possible cycles, since one cycles within the files currently getting compiled will get caught. A solution is to do a clean build every once in a while.
+
 
 MIT License
 ===========

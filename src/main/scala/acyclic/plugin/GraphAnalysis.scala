@@ -23,7 +23,7 @@ trait GraphAnalysis{
   val global: Global
   import global._
 
-  case class Node[+T <: Value](value: T, dependencies: Map[Value, Set[Tree]]){
+  case class Node[+T <: Value](value: T, dependencies: Map[Value, Seq[Tree]]){
     override def toString = s"DepNode(\n  $value, \n  ${dependencies.keys}\n)"
   }
 
@@ -36,7 +36,7 @@ trait GraphAnalysis{
      * Does a double Breadth-First-Search to find the shortest cycle starting
      * from `from` within the DepNodes in `among`.
      */
-    def smallestCycle(from: DepNode, among: Set[DepNode]): Seq[DepNode] = {
+    def smallestCycle(from: DepNode, among: Seq[DepNode]): Seq[DepNode] = {
       val nodeMap = among.map(n => n.value -> n).toMap
       val distances = mutable.Map(from -> 0)
       val queue = mutable.Queue(from)
@@ -63,7 +63,7 @@ trait GraphAnalysis{
      * by finding cycles in a Depth-First manner and collapsing any components
      * whose nodes are involved in the cycle.
      */
-    def stronglyConnectedComponents(nodes: Set[DepNode]): Set[Set[DepNode]] = {
+    def stronglyConnectedComponents(nodes: Seq[DepNode]): Seq[Seq[DepNode]] = {
       
       val nodeMap = nodes.map(n => n.value -> n).toMap
 
@@ -86,16 +86,18 @@ trait GraphAnalysis{
           }
         } else if (!visited(node)) {
           visited.add(node)
-          for((key, lines) <- node.dependencies){
+          // sketchy sorting to make sure we're doing this deterministically...
+          for((key, lines) <- node.dependencies.toSeq.sortBy(_._1.toString)){
             rec(nodeMap(key), node :: path)
           }
         }
       }
 
       components.groupBy{case (node, i) => i}
-                .values
-                .map(_.keys.toSet)
-                .toSet
+                .toSeq
+                .sortBy(_._1)
+                .map(_._2.keys.toSeq)
     }
   }
+
 }
