@@ -11,17 +11,17 @@ object CycleTests extends TestSuite{
 
 
   def tests = TestSuite{
-    "fail" - {
-      "simple" - makeFail("fail/simple", Seq(
+    'fail{
+      'simple-makeFail("fail/simple", Seq(
         File("B.scala") -> SortedSet(4, 5),
         File("A.scala") -> SortedSet(6)
       ))
-      "indirect" - makeFail("fail/indirect", Seq(
+      'indirect-makeFail("fail/indirect", Seq(
         File("A.scala") -> SortedSet(6),
         File("B.scala") -> SortedSet(3),
         File("C.scala") -> SortedSet(4)
       ))
-      "cyclicgraph" - makeFail("fail/cyclicgraph",
+      'cyclicgraph-makeFail("fail/cyclicgraph",
         Seq(
           File("A.scala") -> SortedSet(5),
           File("E.scala") -> SortedSet(6),
@@ -32,30 +32,30 @@ object CycleTests extends TestSuite{
           File("E.scala") -> SortedSet(5)
         )
       )
-      "cyclicpackage" - makeFail("fail/cyclicpackage",
+      'cyclicpackage-makeFail("fail/cyclicpackage",
         Seq(
           Pkg("fail.cyclicpackage.b") -> SortedSet(5),
           Pkg("fail.cyclicpackage.a") -> SortedSet(5)
         )
       )
-      "halfpackagecycle" - makeFail("fail/halfpackagecycle", Seq(
+      'halfpackagecycle-makeFail("fail/halfpackagecycle", Seq(
         File("B.scala") -> SortedSet(3),
         File("A.scala") -> SortedSet(4),
         Pkg("fail.halfpackagecycle.c") -> SortedSet(5)
       ))
     }
-    "success" - {
-      "simple" - make("success/simple")
-      "cyclicunmarked" - make("success/cyclicunmarked")
-      "dag" - make("success/dag")
-      "pkg"-{
+    'success{
+      'simple-make("success/simple")
+      'cyclicunmarked-make("success/cyclicunmarked")
+      'dag-make("success/dag")
+      'pkg{
         "single" - make("success/pkg/single")
         "mutualcyclic" - make("success/pkg/mutualcyclic")
         "halfacyclic" - make("success/pkg/halfacyclic")
         "innercycle" - make("success/pkg/innercycle")
       }
     }
-    "self" - make("../../main/scala", extraIncludes = Nil)
+    'self-make("../../main/scala", extraIncludes = Nil)
   }
 }
 
