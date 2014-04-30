@@ -174,11 +174,11 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi.acyclic" %% "acyclic" % "0.1.2" % "provided"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.2" % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi.acyclic" %% "acyclic" % "0.1.2")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.2")
 ```
 
 **Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/src/main/scala/acyclic/plugin/PluginPhase.scala#L3). It works with both Scala 2.10 and 2.11.
