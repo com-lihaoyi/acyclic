@@ -19,7 +19,7 @@ class B {
 }
 ```
 
-In this case it is very obvious that there is a circular dependency, but in larger projects the fact that a circular dependency exists can be difficult to spot. Wih **Acyclic**, you can annotate either source file with an `acyclic` import:
+In this case it is very obvious that there is a circular dependency, but in larger projects the fact that a circular dependency exists can be difficult to spot. With **Acyclic**, you can annotate either source file with an `acyclic` import:
 
 ```scala
 package fail.simple
