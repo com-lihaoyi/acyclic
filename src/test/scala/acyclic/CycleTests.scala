@@ -46,6 +46,7 @@ object CycleTests extends TestSuite{
     }
     'success{
       'simple-make("success/simple")
+      'ignorejava-make("success/java")
       'cyclicunmarked-make("success/cyclicunmarked")
       'dag-make("success/dag")
       'pkg{
