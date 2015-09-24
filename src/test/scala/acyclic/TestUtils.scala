@@ -79,7 +79,7 @@ object TestUtils {
                                .map(canonicalize)
                                .toSet
 
-    assert(cycles == fullExpected)
+    assert(fullExpected.forall(cycles.contains))
   }
 
   case class CompilationException(cycles: Seq[Seq[(Value, SortedSet[Int])]]) extends Exception

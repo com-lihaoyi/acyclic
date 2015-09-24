@@ -73,9 +73,9 @@ trait GraphAnalysis{
       nodes.foreach(n => rec(n, Nil))
 
       def rec(node: DepNode, path: List[DepNode]): Unit = {
-        if (path.contains(node)) {
+        if (path.exists(components(_) == components(node))) {
           val cycle = path.reverse
-                          .dropWhile(_.value != node.value)
+                          .dropWhile(components(_) != components(node))
           
           val involved = cycle.map(components)
           val firstIndex = involved.head

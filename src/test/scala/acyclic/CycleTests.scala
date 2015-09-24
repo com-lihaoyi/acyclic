@@ -25,11 +25,8 @@ object CycleTests extends TestSuite{
         Seq(
           File("A.scala") -> SortedSet(5),
           File("E.scala") -> SortedSet(6),
-          File("D.scala") -> SortedSet(5)
-        ),
-        Seq(
-          File("A.scala") -> SortedSet(5),
-          File("E.scala") -> SortedSet(5)
+          File("D.scala") -> SortedSet(6),
+          File("C.scala") -> SortedSet(4, 5)
         )
       )
       'cyclicpackage-makeFail("fail/cyclicpackage",

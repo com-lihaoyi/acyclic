@@ -3,18 +3,18 @@ organization  := "com.lihaoyi"
 
 name := "acyclic"
 
-version := "0.1.2"
+version := "0.1.3"
 
-scalaVersion  := "2.10.4"
+scalaVersion  := "2.11.7"
 
-crossScalaVersions := Seq("2.10.4", "2.11.0")
+crossScalaVersions := Seq("2.10.4", "2.11.7")
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi" %% "utest" % "0.1.4" % "test",
+  "com.lihaoyi" %% "utest" % "0.3.1" % "test",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 
-testFrameworks += new TestFramework("utest.runner.JvmFramework")
+testFrameworks += new TestFramework("utest.runner.Framework")
 
 unmanagedSourceDirectories in Test <+= baseDirectory(_ / "src" / "test" / "resources")
 
