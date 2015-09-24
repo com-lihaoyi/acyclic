@@ -22,6 +22,7 @@ object DependencyExtraction{
         // convert to immutable set and remove NoSymbol if we have one
         depBuf.toSet
       }
+
     }
 
     class ExtractDependenciesByMemberRefTraverser extends ExtractDependenciesTraverser {
@@ -68,7 +69,8 @@ object DependencyExtraction{
 
     def byMembers(): collection.immutable.Set[(Symbol, Tree)] = {
       val traverser = new ExtractDependenciesByMemberRefTraverser
-      traverser.traverse(unit.body)
+      if (!unit.isJava)
+        traverser.traverse(unit.body)
       traverser.dependencies
     }
 
@@ -88,7 +90,8 @@ object DependencyExtraction{
 
     def byInheritence(): collection.immutable.Set[(Symbol, Tree)] = {
       val traverser = new ExtractDependenciesByInheritanceTraverser
-      traverser.traverse(unit.body)
+      if (!unit.isJava)
+        traverser.traverse(unit.body)
       traverser.dependencies
     }
 
