@@ -22,7 +22,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])
 
   val runsAfter = List("typer")
 
-  override val runsRightAfter = Some("typer")
+  override val runsBefore = List("patmat")
 
   val phaseName = "acyclic"
   def pkgName(unit: CompilationUnit) = {

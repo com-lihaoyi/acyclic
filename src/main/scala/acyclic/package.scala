@@ -1,9 +1,10 @@
-
+import scala.reflect.internal.annotations.compileTimeOnly
 package object acyclic {
   /**
    * Import this within a file to make Acyclic verify that the file does not
    * have any circular dependencies with other files.
    */
+  @compileTimeOnly("acyclic.file is just a marker and not a real value")
   def file = ???
 
   /**
@@ -11,5 +12,6 @@ package object acyclic {
    * package does not have any circular dependencies with other files or
    * packages. Circular dependencies *within* the package are Ok.
    */
+  @compileTimeOnly("acyclic.pkg is just a marker and not a real value")
   def pkg = ???
 }

@@ -5,10 +5,9 @@ import TestUtils.{make, makeFail}
 import scala.tools.nsc.util.ScalaClassLoader.URLClassLoader
 import acyclic.plugin.Value.{Pkg, File}
 import scala.collection.SortedSet
-
+import acyclic.file
 
 object CycleTests extends TestSuite{
-
 
   def tests = TestSuite{
     'fail{

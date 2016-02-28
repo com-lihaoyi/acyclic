@@ -196,6 +196,7 @@ Acyclic has problems in a number of cases:
 ChangeLog
 =========
 
+**0.1.4**: Loosen restrictions on compiler plugin placement, to allow better interactions with other plugins. Also, `acyclic.file` is now `@compileTimeOnly` to provide better errors
 **0.1.3**: Ignore, but don't crash, on Java sources
 
 MIT License
