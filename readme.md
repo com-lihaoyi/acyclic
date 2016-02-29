@@ -174,11 +174,11 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.3" % "provided"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.4" % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.3")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.4")
 ```
 
 If you are on Scala 2.10.x, you may need an additional compile-time dependency:
