@@ -181,6 +181,12 @@ autoCompilerPlugins := true
 addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.3")
 ```
 
+If you are on Scala 2.10.x, you may need an additional compile-time dependency:
+
+```scala
+"org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided" // needed for 2.10.x only
+```
+
 **Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/src/main/scala/acyclic/plugin/PluginPhase.scala#L3). It works with both Scala 2.10 and 2.11.
 
 If you're using incremental compilation, you may need to do a clean compile for **Acyclic** to find all unwanted cycles in the compilation run.
