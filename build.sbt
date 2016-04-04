@@ -10,7 +10,7 @@ scalaVersion  := "2.11.7"
 crossScalaVersions := Seq("2.10.4", "2.11.7")
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi" %% "utest" % "0.3.1" % "test",
+  "com.lihaoyi" %% "utest" % "0.4.3" % "test",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 

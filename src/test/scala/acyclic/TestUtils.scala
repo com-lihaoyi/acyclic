@@ -6,7 +6,7 @@ import tools.nsc.plugins.Plugin
 
 import java.net.URLClassLoader
 import scala.tools.nsc.util.ClassPath
-import utest._
+import utest._, asserts._
 import scala.reflect.io.VirtualDirectory
 import acyclic.plugin.Value
 import scala.collection.SortedSet
