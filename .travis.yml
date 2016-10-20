@@ -1,10 +1,15 @@
 language: scala
 scala:
-- 2.10.5
-- 2.11.7
+- 2.10.6
+- 2.11.8
+- 2.12.0-RC2
 jdk:
 - oraclejdk8
 - openjdk7
+matrix:
+  exclude:
+    - scala: 2.12.0-RC2
+      jdk: openjdk7
 script:
 - sbt ++$TRAVIS_SCALA_VERSION "test-only -- --truncate=999999"
 # Tricks to avoid unnecessary cache updates, from

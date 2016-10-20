@@ -5,12 +5,12 @@ name := "acyclic"
 
 version := "0.1.4"
 
-scalaVersion  := "2.11.7"
+scalaVersion  := "2.11.8"
 
-crossScalaVersions := Seq("2.10.4", "2.11.7")
+crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0-RC2")
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi" %% "utest" % "0.4.3" % "test",
+  "com.lihaoyi" %% "utest" % "0.4.4" % "test",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 
