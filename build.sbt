@@ -7,7 +7,9 @@ version := "0.1.5"
 
 scalaVersion  := "2.11.8"
 
-crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0-RC2")
+crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.0")
+
+resolvers += Resolver.sonatypeRepo("releases")
 
 libraryDependencies ++= Seq(
   "com.lihaoyi" %% "utest" % "0.4.4" % "test",
