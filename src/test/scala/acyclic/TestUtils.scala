@@ -22,7 +22,9 @@ object TestUtils {
    * Attempts to compile a resource folder as a compilation run, in order
    * to test whether it succeeds or fails correctly.
    */
-  def make(path: String, extraIncludes: Seq[String] = Seq("src/main/scala/acyclic/package.scala")) = {
+  def make(path: String,
+           extraIncludes: Seq[String] = Seq("src/main/scala/acyclic/package.scala"),
+           force: Boolean = false) = {
     val src = "src/test/resources/" + path
     val sources = getFilePaths(src) ++ extraIncludes
 
@@ -39,6 +41,8 @@ object TestUtils {
 
     settings.classpath.value = ClassPath.join(entries ++ sclpath : _*)
 
+    if (force) settings.pluginOptions.value = List("acyclic:force")
+
     var cycles: Option[Seq[Seq[(acyclic.plugin.Value, SortedSet[Int])]]] = None
     lazy val compiler = new Global(settings, new ConsoleReporter(settings)){
       override protected def loadRoughPluginsList(): List[Plugin] = {
@@ -54,12 +58,13 @@ object TestUtils {
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
   }
 
-  def makeFail(path: String, expected: Seq[(Value, SortedSet[Int])]*) = {
+  def makeFail(path: String, force: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*) = {
     def canonicalize(cycle: Seq[(Value, SortedSet[Int])]): Seq[(Value, SortedSet[Int])] = {
       val startIndex = cycle.indexOf(cycle.minBy(_._1.toString))
       cycle.toList.drop(startIndex) ++ cycle.toList.take(startIndex)
     }
-    val ex = intercept[CompilationException]{ make(path) }
+
+    val ex = intercept[CompilationException]{ make(path, force = force) }
     val cycles = ex.cycles
                    .map(canonicalize)
                    .map(

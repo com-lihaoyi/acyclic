@@ -11,16 +11,17 @@ object CycleTests extends TestSuite{
 
   def tests = TestSuite{
     'fail{
-      'simple-makeFail("fail/simple", Seq(
+      'simple-makeFail("fail/simple")(Seq(
         File("B.scala") -> SortedSet(4, 5),
         File("A.scala") -> SortedSet(6)
       ))
-      'indirect-makeFail("fail/indirect", Seq(
+
+      'indirect-makeFail("fail/indirect")(Seq(
         File("A.scala") -> SortedSet(6),
         File("B.scala") -> SortedSet(3),
         File("C.scala") -> SortedSet(4)
       ))
-      'cyclicgraph-makeFail("fail/cyclicgraph",
+      'cyclicgraph-makeFail("fail/cyclicgraph")(
         Seq(
           File("A.scala") -> SortedSet(5),
           File("E.scala") -> SortedSet(6),
@@ -28,13 +29,13 @@ object CycleTests extends TestSuite{
           File("C.scala") -> SortedSet(4, 5)
         )
       )
-      'cyclicpackage-makeFail("fail/cyclicpackage",
+      'cyclicpackage-makeFail("fail/cyclicpackage")(
         Seq(
           Pkg("fail.cyclicpackage.b") -> SortedSet(5),
           Pkg("fail.cyclicpackage.a") -> SortedSet(5)
         )
       )
-      'halfpackagecycle-makeFail("fail/halfpackagecycle", Seq(
+      'halfpackagecycle-makeFail("fail/halfpackagecycle")(Seq(
         File("B.scala") -> SortedSet(3),
         File("A.scala") -> SortedSet(4),
         Pkg("fail.halfpackagecycle.c") -> SortedSet(5)
@@ -53,6 +54,17 @@ object CycleTests extends TestSuite{
       }
     }
     'self-make("../../main/scala", extraIncludes = Nil)
+    'force{
+      'fail-makeFail("force/simple", force = true)(Seq(
+        File("B.scala") -> SortedSet(4, 5),
+        File("A.scala") -> SortedSet(6)
+      ))
+      'pass-make("force/simple")
+      'skip-makeFail("force/skip", force = true)(Seq(
+        File("B.scala") -> SortedSet(4, 5),
+        File("A.scala") -> SortedSet(6)
+      ))
+    }
   }
 }
 

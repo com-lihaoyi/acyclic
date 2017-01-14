@@ -191,6 +191,33 @@ If you are on Scala 2.10.x, you may need an additional compile-time dependency:
 
 If you're using incremental compilation, you may need to do a clean compile for **Acyclic** to find all unwanted cycles in the compilation run.
 
+Force
+=====
+
+If you want to enforce acyclicity across *all* your files, you can pass in the
+command-line compiler flag:
+
+```
+-P:acyclic:force 
+```
+
+Or via SBT:
+
+```scala
+scalaOptions += "-P:acyclic:force"
+```
+
+To make the acyclic plugin complain if *any* file in your project is involved
+in an import cycle, without needing to annotate everything with 
+`import acyclic.file`. If you want to white-list a small number of files whose
+cycles you've decided are OK, you can use
+
+```scala
+import acyclic.skipped
+```
+
+To tell the acyclic plugin to ignore them.
+
 Limitations
 ===========
 
@@ -202,7 +229,16 @@ Acyclic has problems in a number of cases:
 ChangeLog
 =========
 
-**0.1.4**: Loosen restrictions on compiler plugin placement, to allow better interactions with other plugins. Also, `acyclic.file` is now `@compileTimeOnly` to provide better errors
+**0.1.6**: You can now use the scalac option `-P:acyclic:force` 
+(`scalaOptions += "-P:acyclic:force"` in SBT) to enforce acyclicity across
+your entire codebase.
+
+**0.1.5**: Scala 2.12.x support
+
+**0.1.4**: Loosen restrictions on compiler plugin placement, to allow better 
+interactions with other plugins. Also, `acyclic.file` is now `@compileTimeOnly` 
+to provide better errors
+
 **0.1.3**: Ignore, but don't crash, on Java sources
 
 MIT License

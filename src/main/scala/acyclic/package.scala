@@ -5,7 +5,13 @@ package object acyclic {
    * have any circular dependencies with other files.
    */
   @compileTimeOnly("acyclic.file is just a marker and not a real value")
-  def file = ???
+  def file = ()
+
+  /**
+   *
+   */
+  @compileTimeOnly("acyclic.file is just a marker and not a real value")
+  def skipped = ()
 
   /**
    * Import this within a package object to make Acyclic verify that the entire
@@ -13,5 +19,5 @@ package object acyclic {
    * packages. Circular dependencies *within* the package are Ok.
    */
   @compileTimeOnly("acyclic.pkg is just a marker and not a real value")
-  def pkg = ???
+  def pkg = ()
 }

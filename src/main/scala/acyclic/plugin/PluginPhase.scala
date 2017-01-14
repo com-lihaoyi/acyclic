@@ -14,7 +14,9 @@ import tools.nsc.plugins.PluginComponent
  *   - Pick an arbitrary cycle and report it
  * - Don't report more than one cycle per file/pkg, to avoid excessive spam
  */
-class PluginPhase(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])] => Unit)
+class PluginPhase(val global: Global,
+                  cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
+                  force: => Boolean)
                   extends PluginComponent
                   with GraphAnalysis { t =>
 
@@ -46,6 +48,15 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])
     } yield {
       Value.File(unit.source.path, pkgName(unit))
     }
+    val skipNodePaths = for {
+      unit <- units
+      if unit.body.children.collect{
+        case Import(expr, List(sel)) =>
+          expr.symbol.toString == "package acyclic" && sel.name.toString == "skip"
+      }.exists(x => x)
+    } yield {
+      Value.File(unit.source.path, pkgName(unit))
+    }
 
     val acyclicPkgNames = for {
       unit <- units
@@ -62,7 +73,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])
           .toList
       )
     }
-    (acyclicNodePaths, acyclicPkgNames)
+    (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
   }
 
   override def newPhase(prev: Phase): Phase = new Phase(prev) {
@@ -88,7 +99,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])
 
       val nodeMap = nodes.map(n => n.value -> n).toMap
 
-      val (acyclicFiles, acyclicPkgs) = findAcyclics()
+      val (skipNodePaths, acyclicFiles, acyclicPkgs) = findAcyclics()
 
       val allAcyclics = acyclicFiles ++ acyclicPkgs
 
@@ -123,7 +134,7 @@ class PluginPhase(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])
         c <- components
         n <- c
         if !usedNodes.contains(n)
-        if allAcyclics.contains(n.value)
+        if (!force && allAcyclics.contains(n.value)) || (force && !skipNodePaths.contains(n.value))
       }{
         val cycle = DepNode.smallestCycle(n, c)
         val cycleInfo =
