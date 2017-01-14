@@ -52,7 +52,7 @@ class PluginPhase(val global: Global,
       unit <- units
       if unit.body.children.collect{
         case Import(expr, List(sel)) =>
-          expr.symbol.toString == "package acyclic" && sel.name.toString == "skip"
+          expr.symbol.toString == "package acyclic" && sel.name.toString == "skipped"
       }.exists(x => x)
     } yield {
       Value.File(unit.source.path, pkgName(unit))

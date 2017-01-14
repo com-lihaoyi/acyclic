@@ -60,10 +60,7 @@ object CycleTests extends TestSuite{
         File("A.scala") -> SortedSet(6)
       ))
       'pass-make("force/simple")
-      'skip-makeFail("force/skip", force = true)(Seq(
-        File("B.scala") -> SortedSet(4, 5),
-        File("A.scala") -> SortedSet(6)
-      ))
+      'skip-make("force/skip", force = true)
     }
   }
 }

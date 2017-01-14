@@ -229,6 +229,8 @@ Acyclic has problems in a number of cases:
 ChangeLog
 =========
 
+**0.1.7**: Fix `import acyclic.skipped`, which was broken in 0.1.6
+ 
 **0.1.6**: You can now use the scalac option `-P:acyclic:force` 
 (`scalaOptions += "-P:acyclic:force"` in SBT) to enforce acyclicity across
 your entire codebase.
