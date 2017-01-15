@@ -1,5 +1,8 @@
-Acyclic
-=======
+Acyclic [![Gitter Chat][gitter-badge]][gitter-link]
+===================================================
+
+[gitter-link]: https://gitter.im/lihaoyi/acyclic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 **Acyclic** is a Scala compiler plugin that allows you to mark files within a build as `acyclic`, turning circular dependencies between files into compilation errors.
 
 For example, the following two files have a circular dependency between them:
