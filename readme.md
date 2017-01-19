@@ -205,7 +205,7 @@ command-line compiler flag:
 Or via SBT:
 
 ```scala
-scalaOptions += "-P:acyclic:force"
+scalacOptions += "-P:acyclic:force"
 ```
 
 To make the acyclic plugin complain if *any* file in your project is involved
