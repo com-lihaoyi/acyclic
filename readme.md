@@ -175,11 +175,11 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.5" % "provided"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.7" % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.5")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.7")
 ```
 
 If you are on Scala 2.10.x, you may need an additional compile-time dependency:
@@ -188,7 +188,7 @@ If you are on Scala 2.10.x, you may need an additional compile-time dependency:
 "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided" // needed for 2.10.x only
 ```
 
-**Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/src/main/scala/acyclic/plugin/PluginPhase.scala#L3). It works with both Scala 2.10 and 2.11.
+**Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/src/main/scala/acyclic/plugin/PluginPhase.scala#L3). It works with Scala 2.10, 2.11 and 2.12.
 
 If you're using incremental compilation, you may need to do a clean compile for **Acyclic** to find all unwanted cycles in the compilation run.
 
@@ -208,7 +208,7 @@ Or via SBT:
 scalacOptions += "-P:acyclic:force"
 ```
 
-To make the acyclic plugin complain if *any* file in your project is involved
+This will make the acyclic plugin complain if *any* file in your project is involved
 in an import cycle, without needing to annotate everything with 
 `import acyclic.file`. If you want to white-list a small number of files whose
 cycles you've decided are OK, you can use
@@ -217,7 +217,7 @@ cycles you've decided are OK, you can use
 import acyclic.skipped
 ```
 
-To tell the acyclic plugin to ignore them.
+to tell the acyclic plugin to ignore them.
 
 Limitations
 ===========
