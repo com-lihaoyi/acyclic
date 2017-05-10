@@ -16,7 +16,8 @@ import tools.nsc.plugins.PluginComponent
  */
 class PluginPhase(val global: Global,
                   cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
-                  force: => Boolean)
+                  force: => Boolean,
+                  fatal: => Boolean)
                   extends PluginComponent
                   with GraphAnalysis { t =>
 
@@ -145,7 +146,13 @@ class PluginPhase(val global: Global,
           cycleInfo.map{ case (a, b) => a -> b.map(_.pos.line).to[SortedSet]}
         )
 
-        global.error("Unwanted cyclic dependency")
+        val msg = "Unwanted cyclic dependency"
+        if (fatal) {
+          global.error(msg)
+        } else {
+          global.warning(msg)
+        }
+
         for (Seq((value, locs), (nextValue, _)) <- (cycleInfo :+ cycleInfo.head).sliding(2)){
           global.inform("")
           value match{

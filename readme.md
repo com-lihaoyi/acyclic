@@ -219,6 +219,15 @@ import acyclic.skipped
 
 to tell the acyclic plugin to ignore them.
 
+Warnings instead of errors
+==========================
+
+If you want the plugin to only emit warnings instead of errors, add `warn` to the plugin's flags.
+
+```scala
+scalacOptions += "-P:acyclic:warn"
+```
+
 Limitations
 ===========
 
