@@ -18,14 +18,12 @@ libraryDependencies ++= Seq(
 
 testFrameworks += new TestFramework("utest.runner.Framework")
 
-unmanagedSourceDirectories in Test <+= baseDirectory(_ / "src" / "test" / "resources")
+unmanagedSourceDirectories in Test += baseDirectory.value / "src" / "test" / "resources"
 
 // Sonatype
 publishArtifact in Test := false
 
-publishTo <<= version { (v: String) =>
-  Some("releases"  at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-}
+publishTo := Some("releases"  at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
 
 pomExtra := (
   <url>https://github.com/lihaoyi/acyclic</url>
