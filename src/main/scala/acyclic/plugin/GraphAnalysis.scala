@@ -48,7 +48,7 @@ trait GraphAnalysis{
                            .filter(!distances.contains(_))
 
         children.foreach(distances(_) = distances(next) + 1)
-        queue.enqueue(children.toSeq:_*)
+        queue ++= children
       }
       var route = List(from)
       while(route.length == 1 || route.head != from){
