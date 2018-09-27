@@ -6,13 +6,6 @@ scala:
 - 2.13.0-M5
 jdk:
 - oraclejdk8
-- openjdk7
-matrix:
-  exclude:
-    - scala: 2.12.2
-      jdk: openjdk7
-    - scala: 2.13.0-M5
-      jdk: openjdk7
 script:
 - sbt ++$TRAVIS_SCALA_VERSION "test-only -- --truncate=999999"
 # Tricks to avoid unnecessary cache updates, from
