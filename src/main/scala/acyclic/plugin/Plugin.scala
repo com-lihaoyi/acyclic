@@ -11,16 +11,20 @@ class TestPlugin(val global: Global,
   val name = "acyclic"
 
   var force = false
+  var forcePkg = false
   // Yeah processOptions is deprecated but keep using it anyway for 2.10.x compatibility
   override def processOptions(options: List[String], error: String => Unit): Unit = {
     if (options.contains("force")) {
       force = true
+    }
+    if(options.contains("forcePkg")){
+      forcePkg = true
     }
   }
   val description = "Allows the developer to prohibit inter-file dependencies"
 
 
   val components = List[tools.nsc.plugins.PluginComponent](
-    new PluginPhase(this.global, cycleReporter, force)
+    new PluginPhase(this.global, cycleReporter, force, forcePkg)
   )
 }

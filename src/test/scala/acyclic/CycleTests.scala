@@ -2,7 +2,6 @@ package acyclic
 
 import utest._
 import TestUtils.{make, makeFail}
-import scala.tools.nsc.util.ScalaClassLoader.URLClassLoader
 import acyclic.plugin.Value.{Pkg, File}
 import scala.collection.SortedSet
 import acyclic.file
@@ -61,6 +60,22 @@ object CycleTests extends TestSuite{
       ))
       'pass-make("force/simple")
       'skip-make("force/skip", force = true)
+      "mutualcyclic"-make("success/pkg/mutualcyclic", force = true)
+    }
+    'forcepkg{
+      'fail-makeFail("forcepkg/cyclicpackage", force = false, forcePkg = true)(
+        Seq(
+          Pkg("forcepkg.cyclicpackage.b") -> SortedSet(4),
+          Pkg("forcepkg.cyclicpackage.a") -> SortedSet(4)
+        )
+      )
+      'success-make("forcepkg/simple", force = false, forcePkg = true)
+      'fail-makeFail("forcepkg/simple", force = true, forcePkg = true)(
+        Seq(
+          File("B.scala") -> SortedSet(4, 5),
+          File("A.scala") -> SortedSet(5)
+        )
+      )
     }
   }
 }
