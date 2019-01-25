@@ -18,6 +18,7 @@ class PluginPhase(
     val global: Global,
     cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
     force: => Boolean,
+    forcePkg: => Boolean,
     fatal: => Boolean
 ) extends PluginComponent
     with GraphAnalysis { t =>
@@ -59,23 +60,35 @@ class PluginPhase(
     } yield {
       Value.File(unit.source.path, pkgName(unit))
     }
+    val stdPackages = if (forcePkg) packages else Seq.empty[Value.Pkg]
+    val acyclicPkgNames = packageObjects ++ stdPackages
+    (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
+  }
 
-    val acyclicPkgNames = for {
-      unit <- units
-      pkgObject <- unit.body.collect { case x: ModuleDef if x.name.toString == "package" => x }
-      if pkgObject.impl.children.collect { case Import(expr, List(sel)) =>
-        expr.symbol.toString == "package acyclic" && sel.name.toString == "pkg"
-      }.exists(x => x)
-    } yield {
-      Value.Pkg(
-        pkgObject.symbol
-          .enclosingPackageClass
-          .fullName
+  private def packageObjects = for {
+    unit <- units
+    pkgObject <- unit.body.collect { case x: ModuleDef if x.name.toString == "package" => x }
+    if pkgObject.impl.children.collect { case Import(expr, List(sel)) =>
+      expr.symbol.toString == "package acyclic" && sel.name.toString == "pkg"
+    }.exists(x => x)
+  } yield {
+    Value.Pkg(
+      pkgObject.symbol
+        .enclosingPackageClass
+        .fullName
+        .split('.')
+        .toList
+    )
+  }
+
+  private def packages: Seq[Value.Pkg] = {
+    units.map(x => x.body).collect { case y: PackageDef => y }.map(z => z.symbol.fullName).filter(x => x != "<empty>")
+      .distinct
+      .map(c => Value.Pkg(
+        c
           .split('.')
           .toList
-      )
-    }
-    (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
+      ))
   }
 
   override def newPhase(prev: Phase): Phase = new Phase(prev) {
