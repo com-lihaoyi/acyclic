@@ -60,6 +60,7 @@ object CycleTests extends TestSuite{
       ))
       'pass-make("force/simple")
       'skip-make("force/skip", force = true)
+      "mutualcyclic"-make("success/pkg/mutualcyclic", force = true)
     }
     'forcepkg{
       'fail-makeFail("forcepkg/cyclicpackage", force = false, forcePkg = true)(
