@@ -19,7 +19,7 @@ jobs:
     - scala: 2.10.7
     - scala: 2.11.12
     - scala: 2.12.6
-    - scala: 2.13.0-M5
+    - scala: 2.13.0-RC1
     - stage: release
       script: sbt ci-release
 # These directories are cached to S3 at the end of the build
