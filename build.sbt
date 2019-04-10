@@ -19,7 +19,7 @@ crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.6", "2.13.0-M5")
 resolvers += Resolver.sonatypeRepo("releases")
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi" %% "utest" % "0.6.6" % "test",
+  "com.lihaoyi" %% "utest" % "0.6.7" % "test",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 
