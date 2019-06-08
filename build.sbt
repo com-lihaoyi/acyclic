@@ -10,16 +10,16 @@ inThisBuild(List(
     id = "lihaoyi",
     name = "Li Haoyi",
     url = url("https://github.com/lihaoyi")
-  )
+  ),
 ))
 
 scalaVersion := "2.12.8"
-crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8", "2.13.0-RC1")
+crossScalaVersions := Seq("2.12.8", "2.13.0")
 
 resolvers += Resolver.sonatypeRepo("releases")
 
 libraryDependencies ++= Seq(
-  "com.lihaoyi" %% "utest" % "0.6.7" % "test",
+  "com.lihaoyi" %% "utest" % "0.6.9" % "test",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 

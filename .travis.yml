@@ -16,10 +16,8 @@ stages:
     if: (branch = master AND type = push) OR (tag IS present)
 jobs:
   include:
-    - scala: 2.10.7
-    - scala: 2.11.12
     - scala: 2.12.8
-    - scala: 2.13.0-RC1
+    - scala: 2.13.0
     - stage: release
       script: sbt ci-release
 # These directories are cached to S3 at the end of the build
