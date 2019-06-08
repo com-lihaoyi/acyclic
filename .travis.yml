@@ -6,7 +6,9 @@ before_install:
   - git fetch --tags
 
 script:
-- mill -i __.test.test
+  - curl -L -o ~/bin/mill https://github.com/lihaoyi/mill/releases/download/0.4.0/0.4.0-12-102ddf && chmod +x ~/bin/mill
+  - export PATH=~/bin/mill:$PATH
+  - mill -i __.test.test
 
 sudo: false
 
