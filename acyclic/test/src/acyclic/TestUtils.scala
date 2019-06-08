@@ -23,9 +23,9 @@ object TestUtils {
    * to test whether it succeeds or fails correctly.
    */
   def make(path: String,
-           extraIncludes: Seq[String] = Seq("src/main/scala/acyclic/package.scala"),
+           extraIncludes: Seq[String] = Seq("acyclic/src/acyclic/package.scala"),
            force: Boolean = false) = {
-    val src = "src/test/resources/" + path
+    val src = "acyclic/test/resources/" + path
     val sources = getFilePaths(src) ++ extraIncludes
 
     val vd = new VirtualDirectory("(memory)", None)
@@ -76,7 +76,7 @@ object TestUtils {
                    .toSet
 
     def expand(v: Value) = v match{
-      case Value.File(filePath, pkg) => Value.File("src/test/resources/" + path + "/" + filePath, Nil)
+      case Value.File(filePath, pkg) => Value.File("acyclic/test/resources/" + path + "/" + filePath, Nil)
       case v => v
     }
 

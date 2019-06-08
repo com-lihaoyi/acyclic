@@ -53,7 +53,7 @@ object CycleTests extends TestSuite{
         "innercycle" - make("success/pkg/innercycle")
       }
     }
-    'self-make("../../main/scala", extraIncludes = Nil)
+    'self-make("../../src", extraIncludes = Nil)
     'force{
       'fail-makeFail("force/simple", force = true)(Seq(
         File("B.scala") -> SortedSet(4, 5),
