@@ -1,9 +1,10 @@
 import mill._, scalalib._, publish._
 
-object acyclic extends Cross[AcyclicModule]("2.12.8", "2.13.0")
+object acyclic extends Cross[AcyclicModule]("2.12.8", "2.13.0", "2.13.2")
 class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with PublishModule {
   def artifactName = "acyclic"
   def publishVersion = "0.2.0"
+  def crossFullScalaVersion = true
 
   def pomSettings = PomSettings(
     description = artifactName(),

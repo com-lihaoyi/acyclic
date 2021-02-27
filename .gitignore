@@ -4,3 +4,7 @@ project/target/*
 .idea/*
 .idea_modules/*
 *.iml
+.vscode
+.idea
+.bloop
+.metals

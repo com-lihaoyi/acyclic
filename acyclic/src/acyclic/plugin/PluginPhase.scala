@@ -158,7 +158,8 @@ class PluginPhase(val global: Global,
 
           units.find(_.source.path == locs.head.pos.source.path)
                .get
-               .echo(locs.head.pos, "")
+
+          global.reporter.echo(locs.head.pos, "")
 
           val otherLines = locs.tail
                                .map(_.pos.line)
