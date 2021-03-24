@@ -1,9 +1,11 @@
 import mill._, scalalib._, publish._
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version_mill0.9:0.1.1`
+import de.tobiasroeser.mill.vcs.version.VcsVersion
 
-object acyclic extends Cross[AcyclicModule]("2.12.8", "2.13.0")
+object acyclic extends Cross[AcyclicModule]("2.11.12", "2.12.8", "2.13.0")
 class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with PublishModule {
   def artifactName = "acyclic"
-  def publishVersion = "0.2.0"
+  def publishVersion = VcsVersion.vcsState().format()
 
   def pomSettings = PomSettings(
     description = artifactName(),
@@ -24,7 +26,7 @@ class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with
     def testFrameworks = Seq("utest.runner.Framework")
     def sources = T.sources(millSourcePath / "src", millSourcePath / "resources")
     def ivyDeps = Agg(
-      ivy"com.lihaoyi::utest:0.6.9",
+      ivy"com.lihaoyi::utest:0.7.7",
       ivy"org.scala-lang:scala-compiler:$crossScalaVersion"
     )
   }
