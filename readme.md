@@ -175,11 +175,12 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.7" % "provided"
+acyclicV = "0.2.1"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % acyclicV % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.7")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % acyclicV)
 ```
 
 If you are on Scala 2.10.x, you may need an additional compile-time dependency:
