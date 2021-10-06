@@ -10,11 +10,11 @@ class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with
   def pomSettings = PomSettings(
     description = artifactName(),
     organization = "com.lihaoyi",
-    url = "https://github.com/lihaoyi/Fansi",
+    url = "https://github.com/lihaoyi/acyclic",
     licenses = Seq(License.MIT),
     scm = SCM(
-      "git://github.com/lihaoyi/Fansi.git",
-      "scm:git://github.com/lihaoyi/Fansi.git"
+      "git://github.com/lihaoyi/acyclic.git",
+      "scm:git://github.com/lihaoyi/acyclic.git"
     ),
     developers = Seq(
       Developer("lihaoyi", "Li Haoyi", "https://github.com/lihaoyi")
