@@ -175,7 +175,7 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.3.0" % "provided"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.3.0" cross (CrossVersion.full) % "provided"
 
 autoCompilerPlugins := true
 
