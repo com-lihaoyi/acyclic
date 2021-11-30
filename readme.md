@@ -185,7 +185,8 @@ addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.3.0")
 For Mill, use the following:
 
 ```scala
-def compileIvyDeps = Agg(ivy"com.lihaoyi::acyclic:0.3.0")
+def compileIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.0")
+def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.0")
 ```
 
 If you are on Scala 2.10.x, you may need an additional compile-time dependency:
