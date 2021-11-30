@@ -175,11 +175,18 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.7" % "provided"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.3.0" cross (CrossVersion.full) % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.7")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.3.0")
+```
+
+For Mill, use the following:
+
+```scala
+def compileIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.0")
+def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.0")
 ```
 
 If you are on Scala 2.10.x, you may need an additional compile-time dependency:
@@ -229,6 +236,8 @@ Acyclic has problems in a number of cases:
 
 ChangeLog
 =========
+
+**0.3.0**: Cross-build across all scala point versions
 
 **0.2.0**: Support for Scala 2.13.0 final
 
