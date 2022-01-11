@@ -175,27 +175,21 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.3.0" cross (CrossVersion.full) % "provided"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.3.1" cross (CrossVersion.full) % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.3.0")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.3.1")
 ```
 
 For Mill, use the following:
 
 ```scala
-def compileIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.0")
-def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.0")
+def compileIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.1")
+def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.1")
 ```
 
-If you are on Scala 2.10.x, you may need an additional compile-time dependency:
-
-```scala
-"org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided" // needed for 2.10.x only
-```
-
-**Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/acyclic/src/acyclic/plugin/PluginPhase.scala). It works with Scala 2.10, 2.11 and 2.12.
+**Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/master/acyclic/src/acyclic/plugin/PluginPhase.scala). It works with Scala 2.11, 2.12 and 2.13.
 
 If you're using incremental compilation, you may need to do a clean compile for **Acyclic** to find all unwanted cycles in the compilation run.
 
@@ -236,6 +230,8 @@ Acyclic has problems in a number of cases:
 
 ChangeLog
 =========
+
+**0.3.1**: Support for Scala 2.13.8
 
 **0.3.0**: Cross-build across all scala point versions
 
