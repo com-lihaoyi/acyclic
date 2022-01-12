@@ -54,7 +54,7 @@ object DependencyExtraction{
             addDependency(ident.symbol, tree)
           case typeTree: TypeTree =>
             val typeSymbolCollector = new CollectTypeTraverser({
-              case tpe if !tpe.typeSymbol.isPackage => tpe.typeSymbol
+              case tpe if tpe != null && tpe.typeSymbol != null && !tpe.typeSymbol.isPackage => tpe.typeSymbol
             })
             typeSymbolCollector.traverse(typeTree.tpe)
             val deps = typeSymbolCollector.collected.toSet

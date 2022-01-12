@@ -1,6 +1,7 @@
 
 package acyclic.plugin
 import acyclic.file
+import acyclic.plugin.Compat._
 import scala.collection.{SortedSet, mutable}
 import scala.tools.nsc.{Global, Phase}
 import tools.nsc.plugins.PluginComponent
@@ -95,6 +96,7 @@ class PluginPhase(val global: Global,
           Value.File(unit.source.path, pkgName(unit)),
           connections.groupBy(c => Value.File(c._1, pkgName(unitMap(c._1))): Value)
                      .mapValues(_.map(_._2))
+                     .toMap
         )
       }
 
@@ -113,6 +115,7 @@ class PluginPhase(val global: Global,
                .flatMap(_.dependencies.toSeq)
                .groupBy(_._1)
                .mapValues(_.flatMap(_._2))
+               .toMap
         )
       }
 
@@ -143,7 +146,7 @@ class PluginPhase(val global: Global,
                                .map{ case Seq(a, b) => (a.value, a.dependencies(b.value))}
                                .toSeq
         cycleReporter(
-          cycleInfo.map{ case (a, b) => a -> b.map(_.pos.line).to[SortedSet]}
+          cycleInfo.map{ case (a, b) => a -> b.map(_.pos.line).to(SortedSet)}
         )
 
         val msg = "Unwanted cyclic dependency"
@@ -160,9 +163,7 @@ class PluginPhase(val global: Global,
             case Value.File(_, _) =>
           }
 
-          units.find(_.source.path == locs.head.pos.source.path)
-               .get
-               .echo(locs.head.pos, "")
+          global.reporter.echo(locs.head.pos, "")
 
           val otherLines = locs.tail
                                .map(_.pos.line)
