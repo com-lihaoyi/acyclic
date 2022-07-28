@@ -1,5 +1,5 @@
 import mill._, scalalib._, publish._
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version_mill0.9:0.1.1`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.1.4`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object acyclic extends Cross[AcyclicModule](
@@ -15,23 +15,19 @@ class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with
   def pomSettings = PomSettings(
     description = artifactName(),
     organization = "com.lihaoyi",
-    url = "https://github.com/lihaoyi/acyclic",
+    url = "https://github.com/com-lihaoyi/acyclic",
     licenses = Seq(License.MIT),
-    scm = SCM(
-      "git://github.com/lihaoyi/acyclic.git",
-      "scm:git://github.com/lihaoyi/acyclic.git"
-    ),
+    versionControl = VersionControl.github(owner = "com-lihaoyi", repo = "acyclic"),
     developers = Seq(
       Developer("lihaoyi", "Li Haoyi", "https://github.com/lihaoyi")
     )
   )
   def compileIvyDeps = Agg(ivy"org.scala-lang:scala-compiler:$crossScalaVersion")
 
-  object test extends Tests {
-    def testFrameworks = Seq("utest.runner.Framework")
+  object test extends Tests with TestModule.Utest {
     def sources = T.sources(millSourcePath / "src", millSourcePath / "resources")
     def ivyDeps = Agg(
-      ivy"com.lihaoyi::utest:0.7.7",
+      ivy"com.lihaoyi::utest:0.8.0",
       ivy"org.scala-lang:scala-compiler:$crossScalaVersion"
     )
   }
