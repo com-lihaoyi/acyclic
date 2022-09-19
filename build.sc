@@ -1,5 +1,5 @@
 import mill._, scalalib._, publish._
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.1.4`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.2.0`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object acyclic extends Cross[AcyclicModule](
