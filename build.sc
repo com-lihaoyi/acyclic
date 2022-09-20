@@ -3,6 +3,10 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.2.0`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
+  def acyclicAgg(scalaVersion: String) =
+    Agg(ivy"com.lihaoyi:::acyclic:0.3.4")
+      .filter(_ => scalaVersion != "2.13.9" /* exclude unreleased versions, if any */)
+
   def scalaCompiler(scalaVersion: String) = ivy"org.scala-lang:scala-compiler:${scalaVersion}"
   val utest = ivy"com.lihaoyi::utest:0.8.0"
 }
@@ -27,7 +31,11 @@ class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with
       Developer("lihaoyi", "Li Haoyi", "https://github.com/lihaoyi")
     )
   )
-  override def compileIvyDeps = Agg(Deps.scalaCompiler(crossScalaVersion))
+  override def compileIvyDeps =
+    Agg(Deps.scalaCompiler(crossScalaVersion)) ++
+    Deps.acyclicAgg(crossScalaVersion)
+
+  override def scalacPluginIvyDeps = Deps.acyclicAgg(crossScalaVersion)
 
   object test extends Tests with TestModule.Utest {
     override def sources = T.sources(millSourcePath / "src", millSourcePath / "resources")
@@ -35,5 +43,6 @@ class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with
       Deps.utest,
       Deps.scalaCompiler(crossScalaVersion)
     )
+    override def scalacPluginIvyDeps = Agg.empty[Dep]
   }
 }
