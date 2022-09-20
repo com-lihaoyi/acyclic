@@ -43,5 +43,6 @@ class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with
       Deps.utest,
       Deps.scalaCompiler(crossScalaVersion)
     )
+    override def scalacPluginIvyDeps = Agg.empty[Dep]
   }
 }
