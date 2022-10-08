@@ -177,11 +177,11 @@ How to Use
 To use, add the following to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.3.5" cross (CrossVersion.full) % "provided"
+libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.3.6" cross (CrossVersion.full) % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.3.5")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.3.6")
 ```
 
 ## Mill
@@ -189,8 +189,8 @@ addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.3.5")
 For Mill, use the following:
 
 ```scala
-def compileIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.5")
-def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.5")
+def compileIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.6")
+def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi:::acyclic:0.3.6")
 ```
 
 **Acyclic** is currently being used in [uTest](https://github.com/lihaoyi/utest), [Scalatags](https://github.com/lihaoyi/scalatags) and [Scala.Rx](https://github.com/lihaoyi/scala.rx), and helped remove many cycle between files which had no good reason for being cyclic. It is also being used to verify the acyclicity of [its own code](https://github.com/lihaoyi/acyclic/blob/main/acyclic/src/acyclic/plugin/PluginPhase.scala). It works with Scala 2.11, 2.12 and 2.13.
@@ -243,6 +243,8 @@ Acyclic has problems in a number of cases:
 
 ChangeLog
 =========
+
+**0.3.6**: Added support for Scala 2.13.10
 
 **0.3.5**: Added support for Scala 2.13.9
 
