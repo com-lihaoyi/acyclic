@@ -55,6 +55,14 @@ object CycleTests extends TestSuite {
     }
     test("self") - make("../../src", extraIncludes = Nil)
     test("force") - {
+      test("warn") - {
+        test("fail") - {
+          make("force/simple", force = true, warn = true).exists {
+            case (_, "Unwanted cyclic dependency", "warning") => true
+            case _ => false
+          }
+        }
+      }
       test("fail") - makeFail("force/simple", force = true)(Seq(
         File("B.scala") -> SortedSet(4, 5),
         File("A.scala") -> SortedSet(4)

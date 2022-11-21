@@ -1,15 +1,20 @@
 package acyclic
 
 import tools.nsc.{Global, Settings}
-import tools.nsc.reporters.ConsoleReporter
+import tools.nsc.reporters.{ConsoleReporter, StoreReporter}
 import tools.nsc.plugins.Plugin
-
 import java.net.URLClassLoader
 import scala.tools.nsc.util.ClassPath
-import utest._, asserts._
+import utest._
+import asserts._
+
 import scala.reflect.io.VirtualDirectory
 import acyclic.plugin.Value
+
+import java.io.OutputStream
+import javax.print.attribute.standard.Severity
 import scala.collection.SortedSet
+import scala.reflect.api.Position
 
 object TestUtils {
   def getFilePaths(src: String): List[String] = {
@@ -25,8 +30,10 @@ object TestUtils {
   def make(
       path: String,
       extraIncludes: Seq[String] = Seq("acyclic/src/acyclic/package.scala"),
-      force: Boolean = false
-  ) = {
+      force: Boolean = false,
+      warn: Boolean = false,
+      collectInfo: Boolean = true
+  ): Seq[(Position, String, String)] = {
     val src = "acyclic/test/resources/" + path
     val sources = getFilePaths(src) ++ extraIncludes
 
@@ -43,10 +50,20 @@ object TestUtils {
 
     settings.classpath.value = ClassPath.join(entries ++ sclpath: _*)
 
-    if (force) settings.pluginOptions.value = List("acyclic:force")
+    val opts = List(
+      if (force) Seq("force") else Seq(),
+      if (warn) Seq("warn") else Seq()
+    ).flatten
+    if (opts.nonEmpty) {
+      val options = opts.map("acyclic:" + _)
+      println("options: " + options)
+      settings.pluginOptions.value = options
+    }
 
     var cycles: Option[Seq[Seq[(acyclic.plugin.Value, SortedSet[Int])]]] = None
-    lazy val compiler = new Global(settings, new ConsoleReporter(settings)) {
+    val storeReporter = if (collectInfo) Some(new StoreReporter()) else None
+
+    lazy val compiler = new Global(settings, storeReporter.getOrElse(new ConsoleReporter(settings))) {
       override protected def loadRoughPluginsList(): List[Plugin] = {
         List(new plugin.TestPlugin(
           this,
@@ -62,6 +79,8 @@ object TestUtils {
     run.compile(sources)
 
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
+
+    storeReporter.map(_.infos.toSeq.map(i => (i.pos, i.msg, i.severity.toString))).getOrElse(Seq.empty)
   }
 
   def makeFail(path: String, force: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*) = {
@@ -70,7 +89,7 @@ object TestUtils {
       cycle.toList.drop(startIndex) ++ cycle.toList.take(startIndex)
     }
 
-    val ex = intercept[CompilationException] { make(path, force = force) }
+    val ex = intercept[CompilationException] { make(path, force = force, collectInfo = false) }
     val cycles = ex.cycles
       .map(canonicalize)
       .map(
