@@ -1,4 +1,2 @@
 package fail.cyclicpackage.a
-class A2 {
-
-}
+class A2 {}

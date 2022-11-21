@@ -1,6 +1,6 @@
 package fail.cyclicgraph
 import acyclic.file
 
-class A{
+class A {
   val e = new E
 }

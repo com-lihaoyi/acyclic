@@ -1,4 +1,3 @@
 package success.simple
 
-class A {
-}
+class A {}

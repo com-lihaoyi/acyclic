@@ -1,5 +1,6 @@
 import scala.reflect.internal.annotations.compileTimeOnly
 package object acyclic {
+
   /**
    * Import this within a file to make Acyclic verify that the file does not
    * have any circular dependencies with other files.
@@ -8,7 +9,6 @@ package object acyclic {
   def file = ()
 
   /**
-   *
    */
   @compileTimeOnly("acyclic.file is just a marker and not a real value")
   def skipped = ()

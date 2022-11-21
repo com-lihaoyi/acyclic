@@ -1,5 +1,3 @@
 package success.halfacyclicpackage.b
 
-class B1 {
-
- }
+class B1 {}

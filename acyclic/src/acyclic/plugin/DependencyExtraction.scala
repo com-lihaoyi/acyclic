@@ -2,7 +2,7 @@
 package acyclic.plugin
 import acyclic.file
 import scala.tools.nsc.Global
-object DependencyExtraction{
+object DependencyExtraction {
   def apply(global: Global)(unit: global.CompilationUnit): Seq[(global.Symbol, global.Tree)] = {
     import global._
 
@@ -29,7 +29,6 @@ object DependencyExtraction{
       override def traverse(tree: Tree): Unit = {
         tree match {
           case i @ Import(expr, selectors) =>
-
             selectors.foreach {
               case ImportSelector(nme.WILDCARD, _, null, _) =>
               // in case of wildcard import we do not rely on any particular name being defined
@@ -73,7 +72,6 @@ object DependencyExtraction{
         traverser.traverse(unit.body)
       traverser.dependencies
     }
-
 
     class ExtractDependenciesByInheritanceTraverser extends ExtractDependenciesTraverser {
       override def traverse(tree: Tree): Unit = tree match {
