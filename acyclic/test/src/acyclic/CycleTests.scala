@@ -13,7 +13,7 @@ object CycleTests extends TestSuite {
     'fail {
       'simple - makeFail("fail/simple")(Seq(
         File("B.scala") -> SortedSet(4, 5),
-        File("A.scala") -> SortedSet(6)
+        File("A.scala") -> SortedSet(5)
       ))
 
       'indirect - makeFail("fail/indirect")(Seq(
@@ -57,7 +57,7 @@ object CycleTests extends TestSuite {
     'force {
       'fail - makeFail("force/simple", force = true)(Seq(
         File("B.scala") -> SortedSet(4, 5),
-        File("A.scala") -> SortedSet(6)
+        File("A.scala") -> SortedSet(4)
       ))
       'pass - make("force/simple")
       'skip - make("force/skip", force = true)
