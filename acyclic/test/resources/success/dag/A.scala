@@ -1,4 +1,3 @@
 package success.dag
 
-class A {
-}
+class A {}

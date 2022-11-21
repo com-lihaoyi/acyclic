@@ -1,6 +1,3 @@
 package success.cyclicpackage.b
 
-
-class B1 {
-
- }
+class B1 {}

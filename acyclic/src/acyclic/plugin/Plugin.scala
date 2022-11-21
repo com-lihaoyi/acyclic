@@ -4,9 +4,8 @@ import tools.nsc.Global
 import scala.collection.SortedSet
 
 class RuntimePlugin(global: Global) extends TestPlugin(global)
-class TestPlugin(val global: Global,
-                 cycleReporter: Seq[(Value, SortedSet[Int])] => Unit = _ => ())
-  extends tools.nsc.plugins.Plugin {
+class TestPlugin(val global: Global, cycleReporter: Seq[(Value, SortedSet[Int])] => Unit = _ => ())
+    extends tools.nsc.plugins.Plugin {
 
   val name = "acyclic"
 
@@ -23,7 +22,6 @@ class TestPlugin(val global: Global,
     }
   }
   val description = "Allows the developer to prohibit inter-file dependencies"
-
 
   val components = List[tools.nsc.plugins.PluginComponent](
     new PluginPhase(this.global, cycleReporter, force, fatal)
