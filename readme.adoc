@@ -217,11 +217,11 @@ To use, add the following to your `build.sbt`:
 
 [source,scala,subs="attributes,verbatim"]
 ----
-libraryDependencies += "com.lihaoyi" %% "acyclic" % "{version}" cross (CrossVersion.full) % "provided"
+libraryDependencies += ("com.lihaoyi" %% "acyclic" % "{version}" cross (CrossVersion.full)) % "provided"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("com.lihaoyi" %% "acyclic" % "{version}")
+addCompilerPlugin("com.lihaoyi" %% "acyclic" % "{version}" cross (CrossVersion.full))
 ----
 
 === Force
