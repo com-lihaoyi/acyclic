@@ -13,7 +13,7 @@ object Deps {
 
 val crosses =
   Seq("2.11.12") ++
-    8.to(17).map("2.12." + _) ++
+    8.to(18).map("2.12." + _) ++
     0.to(10).map("2.13." + _)
 
 object acyclic extends Cross[AcyclicModule](crosses: _*)
