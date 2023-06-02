@@ -1,5 +1,5 @@
 = Acyclic
-:version: 0.3.6
+:version: 0.3.7
 :toc-placement: preamble
 :toc:
 :link-acyclic: https://github.com/com-lihaoyi/acyclic
@@ -304,6 +304,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 == ChangeLog
+
+=== 0.3.7
+
+* Added support for Scala 2.12.18
 
 === 0.3.6
 
