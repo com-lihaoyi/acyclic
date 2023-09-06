@@ -1,11 +1,12 @@
-import mill._, scalalib._, publish._
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
+
+import mill._, scalalib._, publish._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
   def acyclicAgg(scalaVersion: String) =
     Agg(ivy"com.lihaoyi:::acyclic:0.3.8")
-      .filter(_ => scalaVersion != "2.13.11" /* exclude unreleased versions, if any */ )
+      .filter(_ => scalaVersion != "2.13.12" /* exclude unreleased versions, if any */ )
 
   def scalaCompiler(scalaVersion: String) = ivy"org.scala-lang:scala-compiler:${scalaVersion}"
   val utest = ivy"com.lihaoyi::utest:0.8.1"
@@ -14,7 +15,7 @@ object Deps {
 val crosses =
   Seq("2.11.12") ++
     8.to(18).map("2.12." + _) ++
-    0.to(11).map("2.13." + _)
+    0.to(12).map("2.13." + _)
 
 object acyclic extends Cross[AcyclicModule](crosses: _*)
 class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with PublishModule {
