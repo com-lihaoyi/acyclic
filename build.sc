@@ -17,8 +17,8 @@ val crosses =
     8.to(18).map("2.12." + _) ++
     0.to(12).map("2.13." + _)
 
-object acyclic extends Cross[AcyclicModule](crosses: _*)
-class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with PublishModule {
+object acyclic extends Cross[AcyclicModule](crosses)
+trait AcyclicModule extends CrossScalaModule with PublishModule {
   override def crossFullScalaVersion = true
   override def artifactName = "acyclic"
   def publishVersion = VcsVersion.vcsState().format()
@@ -39,7 +39,7 @@ class AcyclicModule(val crossScalaVersion: String) extends CrossScalaModule with
 
   override def scalacPluginIvyDeps = Deps.acyclicAgg(crossScalaVersion)
 
-  object test extends Tests with TestModule.Utest {
+  object test extends ScalaTests with TestModule.Utest {
     override def sources = T.sources(millSourcePath / "src", millSourcePath / "resources")
     override def ivyDeps = Agg(
       Deps.utest,
