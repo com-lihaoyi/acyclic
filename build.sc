@@ -5,7 +5,7 @@ import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
   def acyclicAgg(scalaVersion: String) =
-    Agg(ivy"com.lihaoyi:::acyclic:0.3.8")
+    Agg(ivy"com.lihaoyi:::acyclic:0.3.9")
       .filter(_ => scalaVersion != "2.13.12" /* exclude unreleased versions, if any */ )
 
   def scalaCompiler(scalaVersion: String) = ivy"org.scala-lang:scala-compiler:${scalaVersion}"
