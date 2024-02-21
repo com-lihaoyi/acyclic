@@ -5,8 +5,8 @@ import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
   def acyclicAgg(scalaVersion: String) = {
-    Agg.when(!Seq("2.12.19").contains(scalaVersion) /* exclude unreleased versions, if any */ )(
-      ivy"com.lihaoyi:::acyclic:0.3.9"
+    Agg.when(!Seq().contains(scalaVersion) /* exclude unreleased versions, if any */ )(
+      ivy"com.lihaoyi:::acyclic:0.3.10"
     )
   }
 
