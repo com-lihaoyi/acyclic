@@ -4,9 +4,11 @@ import mill._, scalalib._, publish._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
-  def acyclicAgg(scalaVersion: String) =
-    Agg(ivy"com.lihaoyi:::acyclic:0.3.9")
-      .filter(_ => scalaVersion != "2.13.12" /* exclude unreleased versions, if any */ )
+  def acyclicAgg(scalaVersion: String) = {
+    Agg.when(!Seq("2.12.19").contains(scalaVersion) /* exclude unreleased versions, if any */ )(
+      ivy"com.lihaoyi:::acyclic:0.3.9"
+    )
+  }
 
   def scalaCompiler(scalaVersion: String) = ivy"org.scala-lang:scala-compiler:${scalaVersion}"
   val utest = ivy"com.lihaoyi::utest:0.8.1"
@@ -14,7 +16,7 @@ object Deps {
 
 val crosses =
   Seq("2.11.12") ++
-    8.to(18).map("2.12." + _) ++
+    8.to(19).map("2.12." + _) ++
     0.to(12).map("2.13." + _)
 
 object acyclic extends Cross[AcyclicModule](crosses)
