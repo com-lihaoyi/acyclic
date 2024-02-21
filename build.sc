@@ -11,7 +11,7 @@ object Deps {
   }
 
   def scalaCompiler(scalaVersion: String) = ivy"org.scala-lang:scala-compiler:${scalaVersion}"
-  val utest = ivy"com.lihaoyi::utest:0.8.1"
+  val utest = ivy"com.lihaoyi::utest:0.8.2"
 }
 
 val crosses =
