@@ -31,6 +31,7 @@ object TestUtils {
       path: String,
       extraIncludes: Seq[String] = Seq("acyclic/src/acyclic/package.scala"),
       force: Boolean = false,
+      forcePkg: Boolean = false,
       warn: Boolean = false,
       collectInfo: Boolean = true
   ): Seq[(Position, String, String)] = {
@@ -52,6 +53,7 @@ object TestUtils {
 
     val opts = List(
       if (force) Seq("force") else Seq(),
+      if (forcePkg) Seq("forcePkg") else Seq(),
       if (warn) Seq("warn") else Seq()
     ).flatten
     if (opts.nonEmpty) {
@@ -83,13 +85,13 @@ object TestUtils {
     storeReporter.map(_.infos.toSeq.map(i => (i.pos, i.msg, i.severity.toString))).getOrElse(Seq.empty)
   }
 
-  def makeFail(path: String, force: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*) = {
+  def makeFail(path: String, force: Boolean = false, forcePkg: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*) = {
     def canonicalize(cycle: Seq[(Value, SortedSet[Int])]): Seq[(Value, SortedSet[Int])] = {
       val startIndex = cycle.indexOf(cycle.minBy(_._1.toString))
       cycle.toList.drop(startIndex) ++ cycle.toList.take(startIndex)
     }
 
-    val ex = intercept[CompilationException] { make(path, force = force, collectInfo = false) }
+    val ex = intercept[CompilationException] { make(path, force = force, forcePkg = forcePkg,collectInfo = false) }
     val cycles = ex.cycles
       .map(canonicalize)
       .map(
