@@ -20,7 +20,7 @@ class PluginPhase(
     force: => Boolean,
     fatal: => Boolean
 ) extends PluginComponent
-    with GraphAnalysis { t =>
+    with GraphAnalysis[Global#Tree] { t =>
 
   import global._
 

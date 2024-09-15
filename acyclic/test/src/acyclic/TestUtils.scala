@@ -16,7 +16,7 @@ import javax.print.attribute.standard.Severity
 import scala.collection.SortedSet
 import scala.reflect.api.Position
 
-object TestUtils {
+class TestUtils(val srcDirName: String) {
   def getFilePaths(src: String): List[String] = {
     val f = new java.io.File(src)
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))

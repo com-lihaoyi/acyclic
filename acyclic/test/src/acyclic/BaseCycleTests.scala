@@ -1,13 +1,13 @@
 package acyclic
 
 import utest._
-import TestUtils.{make, makeFail}
 import scala.tools.nsc.util.ScalaClassLoader.URLClassLoader
 import acyclic.plugin.Value.{Pkg, File}
 import scala.collection.SortedSet
 import acyclic.file
 
-object CycleTests extends TestSuite {
+class BaseCycleTests(utils: TestUtils) extends TestSuite {
+  import utils.{make, makeFail, srcDirName}
 
   def tests = Tests {
     test("fail") - {
@@ -53,7 +53,7 @@ object CycleTests extends TestSuite {
         test("innercycle") - make("success/pkg/innercycle")
       }
     }
-    test("self") - make("../../src", extraIncludes = Nil)
+    test("self") - make(s"../../$srcDirName", extraIncludes = Nil)
     test("force") - {
       test("warn") - {
         test("fail") - {

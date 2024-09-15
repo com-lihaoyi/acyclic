@@ -42,7 +42,7 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
   override def scalacPluginIvyDeps = Deps.acyclicAgg(crossScalaVersion)
 
   object test extends ScalaTests with TestModule.Utest {
-    override def sources = T.sources(millSourcePath / "src", millSourcePath / "resources")
+    override def sources = T.sources(super.sources() :+ PathRef(millSourcePath / "resources"))
     override def ivyDeps = Agg(
       Deps.utest,
       Deps.scalaCompiler(crossScalaVersion)

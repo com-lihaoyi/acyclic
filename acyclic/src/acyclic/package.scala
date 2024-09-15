@@ -1,4 +1,4 @@
-import scala.reflect.internal.annotations.compileTimeOnly
+import scala.annotation.compileTimeOnly
 package object acyclic {
 
   /**
