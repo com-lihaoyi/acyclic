@@ -3,7 +3,7 @@ package acyclic.plugin
 import acyclic.plugin.Compat._
 import scala.collection.{mutable, SortedSet}
 
-trait BasePluginPhase[Tree] { self: GraphAnalysis[Tree] =>
+trait BasePluginPhase[CompilationUnit, Tree] { self: GraphAnalysis[Tree] =>
   protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit
   protected def force: Boolean
   protected def fatal: Boolean
@@ -16,7 +16,33 @@ trait BasePluginPhase[Tree] { self: GraphAnalysis[Tree] =>
   def reportInform(msg: String): Unit
   def reportEcho(msg: String, tree: Tree): Unit
 
-  def findAcyclics(): (Seq[Value.File], Seq[Value.File], Seq[Value.Pkg])
+  def units: Seq[CompilationUnit]
+  def unitTree(unit: CompilationUnit): Tree
+  def unitPath(unit: CompilationUnit): String
+  def unitPkgName(unit: CompilationUnit): List[String]
+  def findPkgObjects(tree: Tree): List[Tree]
+  def pkgObjectName(pkgObject: Tree): String
+  def hasAcyclicImport(tree: Tree, selector: String): Boolean
+
+  final def findAcyclics(): (Seq[Value.File], Seq[Value.File], Seq[Value.Pkg]) = {
+    val acyclicNodePaths = for {
+      unit <- units if hasAcyclicImport(unitTree(unit), "file")
+    } yield {
+      Value.File(unitPath(unit), unitPkgName(unit))
+    }
+    val skipNodePaths = for {
+      unit <- units if hasAcyclicImport(unitTree(unit), "skipped")
+    } yield {
+      Value.File(unitPath(unit), unitPkgName(unit))
+    }
+
+    val acyclicPkgNames = for {
+      unit <- units
+      pkgObject <- findPkgObjects(unitTree(unit))
+      if hasAcyclicImport(pkgObject, "pkg")
+    } yield Value.Pkg(pkgObjectName(pkgObject).split('.').toList)
+    (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
+  }
 
   final def runOnNodes(nodes: Seq[Node[Value.File, Tree]]): Unit = {
     val nodeMap = nodes.map(n => n.value -> n).toMap
@@ -53,8 +79,7 @@ trait BasePluginPhase[Tree] { self: GraphAnalysis[Tree] =>
     }
 
     // only care about cycles with size > 1 here
-    val components = DepNode.stronglyConnectedComponents(linkedNodes)
-      .filter(_.size > 1)
+    val components = DepNode.stronglyConnectedComponents(linkedNodes).filter(_.size > 1)
 
     val usedNodes = mutable.Set.empty[DepNode]
     for {

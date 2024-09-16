@@ -21,7 +21,7 @@ class PluginPhase(
   protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
   protected val force: Boolean,
   protected val fatal: Boolean
-)(using ctx: Context) extends BasePluginPhase[tpd.Tree], GraphAnalysis[tpd.Tree] {
+)(using ctx: Context) extends BasePluginPhase[CompilationUnit, tpd.Tree], GraphAnalysis[tpd.Tree] {
 
   def treeLine(tree: tpd.Tree): Int = tree.sourcePos.line + 1
   def treeSymbolString(tree: tpd.Tree): String = tree.symbol.toString
@@ -45,26 +45,6 @@ class PluginPhase(
     }
   }
 
-  private def pkgName(unit: CompilationUnit) =
-    pkgNameAccumulator(Nil, unit.tpdTree).reverse.flatMap(_.split('.'))
-
-  private lazy val units = Option(ctx.run) match {
-    case Some(run) => run.units.toSeq.sortBy(_.source.content.mkString.hashCode())
-    case None => Seq()
-  }
-
-  private def hasImport(selector: String, tree: tpd.Tree): Boolean = {
-    val accumulator = new tpd.TreeAccumulator[Boolean] {
-      def apply(acc: Boolean, tree: tpd.Tree)(using Context): Boolean = tree match {
-        case tpd.Import(expr, List(sel)) =>
-          acc || (expr.symbol.toString == "object acyclic" && sel.name.show == selector)
-        case _ => foldOver(acc, tree)
-      }
-    }
-
-    accumulator(false, tree)
-  }
-
   private val pkgObjectAccumulator = new tpd.TreeAccumulator[List[tpd.Tree]] {
     def apply(acc: List[tpd.Tree], tree: tpd.Tree)(using Context): List[tpd.Tree] =
       foldOver(
@@ -73,34 +53,25 @@ class PluginPhase(
       )
   }
 
-  def findAcyclics() = {
-    val acyclicNodePaths = for {
-      unit <- units if hasImport("file", unit.tpdTree)
-    } yield {
-      Value.File(unit.source.path, pkgName(unit))
+  private def hasAcyclicImportAccumulator(selector: String) = new tpd.TreeAccumulator[Boolean] {
+    def apply(acc: Boolean, tree: tpd.Tree)(using Context): Boolean = tree match {
+      case tpd.Import(expr, List(sel)) =>
+        acc || (expr.symbol.toString == "object acyclic" && sel.name.show == selector)
+      case _ => foldOver(acc, tree)
     }
-    val skipNodePaths = for {
-      unit <- units if hasImport("skipped", unit.tpdTree)
-    } yield {
-      Value.File(unit.source.path, pkgName(unit))
-    }
-
-    val acyclicPkgNames = for {
-      unit <- units
-      pkgObject <- pkgObjectAccumulator(Nil, unit.tpdTree).reverse
-      if hasImport("pkg", pkgObject)
-    } yield {
-      Value.Pkg(
-        pkgObject.symbol
-          .enclosingPackageClass
-          .fullName
-          .toString
-          .split('.')
-          .toList
-      )
-    }
-    (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
   }
+
+  lazy val units = Option(ctx.run) match {
+    case Some(run) => run.units.toSeq.sortBy(_.source.content.mkString.hashCode())
+    case None => Seq()
+  }
+
+  def unitTree(unit: CompilationUnit): tpd.Tree = unit.tpdTree
+  def unitPath(unit: CompilationUnit): String = unit.source.path
+  def unitPkgName(unit: CompilationUnit): List[String] = pkgNameAccumulator(Nil, unit.tpdTree).reverse.flatMap(_.split('.'))
+  def findPkgObjects(tree: tpd.Tree): List[tpd.Tree] = pkgObjectAccumulator(Nil, tree).reverse
+  def pkgObjectName(pkgObject: tpd.Tree): String = pkgObject.symbol.enclosingPackageClass.fullName.toString
+  def hasAcyclicImport(tree: tpd.Tree, selector: String): Boolean = hasAcyclicImportAccumulator(selector)(false, tree)
 
   def run(): Unit = {
     val unitMap = units.map(u => u.source.path -> u).toMap
@@ -118,8 +89,8 @@ class PluginPhase(
       } yield (sym.source.path, tree)
 
       Node[Value.File, tpd.Tree](
-        Value.File(unit.source.path, pkgName(unit)),
-        connections.groupBy(c => Value.File(c._1, pkgName(unitMap(c._1))): Value)
+        Value.File(unit.source.path, unitPkgName(unit)),
+        connections.groupBy(c => Value.File(c._1, unitPkgName(unitMap(c._1))): Value)
           .mapValues(_.map(_._2))
           .toMap
       )
