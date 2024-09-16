@@ -11,11 +11,11 @@ object Deps {
   val scala34 = 0.to(3).map("3.4." + _)
   val scala35 = 0.to(0).map("3.5." + _)
 
-  val unreleased = Seq("2.12.20") ++ scala33 ++ scala34 ++ scala35
+  val unreleased = scala33 ++ scala34 ++ scala35
 
   def acyclicAgg(scalaVersion: String) = {
     Agg.when(!unreleased.contains(scalaVersion) /* exclude unreleased versions, if any */ )(
-      ivy"com.lihaoyi:::acyclic:0.3.12"
+      ivy"com.lihaoyi:::acyclic:0.3.13"
     )
   }
 
