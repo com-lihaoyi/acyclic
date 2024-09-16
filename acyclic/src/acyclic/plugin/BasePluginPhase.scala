@@ -3,7 +3,7 @@ package acyclic.plugin
 import acyclic.plugin.Compat._
 import scala.collection.{mutable, SortedSet}
 
-trait BasePluginPhase[CompilationUnit, Tree] { self: GraphAnalysis[Tree] =>
+trait BasePluginPhase[CompilationUnit, Tree, Symbol] { self: GraphAnalysis[Tree] =>
   protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit
   protected def force: Boolean
   protected def fatal: Boolean
@@ -23,6 +23,10 @@ trait BasePluginPhase[CompilationUnit, Tree] { self: GraphAnalysis[Tree] =>
   def findPkgObjects(tree: Tree): List[Tree]
   def pkgObjectName(pkgObject: Tree): String
   def hasAcyclicImport(tree: Tree, selector: String): Boolean
+
+  def extractDependencies(unit: CompilationUnit): Seq[(Symbol, Tree)]
+  def symbolPath(sym: Symbol): String
+  def isValidSymbol(sym: Symbol): Boolean
 
   final def findAcyclics(): (Seq[Value.File], Seq[Value.File], Seq[Value.Pkg]) = {
     val acyclicNodePaths = for {
@@ -44,7 +48,26 @@ trait BasePluginPhase[CompilationUnit, Tree] { self: GraphAnalysis[Tree] =>
     (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
   }
 
-  final def runOnNodes(nodes: Seq[Node[Value.File, Tree]]): Unit = {
+  final def runAllUnits(): Unit = {
+    val unitMap = units.map(u => unitPath(u) -> u).toMap
+    val nodes = for (unit <- units) yield {
+      val deps = extractDependencies(unit)
+
+      val connections = for {
+        (sym, tree) <- deps
+        if isValidSymbol(sym)
+        if symbolPath(sym) != unitPath(unit)
+        if unitMap.contains(symbolPath(sym))
+      } yield (symbolPath(sym), tree)
+
+      Node[Value.File, Tree](
+        Value.File(unitPath(unit), unitPkgName(unit)),
+        connections.groupBy(c => Value.File(c._1, unitPkgName(unitMap(c._1))): Value)
+          .mapValues(_.map(_._2))
+          .toMap
+      )
+    }
+
     val nodeMap = nodes.map(n => n.value -> n).toMap
 
     val (skipNodePaths, acyclicFiles, acyclicPkgs) = findAcyclics()

@@ -5,7 +5,7 @@ import scala.collection.SortedSet
 import dotty.tools.dotc.ast.tpd
 import dotty.tools.dotc.{CompilationUnit, report}
 import dotty.tools.dotc.core.Contexts.Context
-import dotty.tools.dotc.core.Symbols.NoSymbol
+import dotty.tools.dotc.core.Symbols.{NoSymbol, Symbol}
 import dotty.tools.dotc.util.NoSource
 
 /**
@@ -21,7 +21,7 @@ class PluginPhase(
   protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
   protected val force: Boolean,
   protected val fatal: Boolean
-)(using ctx: Context) extends BasePluginPhase[CompilationUnit, tpd.Tree], GraphAnalysis[tpd.Tree] {
+)(using ctx: Context) extends BasePluginPhase[CompilationUnit, tpd.Tree, Symbol], GraphAnalysis[tpd.Tree] {
 
   def treeLine(tree: tpd.Tree): Int = tree.sourcePos.line + 1
   def treeSymbolString(tree: tpd.Tree): String = tree.symbol.toString
@@ -73,29 +73,9 @@ class PluginPhase(
   def pkgObjectName(pkgObject: tpd.Tree): String = pkgObject.symbol.enclosingPackageClass.fullName.toString
   def hasAcyclicImport(tree: tpd.Tree, selector: String): Boolean = hasAcyclicImportAccumulator(selector)(false, tree)
 
-  def run(): Unit = {
-    val unitMap = units.map(u => u.source.path -> u).toMap
-    val nodes = for (unit <- units) yield {
+  def extractDependencies(unit: CompilationUnit): Seq[(Symbol, tpd.Tree)] = DependencyExtraction(unit)
+  def symbolPath(sym: Symbol): String = sym.source.path
+  def isValidSymbol(sym: Symbol): Boolean = sym != NoSymbol && sym.source != null && sym.source != NoSource
 
-      val deps = DependencyExtraction(unit)
-
-      val connections = for {
-        (sym, tree) <- deps
-        if sym != NoSymbol
-        if sym.source != null
-        if sym.source != NoSource
-        if sym.source.path != unit.source.path
-        if unitMap.contains(sym.source.path)
-      } yield (sym.source.path, tree)
-
-      Node[Value.File, tpd.Tree](
-        Value.File(unit.source.path, unitPkgName(unit)),
-        connections.groupBy(c => Value.File(c._1, unitPkgName(unitMap(c._1))): Value)
-          .mapValues(_.map(_._2))
-          .toMap
-      )
-    }
-
-    runOnNodes(nodes)
-  }
+  def run(): Unit = runAllUnits()
 }

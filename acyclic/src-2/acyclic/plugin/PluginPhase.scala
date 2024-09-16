@@ -1,4 +1,5 @@
 package acyclic.plugin
+
 import acyclic.file
 import acyclic.plugin.Compat._
 import scala.collection.{SortedSet, mutable}
@@ -29,7 +30,7 @@ class PluginPhase(
 
   val phaseName = "acyclic"
 
-  private object base extends BasePluginPhase[CompilationUnit, Tree] with GraphAnalysis[Tree] {
+  private object base extends BasePluginPhase[CompilationUnit, Tree, Symbol] with GraphAnalysis[Tree] {
     protected val cycleReporter = t.cycleReporter
     protected lazy val force = t.force
     protected lazy val fatal = t.fatal
@@ -53,32 +54,14 @@ class PluginPhase(
       tree.collect {
         case Import(expr, List(sel)) => expr.symbol.toString == "package acyclic" && sel.name.toString == selector
       }.exists(identity)
+
+    def extractDependencies(unit: CompilationUnit): Seq[(Symbol, Tree)] = DependencyExtraction(global)(unit)
+    def symbolPath(sym: Symbol): String = sym.sourceFile.path
+    def isValidSymbol(sym: Symbol): Boolean = sym != NoSymbol && sym.sourceFile != null
   }
 
   override def newPhase(prev: Phase): Phase = new Phase(prev) {
-    override def run() {
-      val unitMap = base.units.map(u => u.source.path -> u).toMap
-      val nodes = for (unit <- base.units) yield {
-
-        val deps = DependencyExtraction(t.global)(unit)
-
-        val connections = for {
-          (sym, tree) <- deps
-          if sym != NoSymbol
-          if sym.sourceFile != null
-          if sym.sourceFile.path != unit.source.path
-        } yield (sym.sourceFile.path, tree)
-
-        Node[Value.File, Tree](
-          Value.File(unit.source.path, base.unitPkgName(unit)),
-          connections.groupBy(c => Value.File(c._1, base.unitPkgName(unitMap(c._1))): Value)
-            .mapValues(_.map(_._2))
-            .toMap
-        )
-      }
-
-      base.runOnNodes(nodes)
-    }
+    override def run(): Unit = base.runAllUnits()
 
     def name: String = "acyclic"
   }
