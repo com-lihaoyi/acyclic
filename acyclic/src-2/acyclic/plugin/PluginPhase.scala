@@ -19,8 +19,7 @@ class PluginPhase(
     cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
     force: => Boolean,
     fatal: => Boolean
-) extends PluginComponent
-    with GraphAnalysis[Global#Tree] { t =>
+) extends PluginComponent { t =>
 
   import global._
 
@@ -29,6 +28,7 @@ class PluginPhase(
   override val runsBefore = List("patmat")
 
   val phaseName = "acyclic"
+
   def pkgName(unit: CompilationUnit) = {
     unit.body
       .collect { case x: PackageDef => x.pid.toString }
@@ -40,42 +40,56 @@ class PluginPhase(
     .toSeq
     .sortBy(_.source.content.mkString.hashCode())
 
-  def findAcyclics() = {
-    val acyclicNodePaths = for {
-      unit <- units
-      if unit.body.children.collect {
-        case Import(expr, List(sel)) =>
-          expr.symbol.toString == "package acyclic" && sel.name.toString == "file"
-      }.exists(x => x)
-    } yield {
-      Value.File(unit.source.path, pkgName(unit))
-    }
-    val skipNodePaths = for {
-      unit <- units
-      if unit.body.children.collect {
-        case Import(expr, List(sel)) =>
-          expr.symbol.toString == "package acyclic" && sel.name.toString == "skipped"
-      }.exists(x => x)
-    } yield {
-      Value.File(unit.source.path, pkgName(unit))
-    }
+  private object base extends BasePluginPhase[Tree] with GraphAnalysis[Tree] {
+    protected val cycleReporter = t.cycleReporter
+    protected lazy val force = t.force
+    protected lazy val fatal = t.fatal
 
-    val acyclicPkgNames = for {
-      unit <- units
-      pkgObject <- unit.body.collect { case x: ModuleDef if x.name.toString == "package" => x }
-      if pkgObject.impl.children.collect { case Import(expr, List(sel)) =>
-        expr.symbol.toString == "package acyclic" && sel.name.toString == "pkg"
-      }.exists(x => x)
-    } yield {
-      Value.Pkg(
-        pkgObject.symbol
-          .enclosingPackageClass
-          .fullName
-          .split('.')
-          .toList
-      )
+    def treeLine(tree: Tree): Int = tree.pos.line
+    def treeSymbolString(tree: Tree): String = tree.symbol.toString
+
+    def reportError(msg: String): Unit = global.error(msg)
+    def reportWarning(msg: String): Unit = global.warning(msg)
+    def reportInform(msg: String): Unit = global.inform(msg)
+    def reportEcho(msg: String, tree: Tree): Unit = global.reporter.echo(tree.pos, msg)
+
+    def findAcyclics() = {
+      val acyclicNodePaths = for {
+        unit <- units
+        if unit.body.children.collect {
+          case Import(expr, List(sel)) =>
+            expr.symbol.toString == "package acyclic" && sel.name.toString == "file"
+        }.exists(x => x)
+      } yield {
+        Value.File(unit.source.path, pkgName(unit))
+      }
+      val skipNodePaths = for {
+        unit <- units
+        if unit.body.children.collect {
+          case Import(expr, List(sel)) =>
+            expr.symbol.toString == "package acyclic" && sel.name.toString == "skipped"
+        }.exists(x => x)
+      } yield {
+        Value.File(unit.source.path, pkgName(unit))
+      }
+
+      val acyclicPkgNames = for {
+        unit <- units
+        pkgObject <- unit.body.collect { case x: ModuleDef if x.name.toString == "package" => x }
+        if pkgObject.impl.children.collect { case Import(expr, List(sel)) =>
+          expr.symbol.toString == "package acyclic" && sel.name.toString == "pkg"
+        }.exists(x => x)
+      } yield {
+        Value.Pkg(
+          pkgObject.symbol
+            .enclosingPackageClass
+            .fullName
+            .split('.')
+            .toList
+        )
+      }
+      (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
     }
-    (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
   }
 
   override def newPhase(prev: Phase): Phase = new Phase(prev) {
@@ -92,7 +106,7 @@ class PluginPhase(
           if sym.sourceFile.path != unit.source.path
         } yield (sym.sourceFile.path, tree)
 
-        Node[Value.File](
+        Node[Value.File, Tree](
           Value.File(unit.source.path, pkgName(unit)),
           connections.groupBy(c => Value.File(c._1, pkgName(unitMap(c._1))): Value)
             .mapValues(_.map(_._2))
@@ -100,88 +114,9 @@ class PluginPhase(
         )
       }
 
-      val nodeMap = nodes.map(n => n.value -> n).toMap
-
-      val (skipNodePaths, acyclicFiles, acyclicPkgs) = findAcyclics()
-
-      val allAcyclics = acyclicFiles ++ acyclicPkgs
-
-      // synthetic nodes for packages, which aggregate the dependencies of
-      // their contents
-      val pkgNodes = acyclicPkgs.map { value =>
-        Node(
-          value,
-          nodes.filter(_.value.pkg.startsWith(value.pkg))
-            .flatMap(_.dependencies.toSeq)
-            .groupBy(_._1)
-            .mapValues(_.flatMap(_._2))
-            .toMap
-        )
-      }
-
-      val linkedNodes: Seq[DepNode] = (nodes ++ pkgNodes).map { d =>
-        val extraLinks = for {
-          (value: Value.File, pos) <- d.dependencies
-          acyclicPkg <- acyclicPkgs
-          if nodeMap(value).value.pkg.startsWith(acyclicPkg.pkg)
-          if !d.value.pkg.startsWith(acyclicPkg.pkg)
-        } yield (acyclicPkg, pos)
-        d.copy(dependencies = d.dependencies ++ extraLinks)
-      }
-
-      // only care about cycles with size > 1 here
-      val components = DepNode.stronglyConnectedComponents(linkedNodes)
-        .filter(_.size > 1)
-
-      val usedNodes = mutable.Set.empty[DepNode]
-      for {
-        c <- components
-        n <- c
-        if !usedNodes.contains(n)
-        if (!force && allAcyclics.contains(n.value)) || (force && !skipNodePaths.contains(n.value))
-      } {
-        val cycle = DepNode.smallestCycle(n, c)
-        val cycleInfo =
-          (cycle :+ cycle.head).sliding(2)
-            .map { case Seq(a, b) => (a.value, a.dependencies(b.value)) }
-            .toSeq
-        cycleReporter(
-          cycleInfo.map { case (a, b) => a -> b.map(_.pos.line).to(SortedSet) }
-        )
-
-        val msg = "Unwanted cyclic dependency"
-        if (fatal) {
-          global.error(msg)
-        } else {
-          global.warning(msg)
-        }
-
-        for (Seq((value, locs), (nextValue, _)) <- (cycleInfo :+ cycleInfo.head).sliding(2)) {
-          global.inform("")
-          value match {
-            case Value.Pkg(pkg) => global.inform(s"package ${pkg.mkString(".")}")
-            case Value.File(_, _) =>
-          }
-
-          global.reporter.echo(locs.head.pos, "")
-
-          val otherLines = locs.tail
-            .map(_.pos.line)
-            .filter(_ != locs.head.pos.line)
-
-          global.inform("symbol: " + locs.head.symbol.toString)
-
-          if (!otherLines.isEmpty) {
-            global.inform("More dependencies at lines " + otherLines.mkString(" "))
-          }
-
-        }
-        global.inform("")
-        usedNodes ++= cycle
-      }
+      base.runOnNodes(nodes)
     }
 
     def name: String = "acyclic"
   }
-
 }
