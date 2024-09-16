@@ -36,7 +36,7 @@ object TestUtils extends BaseTestUtils {
     val loader = getClass.getClassLoader.asInstanceOf[URLClassLoader]
     val entries = loader.getURLs map (_.getPath)
 
-    val scalaSettings = new ScalaSettings
+    val scalaSettings = new ScalaSettings {}
     val settingsState1 = scalaSettings.outputDir.updateIn(scalaSettings.defaultState, vd)
     val settingsState2 = scalaSettings.classpath.updateIn(settingsState1, ClassPath.join(entries*))
 
