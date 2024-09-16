@@ -4,20 +4,26 @@ import mill._, scalalib._, publish._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
+  val unreleased = "2.12.20" +: 0.to(3).map("3.3." + _).toSeq
+
   def acyclicAgg(scalaVersion: String) = {
-    Agg.when(!Seq("2.12.20").contains(scalaVersion) /* exclude unreleased versions, if any */ )(
+    Agg.when(!unreleased.contains(scalaVersion) /* exclude unreleased versions, if any */ )(
       ivy"com.lihaoyi:::acyclic:0.3.12"
     )
   }
 
-  def scalaCompiler(scalaVersion: String) = ivy"org.scala-lang:scala-compiler:${scalaVersion}"
+  def scalaCompiler(scalaVersion: String) =
+    if (scalaVersion.startsWith("3.")) ivy"org.scala-lang::scala3-compiler:$scalaVersion"
+    else ivy"org.scala-lang:scala-compiler:$scalaVersion"
+
   val utest = ivy"com.lihaoyi::utest:0.8.2"
 }
 
 val crosses =
   Seq("2.11.12") ++
     8.to(20).map("2.12." + _) ++
-    0.to(14).map("2.13." + _)
+    0.to(14).map("2.13." + _) ++
+    0.to(3).map("3.3." + _)
 
 object acyclic extends Cross[AcyclicModule](crosses)
 trait AcyclicModule extends CrossScalaModule with PublishModule {
@@ -36,8 +42,8 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
     )
   )
   override def compileIvyDeps =
-    Agg(Deps.scalaCompiler(crossScalaVersion)) ++
-      Deps.acyclicAgg(crossScalaVersion)
+    Agg(Deps.scalaCompiler(crossScalaVersion))/* ++
+      Deps.acyclicAgg(crossScalaVersion)*/
 
   override def scalacPluginIvyDeps = Deps.acyclicAgg(crossScalaVersion)
 

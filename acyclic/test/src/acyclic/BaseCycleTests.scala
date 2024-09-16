@@ -1,12 +1,11 @@
 package acyclic
 
 import utest._
-import scala.tools.nsc.util.ScalaClassLoader.URLClassLoader
 import acyclic.plugin.Value.{Pkg, File}
 import scala.collection.SortedSet
 import acyclic.file
 
-class BaseCycleTests(utils: TestUtils) extends TestSuite {
+class BaseCycleTests(utils: BaseTestUtils) extends TestSuite {
   import utils.{make, makeFail, srcDirName}
 
   def tests = Tests {
@@ -58,7 +57,7 @@ class BaseCycleTests(utils: TestUtils) extends TestSuite {
       test("warn") - {
         test("fail") - {
           make("force/simple", force = true, warn = true).exists {
-            case (_, "Unwanted cyclic dependency", "warning") => true
+            case ("Unwanted cyclic dependency", "warning") => true
             case _ => false
           }
         }
