@@ -84,9 +84,9 @@ object TestUtils extends BaseTestUtils {
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
 
     storeReporter.map(_.pendingMessages.toSeq.map(i => (i.msg.message, i.level match {
-      case ERROR => "error"
-      case INFO => "info"
-      case WARNING => "warning"
+      case ERROR => "ERROR"
+      case INFO => "INFO"
+      case WARNING => "WARNING"
     }))).getOrElse(Seq.empty)
   }
 

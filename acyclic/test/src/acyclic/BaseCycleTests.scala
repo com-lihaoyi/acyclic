@@ -56,10 +56,10 @@ class BaseCycleTests(utils: BaseTestUtils) extends TestSuite {
     test("force") - {
       test("warn") - {
         test("fail") - {
-          make("force/simple", force = true, warn = true).exists {
-            case ("Unwanted cyclic dependency", "warning") => true
+          assert(make("force/simple", force = true, warn = true).exists {
+            case ("Unwanted cyclic dependency", "WARNING") => true
             case _ => false
-          }
+          })
         }
       }
       test("fail") - makeFail("force/simple", force = true)(Seq(
