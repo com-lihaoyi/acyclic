@@ -13,12 +13,6 @@ object Deps {
 
   val unreleased = scala33 ++ scala34 ++ scala35
 
-  def acyclicAgg(scalaVersion: String) = {
-    Agg.when(!unreleased.contains(scalaVersion) /* exclude unreleased versions, if any */ )(
-      ivy"com.lihaoyi:::acyclic:0.3.13"
-    )
-  }
-
   def scalaCompiler(scalaVersion: String) =
     if (scalaVersion.startsWith("3.")) ivy"org.scala-lang::scala3-compiler:$scalaVersion"
     else ivy"org.scala-lang:scala-compiler:$scalaVersion"
@@ -51,10 +45,8 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
     )
   )
   override def compileIvyDeps =
-    Agg(Deps.scalaCompiler(crossScalaVersion)) ++
-      Deps.acyclicAgg(crossScalaVersion)
+    Agg(Deps.scalaCompiler(crossScalaVersion))
 
-  override def scalacPluginIvyDeps = Deps.acyclicAgg(crossScalaVersion)
 
   object test extends ScalaTests with TestModule.Utest {
     override def sources = T.sources(super.sources() :+ PathRef(millSourcePath / "resources"))
