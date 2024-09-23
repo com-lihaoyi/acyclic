@@ -28,7 +28,7 @@ class PluginPhase(
 
   def reportError(msg: String): Unit = report.error(msg)
   def reportWarning(msg: String): Unit = report.warning(msg)
-  def reportInform(msg: String): Unit = report.inform(msg)
+  def reportInform(msg: String): Unit = report.echo(msg)
   def reportEcho(msg: String, tree: tpd.Tree): Unit = report.echo(msg, tree.srcPos)
 
   private val pkgNameAccumulator = new tpd.TreeAccumulator[List[String]] {
