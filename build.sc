@@ -5,11 +5,11 @@ import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
   val scala211 = Seq("2.11.12")
-  val scala212 = 8.to(20).map("2.12." + _)
-  val scala213 = 0.to(14).map("2.13." + _)
+  val scala212 = 9.to(20).map("2.12." + _)
+  val scala213 = 1.to(15).map("2.13." + _)
   val scala33 = 0.to(3).map("3.3." + _)
   val scala34 = 0.to(3).map("3.4." + _)
-  val scala35 = 0.to(0).map("3.5." + _)
+  val scala35 = 0.to(1).map("3.5." + _)
 
   val unreleased = scala33 ++ scala34 ++ scala35
 
