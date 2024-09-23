@@ -1,6 +1,6 @@
 package acyclic.plugin
+
 import acyclic.file
-import scala.tools.nsc.Global
 import collection.mutable
 
 sealed trait Value {
@@ -19,17 +19,14 @@ object Value {
   }
 }
 
-trait GraphAnalysis {
-  val global: Global
-  import global._
+case class Node[+T <: Value, Tree](value: T, dependencies: Map[Value, Seq[Tree]]) {
+  override def toString = s"DepNode(\n  $value, \n  ${dependencies.keys}\n)"
+}
 
-  case class Node[+T <: Value](value: T, dependencies: Map[Value, Seq[Tree]]) {
-    override def toString = s"DepNode(\n  $value, \n  ${dependencies.keys}\n)"
-  }
-
-  type DepNode = Node[Value]
-  type FileNode = Node[Value.File]
-  type PkgNode = Node[Value.Pkg]
+trait GraphAnalysis[Tree] {
+  type DepNode = Node[Value, Tree]
+  type FileNode = Node[Value.File, Tree]
+  type PkgNode = Node[Value.Pkg, Tree]
 
   object DepNode {
 

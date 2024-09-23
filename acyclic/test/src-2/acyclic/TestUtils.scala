@@ -14,14 +14,9 @@ import acyclic.plugin.Value
 import java.io.OutputStream
 import javax.print.attribute.standard.Severity
 import scala.collection.SortedSet
-import scala.reflect.api.Position
 
-object TestUtils {
-  def getFilePaths(src: String): List[String] = {
-    val f = new java.io.File(src)
-    if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
-    else List(src)
-  }
+object TestUtils extends BaseTestUtils {
+  val srcDirName: String = "src-2"
 
   /**
    * Attempts to compile a resource folder as a compilation run, in order
@@ -33,7 +28,7 @@ object TestUtils {
       force: Boolean = false,
       warn: Boolean = false,
       collectInfo: Boolean = true
-  ): Seq[(Position, String, String)] = {
+  ): Seq[(String, String)] = {
     val src = "acyclic/test/resources/" + path
     val sources = getFilePaths(src) ++ extraIncludes
 
@@ -80,7 +75,7 @@ object TestUtils {
 
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
 
-    storeReporter.map(_.infos.toSeq.map(i => (i.pos, i.msg, i.severity.toString))).getOrElse(Seq.empty)
+    storeReporter.map(_.infos.toSeq.map(i => (i.msg, i.severity.toString))).getOrElse(Seq.empty)
   }
 
   def makeFail(path: String, force: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*) = {
@@ -111,7 +106,5 @@ object TestUtils {
 
     assert(fullExpected.forall(cycles.contains))
   }
-
-  case class CompilationException(cycles: Seq[Seq[(Value, SortedSet[Int])]]) extends Exception
 
 }

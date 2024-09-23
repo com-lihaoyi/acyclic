@@ -4,15 +4,29 @@ import mill._, scalalib._, publish._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
+  val scala211 = Seq("2.11.12")
+  val scala212 = 8.to(20).map("2.12." + _)
+  val scala213 = 0.to(14).map("2.13." + _)
+  val scala33 = 0.to(3).map("3.3." + _)
+  val scala34 = 0.to(3).map("3.4." + _)
+  val scala35 = 0.to(0).map("3.5." + _)
 
-  def scalaCompiler(scalaVersion: String) = ivy"org.scala-lang:scala-compiler:${scalaVersion}"
+  val unreleased = scala33 ++ scala34 ++ scala35
+
+  def scalaCompiler(scalaVersion: String) =
+    if (scalaVersion.startsWith("3.")) ivy"org.scala-lang::scala3-compiler:$scalaVersion"
+    else ivy"org.scala-lang:scala-compiler:$scalaVersion"
+
   val utest = ivy"com.lihaoyi::utest:0.8.2"
 }
 
 val crosses =
-  Seq("2.11.12") ++
-    8.to(20).map("2.12." + _) ++
-    0.to(15).map("2.13." + _)
+  Deps.scala211 ++
+    Deps.scala212 ++
+    Deps.scala213 ++
+    Deps.scala33 ++
+    Deps.scala34 ++
+    Deps.scala35
 
 object acyclic extends Cross[AcyclicModule](crosses)
 trait AcyclicModule extends CrossScalaModule with PublishModule {
@@ -35,7 +49,7 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
 
 
   object test extends ScalaTests with TestModule.Utest {
-    override def sources = T.sources(millSourcePath / "src", millSourcePath / "resources")
+    override def sources = T.sources(super.sources() :+ PathRef(millSourcePath / "resources"))
     override def ivyDeps = Agg(
       Deps.utest,
       Deps.scalaCompiler(crossScalaVersion)
