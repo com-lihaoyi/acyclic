@@ -7,6 +7,7 @@ import dotty.tools.dotc.{CompilationUnit, report}
 import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.core.Symbols.{NoSymbol, Symbol}
 import dotty.tools.dotc.util.NoSource
+import dotty.tools.dotc.core.Flags.Package
 
 /**
  * - Break dependency graph into strongly connected components
@@ -20,6 +21,7 @@ import dotty.tools.dotc.util.NoSource
 class PluginPhase(
   protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
   protected val force: Boolean,
+  protected val forcePkg: Boolean,
   protected val fatal: Boolean
 )(using ctx: Context) extends BasePluginPhase[CompilationUnit, tpd.Tree, Symbol], GraphAnalysis[tpd.Tree] {
 
@@ -53,6 +55,14 @@ class PluginPhase(
       )
   }
 
+  private val pkgAccumulator = new tpd.TreeAccumulator[List[tpd.Tree]] {
+    def apply(acc: List[tpd.Tree], tree: tpd.Tree)(using Context): List[tpd.Tree] =
+      foldOver(
+        if (tree.symbol.is(Package) && tree.symbol.fullName.toString != "<empty>") tree :: acc else acc,
+        tree
+      )
+  }
+
   private def hasAcyclicImportAccumulator(selector: String) = new tpd.TreeAccumulator[Boolean] {
     def apply(acc: Boolean, tree: tpd.Tree)(using Context): Boolean = tree match {
       case tpd.Import(expr, List(sel)) =>
@@ -71,6 +81,8 @@ class PluginPhase(
   def unitPkgName(unit: CompilationUnit): List[String] = pkgNameAccumulator(Nil, unit.tpdTree).reverse.flatMap(_.split('.'))
   def findPkgObjects(tree: tpd.Tree): List[tpd.Tree] = pkgObjectAccumulator(Nil, tree).reverse
   def pkgObjectName(pkgObject: tpd.Tree): String = pkgObject.symbol.enclosingPackageClass.fullName.toString
+  def findPkgs(tree: tpd.Tree): List[tpd.Tree] = pkgAccumulator(Nil, tree).reverse
+  def pkgName(pkg: tpd.Tree): String = pkg.symbol.fullName.toString
   def hasAcyclicImport(tree: tpd.Tree, selector: String): Boolean = hasAcyclicImportAccumulator(selector)(false, tree)
 
   def extractDependencies(unit: CompilationUnit): Seq[(Symbol, tpd.Tree)] = DependencyExtraction(unit)
