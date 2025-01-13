@@ -1,4 +1,4 @@
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.1`
 
 import mill._, scalalib._, publish._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
@@ -46,7 +46,6 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
   )
   override def compileIvyDeps =
     Agg(Deps.scalaCompiler(crossScalaVersion))
-
 
   object test extends ScalaTests with TestModule.Utest {
     override def sources = T.sources(super.sources() :+ PathRef(millSourcePath / "resources"))
