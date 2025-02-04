@@ -9,9 +9,10 @@ object Deps {
   val scala213 = 1.to(16).map("2.13." + _)
   val scala33 = 0.to(3).map("3.3." + _)
   val scala34 = 0.to(3).map("3.4." + _)
-  val scala35 = 0.to(1).map("3.5." + _)
+  val scala35 = 0.to(2).map("3.5." + _)
+  val scala36 = 0.to(3).map("3.6." + _)
 
-  val unreleased = scala33 ++ scala34 ++ scala35
+  val unreleased = scala33 ++ scala34 ++ scala35 ++ scala36
 
   def scalaCompiler(scalaVersion: String) =
     if (scalaVersion.startsWith("3.")) ivy"org.scala-lang::scala3-compiler:$scalaVersion"
@@ -26,7 +27,8 @@ val crosses =
     Deps.scala213 ++
     Deps.scala33 ++
     Deps.scala34 ++
-    Deps.scala35
+    Deps.scala35 ++
+    Deps.scala36
 
 object acyclic extends Cross[AcyclicModule](crosses)
 trait AcyclicModule extends CrossScalaModule with PublishModule {
