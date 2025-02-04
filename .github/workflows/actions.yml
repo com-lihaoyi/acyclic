@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 8
+          java-version: 11
       - name: Run tests
         run: ./mill __.publishArtifacts + __.test
 
@@ -35,6 +35,6 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 8
+          java-version: 11
       - name: Publish to Maven Central
         run: ./mill -i mill.scalalib.PublishModule/
