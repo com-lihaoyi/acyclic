@@ -20,7 +20,7 @@ jobs:
 
   publish-sonatype:
     if: github.repository == 'com-lihaoyi/acyclic' && contains(github.ref, 'refs/tags/')
-    needs: test
+    
     runs-on: ubuntu-latest
     env:
       MILL_SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
