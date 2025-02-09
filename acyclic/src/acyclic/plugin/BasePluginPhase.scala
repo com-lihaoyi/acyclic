@@ -6,6 +6,7 @@ import scala.collection.{mutable, SortedSet}
 trait BasePluginPhase[CompilationUnit, Tree, Symbol] { self: GraphAnalysis[Tree] =>
   protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit
   protected def force: Boolean
+  protected def forcePkg: Boolean
   protected def fatal: Boolean
 
   def treeLine(tree: Tree): Int
@@ -22,6 +23,8 @@ trait BasePluginPhase[CompilationUnit, Tree, Symbol] { self: GraphAnalysis[Tree]
   def unitPkgName(unit: CompilationUnit): List[String]
   def findPkgObjects(tree: Tree): List[Tree]
   def pkgObjectName(pkgObject: Tree): String
+  def findPkgs(tree: Tree): List[Tree]
+  def pkgName(tree: Tree): String
   def hasAcyclicImport(tree: Tree, selector: String): Boolean
 
   def extractDependencies(unit: CompilationUnit): Seq[(Symbol, Tree)]
@@ -39,14 +42,21 @@ trait BasePluginPhase[CompilationUnit, Tree, Symbol] { self: GraphAnalysis[Tree]
     } yield {
       Value.File(unitPath(unit), unitPkgName(unit))
     }
-
-    val acyclicPkgNames = for {
-      unit <- units
-      pkgObject <- findPkgObjects(unitTree(unit))
-      if hasAcyclicImport(pkgObject, "pkg")
-    } yield Value.Pkg(pkgObjectName(pkgObject).split('.').toList)
+    val stdPackages = if (forcePkg) packages else Seq.empty[Value.Pkg]
+    val acyclicPkgNames = packageObjects ++ stdPackages
     (skipNodePaths, acyclicNodePaths, acyclicPkgNames)
   }
+
+  private def packageObjects = for {
+    unit <- units
+    pkgObject <- findPkgObjects(unitTree(unit))
+    if hasAcyclicImport(pkgObject, "pkg")
+  } yield Value.Pkg(pkgObjectName(pkgObject).split('.').toList)
+
+  private def packages: Seq[Value.Pkg] = for {
+    unit <- units
+    pkgs <- findPkgs(unitTree(unit))
+  } yield Value.Pkg(pkgName(pkgs).split('.').toList)
 
   final def runAllUnits(): Unit = {
     val unitMap = units.map(u => unitPath(u) -> u).toMap

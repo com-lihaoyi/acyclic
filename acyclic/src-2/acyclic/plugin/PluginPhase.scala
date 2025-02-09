@@ -19,6 +19,7 @@ class PluginPhase(
     val global: Global,
     cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
     force: => Boolean,
+    forcePkg: => Boolean,
     fatal: => Boolean
 ) extends PluginComponent { t =>
 
@@ -33,6 +34,7 @@ class PluginPhase(
   private object base extends BasePluginPhase[CompilationUnit, Tree, Symbol] with GraphAnalysis[Tree] {
     protected val cycleReporter = t.cycleReporter
     protected lazy val force = t.force
+    protected lazy val forcePkg = t.forcePkg
     protected lazy val fatal = t.fatal
 
     def treeLine(tree: Tree): Int = tree.pos.line
@@ -50,6 +52,8 @@ class PluginPhase(
       unit.body.collect { case x: PackageDef => x.pid.toString }.flatMap(_.split('.'))
     def findPkgObjects(tree: Tree): List[Tree] = tree.collect { case x: ModuleDef if x.name.toString == "package" => x }
     def pkgObjectName(pkgObject: Tree): String = pkgObject.symbol.enclosingPackageClass.fullName
+    def findPkgs(tree: Tree): List[Tree] = tree.collect { case x: PackageDef if x.symbol.fullName != "<empty>" => x }
+    def pkgName(pkg: Tree): String = pkg.symbol.fullName
     def hasAcyclicImport(tree: Tree, selector: String): Boolean =
       tree.collect {
         case Import(expr, List(sel)) => expr.symbol.toString == "package acyclic" && sel.name.toString == selector

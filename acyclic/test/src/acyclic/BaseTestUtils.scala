@@ -14,11 +14,12 @@ abstract class BaseTestUtils {
       path: String,
       extraIncludes: Seq[String] = Seq("acyclic/src/acyclic/package.scala"),
       force: Boolean = false,
+      forcePkg: Boolean = false,
       warn: Boolean = false,
       collectInfo: Boolean = true
   ): Seq[(String, String)]
 
-  def makeFail(path: String, force: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*): Unit
+  def makeFail(path: String, force: Boolean = false, forcePkg: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*): Unit
 
   case class CompilationException(cycles: Seq[Seq[(Value, SortedSet[Int])]]) extends Exception
 
