@@ -10,7 +10,7 @@ object Deps {
   val scala33 = 0.to(3).map("3.3." + _)
   val scala34 = 0.to(3).map("3.4." + _)
   val scala35 = 0.to(2).map("3.5." + _)
-  val scala36 = 0.to(3).map("3.6." + _)
+  val scala36 = 0.to(4).map("3.6." + _)
 
   val unreleased = scala33 ++ scala34 ++ scala35 ++ scala36
 
