@@ -1,6 +1,8 @@
 package acyclic
 
 import acyclic.plugin.Value
+
+import java.util.jar.JarFile
 import scala.collection.SortedSet
 
 abstract class BaseTestUtils {
@@ -26,5 +28,27 @@ abstract class BaseTestUtils {
     val f = new java.io.File(src)
     if (f.isDirectory) f.list.toList.flatMap(x => getFilePaths(src + "/" + x))
     else List(src)
+  }
+
+  def getJavaClasspathEntries(): Seq[String] = {
+    System.getProperty("java.class.path")
+      .split(java.io.File.pathSeparator)
+      .toIndexedSeq
+      .flatMap { f =>
+        val extra = for {
+          manifest <- Option.when(f.endsWith(".jar"))(new JarFile(f).getManifest()).toSeq
+          mainAttr <- Option(manifest.getMainAttributes()).toSeq
+          cp <-Option(mainAttr.getValue("Class-Path")).toSeq
+          entry <- cp.split(" ")
+          if entry.nonEmpty
+        } yield entry match {
+          case url if url.startsWith("file:///") =>
+            url.substring("file://".length)
+          case url if url.startsWith("file:/") =>
+            url.substring("file:".length)
+          case s => s
+        }
+        Seq(f) ++ extra
+      }
   }
 }

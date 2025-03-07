@@ -34,9 +34,10 @@ object TestUtils extends BaseTestUtils {
 
     val vd = new VirtualDirectory("(memory)", None)
     lazy val settings = new Settings
-    val loader = getClass.getClassLoader.asInstanceOf[URLClassLoader]
-    val entries = loader.getURLs map (_.getPath)
+    val entries = getJavaClasspathEntries()
     settings.outputDirs.setSingleOutput(vd)
+
+    println(s"entries: ${entries.toIndexedSeq}")
 
     // annoyingly, the Scala library is not in our classpath, so we have to add it manually
     val sclpath = entries.map(
@@ -56,7 +57,7 @@ object TestUtils extends BaseTestUtils {
     }
 
     var cycles: Option[Seq[Seq[(acyclic.plugin.Value, SortedSet[Int])]]] = None
-    val storeReporter = if (collectInfo) Some(new StoreReporter()) else None
+    val storeReporter = if (collectInfo) Some(new StoreReporter(settings)) else None
 
     lazy val compiler = new Global(settings, storeReporter.getOrElse(new ConsoleReporter(settings))) {
       override protected def loadRoughPluginsList(): List[Plugin] = {
