@@ -37,4 +37,17 @@ jobs:
           distribution: 'temurin'
           java-version: 11
       - name: Publish to Maven Central
-        run: ./mill -i mill.scalalib.PublishModule/
+        run: |
+          if [[ $(git tag --points-at HEAD) != '' ]]; then
+            echo $MILL_PGP_SECRET_BASE64 | base64 --decode > gpg_key
+            gpg --import --no-tty --batch --yes gpg_key
+            rm gpg_key
+            ./mill -i mill.scalalib.PublishModule/publishAll \
+              --sonatypeCreds $MILL_SONATYPE_USER:$MILL_SONATYPE_PASSWORD \
+              --gpgArgs --passphrase=$MILL_PGP_PASSPHRASE,--no-tty,--pinentry-mode,loopback,--batch,--yes,-a,-b \
+              --publishArtifacts __.publishArtifacts \
+              --readTimeout 600000 \
+              --awaitTimeout 600000 \
+              --release true \
+              --signed true
+          fi
