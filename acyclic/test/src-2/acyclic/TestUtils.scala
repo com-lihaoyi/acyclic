@@ -34,8 +34,7 @@ object TestUtils extends BaseTestUtils {
 
     val vd = new VirtualDirectory("(memory)", None)
     lazy val settings = new Settings
-    val loader = getClass.getClassLoader.asInstanceOf[URLClassLoader]
-    val entries = loader.getURLs map (_.getPath)
+    val entries = getJavaClasspathEntries()
     settings.outputDirs.setSingleOutput(vd)
 
     // annoyingly, the Scala library is not in our classpath, so we have to add it manually

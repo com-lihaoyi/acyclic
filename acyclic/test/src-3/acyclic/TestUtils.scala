@@ -33,8 +33,7 @@ object TestUtils extends BaseTestUtils {
     val src = "acyclic/test/resources/" + path
     val sources = (getFilePaths(src) ++ extraIncludes).map(f => PlainFile(Path(Paths.get(f))))
     val vd = new VirtualDirectory("(memory)", None)
-    val loader = getClass.getClassLoader.asInstanceOf[URLClassLoader]
-    val entries = loader.getURLs map (_.getPath)
+    val entries = getJavaClasspathEntries()
 
     val scalaSettings = new ScalaSettings {}
     val settingsState1 = scalaSettings.outputDir.updateIn(scalaSettings.defaultState, vd)
