@@ -49,6 +49,19 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
   override def compileIvyDeps =
     Agg(Deps.scalaCompiler(crossScalaVersion))
 
+  override def javacOptions = Seq(
+    "-source", "8", "-target", "8", "-encoding", "UTF-8"
+  )
+
+  override def scalacOptions =
+    if (crossScalaVersion.startsWith("2.")) Seq(
+      "-target:jvm-1.8"
+    )
+    else Seq(
+      "-java-output-version",
+      "8"
+    )
+
   object test extends ScalaTests with TestModule.Utest {
     override def sources = T.sources(super.sources() :+ PathRef(millSourcePath / "resources"))
     override def ivyDeps = Agg(
