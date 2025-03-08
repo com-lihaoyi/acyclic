@@ -37,8 +37,6 @@ object TestUtils extends BaseTestUtils {
     val entries = getJavaClasspathEntries()
     settings.outputDirs.setSingleOutput(vd)
 
-    println(s"entries: ${entries.toIndexedSeq}")
-
     // annoyingly, the Scala library is not in our classpath, so we have to add it manually
     val sclpath = entries.map(
       _.replaceAll("scala-compiler.jar", "scala-library.jar")
