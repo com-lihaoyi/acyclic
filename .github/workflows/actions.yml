@@ -14,13 +14,13 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 11
+          java-version: 8
       - name: Run tests
         run: ./mill __.publishArtifacts + __.test
 
   publish-sonatype:
     if: github.repository == 'com-lihaoyi/acyclic' && contains(github.ref, 'refs/tags/')
-    
+    needs: test
     runs-on: ubuntu-latest
     env:
       MILL_SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -35,6 +35,6 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 11
+          java-version: 8
       - name: Publish to Maven Central
         run: ./mill -i mill.scalalib.PublishModule/
