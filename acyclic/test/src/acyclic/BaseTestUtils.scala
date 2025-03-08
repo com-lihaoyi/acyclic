@@ -8,6 +8,8 @@ import scala.collection.SortedSet
 abstract class BaseTestUtils {
   val srcDirName: String
 
+  val workspaceRoot = sys.env("MILL_WORKSPACE_ROOT")
+  val testResources = sys.env("TEST_ACYCLIC_TEST_RESOURCES")
   /**
    * Attempts to compile a resource folder as a compilation run, in order
    * to test whether it succeeds or fails correctly.

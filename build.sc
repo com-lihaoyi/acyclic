@@ -50,7 +50,12 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
     Agg(Deps.scalaCompiler(crossScalaVersion))
 
   override def javacOptions = Seq(
-    "-source", "8", "-target", "8", "-encoding", "UTF-8"
+    "-source",
+    "8",
+    "-target",
+    "8",
+    "-encoding",
+    "UTF-8"
   )
 
   override def scalacOptions =
@@ -69,5 +74,9 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
       Deps.scalaCompiler(crossScalaVersion)
     )
     override def scalacPluginIvyDeps = Agg.empty[Dep]
+    override def forkEnv = super.forkEnv() ++ Map(
+      "MILL_WORKSPACE_ROOT" -> T.workspace.toString,
+      "TEST_ACYCLIC_TEST_RESOURCES" -> (millSourcePath / "resources").toString
+    )
   }
 }

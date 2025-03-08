@@ -25,12 +25,13 @@ object TestUtils extends BaseTestUtils {
    */
   def make(
       path: String,
-      extraIncludes: Seq[String] = Seq("acyclic/src/acyclic/package.scala"),
+      extraIncludes: Seq[String] =
+        Seq(workspaceRoot + "/acyclic/src/acyclic/package.scala"),
       force: Boolean = false,
       warn: Boolean = false,
       collectInfo: Boolean = true
   ): Seq[(String, String)] = {
-    val src = "acyclic/test/resources/" + path
+    val src = testResources + "/" + path
     val sources = (getFilePaths(src) ++ extraIncludes).map(f => PlainFile(Path(Paths.get(f))))
     val vd = new VirtualDirectory("(memory)", None)
     val entries = getJavaClasspathEntries()
@@ -107,7 +108,7 @@ object TestUtils extends BaseTestUtils {
       .toSet
 
     def expand(v: Value) = v match {
-      case Value.File(filePath, pkg) => Value.File("acyclic/test/resources/" + path + "/" + filePath, Nil)
+      case Value.File(filePath, pkg) => Value.File(testResources + "/" + path + "/" + filePath, Nil)
       case v => v
     }
 
