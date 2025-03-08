@@ -38,19 +38,21 @@ abstract class BaseTestUtils {
         // If an (empty) classpath pathing jar is used, we extract the `Class-Path` manifest entry
         // and those entries to the classpath
         val extra =
-          for {
-            manifest <- Option.when(f.endsWith(".jar"))(new JarFile(f).getManifest()).toSeq
-            mainAttr <- Option(manifest.getMainAttributes()).toSeq
-            cp <- Option(mainAttr.getValue("Class-Path")).toSeq
-            entry <- cp.split(" ")
-            if entry.nonEmpty
-          } yield entry match {
-            case url if url.startsWith("file:///") =>
-              url.substring("file://".length)
-            case url if url.startsWith("file:/") =>
-              url.substring("file:".length)
-            case s => s
-          }
+          if (!f.toLowerCase().endsWith(".jar")) Seq()
+          else
+            for {
+              manifest <- Option(new JarFile(f).getManifest()).toSeq
+              mainAttr <- Option(manifest.getMainAttributes()).toSeq
+              cp <- Option(mainAttr.getValue("Class-Path")).toSeq
+              entry <- cp.split(" ")
+              if entry.nonEmpty
+            } yield entry match {
+              case url if url.startsWith("file:///") =>
+                url.substring("file://".length)
+              case url if url.startsWith("file:/") =>
+                url.substring("file:".length)
+              case s => s
+            }
         Seq(f) ++ extra
       }
   }

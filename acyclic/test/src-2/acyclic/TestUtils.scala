@@ -57,7 +57,7 @@ object TestUtils extends BaseTestUtils {
     }
 
     var cycles: Option[Seq[Seq[(acyclic.plugin.Value, SortedSet[Int])]]] = None
-    val storeReporter = if (collectInfo) Some(new StoreReporter(settings)) else None
+    val storeReporter = if (collectInfo) Some(new StoreReporter()) else None
 
     lazy val compiler = new Global(settings, storeReporter.getOrElse(new ConsoleReporter(settings))) {
       override protected def loadRoughPluginsList(): List[Plugin] = {
