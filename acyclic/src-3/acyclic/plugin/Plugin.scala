@@ -12,6 +12,7 @@ class TestPlugin(cycleReporter: Seq[(Value, SortedSet[Int])] => Unit = _ => ()) 
   val description = "Allows the developer to prohibit inter-file dependencies"
 
   var force = false
+  var forcePkg = false
   var fatal = true
   var alreadyRun = false
 
@@ -22,7 +23,7 @@ class TestPlugin(cycleReporter: Seq[(Value, SortedSet[Int])] => Unit = _ => ()) 
     override def run(using Context): Unit = {
       if (!alreadyRun) {
         alreadyRun = true
-        new acyclic.plugin.PluginPhase(cycleReporter, force, fatal).run()
+        new acyclic.plugin.PluginPhase(cycleReporter, force, forcePkg, fatal).run()
       }
     }
   }
@@ -30,6 +31,9 @@ class TestPlugin(cycleReporter: Seq[(Value, SortedSet[Int])] => Unit = _ => ()) 
   override def init(options: List[String]): List[PluginPhase] = {
     if (options.contains("force")) {
       force = true
+    }
+    if (options.contains("forcePkg")) {
+      forcePkg = true
     }
     if (options.contains("warn")) {
       fatal = false

@@ -68,6 +68,28 @@ class BaseCycleTests(utils: BaseTestUtils) extends TestSuite {
       ))
       test("pass") - make("force/simple")
       test("skip") - make("force/skip", force = true)
+      test("mutualcyclic") - make("success/pkg/mutualcyclic", force = true)
+    }
+    test("forcepkg") - {
+      test("fail") - {
+        makeFail("forcepkg/cyclicpackage", force = false, forcePkg = true)(
+          Seq(
+            Pkg("forcepkg.cyclicpackage.b") -> SortedSet(4),
+            Pkg("forcepkg.cyclicpackage.a") -> SortedSet(4)
+          )
+        )
+      }
+      test("success") - {
+        make("forcepkg/simple", force = false, forcePkg = true)
+      }
+      test("fail") - {
+        makeFail("forcepkg/simple", force = true, forcePkg = true)(
+          Seq(
+            File("B.scala") -> SortedSet(4, 5),
+            File("A.scala") -> SortedSet(5)
+          )
+        )
+      }
     }
   }
 }
