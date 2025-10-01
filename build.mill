@@ -1,0 +1,85 @@
+package build
+
+import mill.*
+import mill.api.BuildCtx
+import mill.scalalib.*
+import publish.*
+import mill.util.VcsVersion
+
+object Deps {
+  val scala211: Seq[String] = Seq("2.11.12")
+  val scala212: Seq[String] = 9.to(20).map("2.12." + _)
+  val scala213: Seq[String] = 3.to(17).map("2.13." + _)
+  val scala33: Seq[String] = 0.to(6).map("3.3." + _)
+  val scala34: Seq[String] = 0.to(3).map("3.4." + _)
+  val scala35: Seq[String] = 0.to(2).map("3.5." + _)
+  val scala36: Seq[String] = 0.to(4).map("3.6." + _)
+  val scala37: Seq[String] = 0.to(3).map("3.7." + _)
+
+  val unreleased: Seq[String] = scala33 ++ scala34 ++ scala35 ++ scala36 ++ scala37
+
+  def scalaCompiler(scalaVersion: String): Dep =
+    if scalaVersion.startsWith("3.")
+    then mvn"org.scala-lang::scala3-compiler:$scalaVersion"
+    else mvn"org.scala-lang:scala-compiler:$scalaVersion"
+
+  val utest = mvn"com.lihaoyi::utest:0.8.2"
+}
+
+val crosses: Seq[String] =
+  Deps.scala211 ++
+    Deps.scala212 ++
+    Deps.scala213 ++
+    Deps.scala33 ++
+    Deps.scala34 ++
+    Deps.scala35 ++
+    Deps.scala36 ++
+    Deps.scala37
+
+object acyclic extends Cross[AcyclicModule](crosses)
+trait AcyclicModule extends CrossScalaModule with SonatypeCentralPublishModule {
+  override def crossFullScalaVersion = true
+  override def artifactName = "acyclic"
+  override def publishVersion: T[String] = VcsVersion.vcsState().format()
+
+  override def pomSettings: T[PomSettings] = PomSettings(
+    description = artifactName(),
+    organization = "com.lihaoyi",
+    url = "https://github.com/com-lihaoyi/acyclic",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github(owner = "com-lihaoyi", repo = "acyclic"),
+    developers = Seq(
+      Developer("lihaoyi", "Li Haoyi", "https://github.com/lihaoyi")
+    )
+  )
+  override def compileMvnDeps: T[Seq[Dep]] =
+    Seq(Deps.scalaCompiler(crossScalaVersion))
+
+  override def javacOptions: T[Seq[String]] = Seq(
+    "-source",
+    "8",
+    "-target",
+    "8",
+    "-encoding",
+    "UTF-8"
+  )
+
+  override def scalacOptions: T[Seq[String]] =
+    if crossScalaVersion.startsWith("2.")
+    then Seq("-target:jvm-1.8")
+    else Seq("-java-output-version", "8")
+
+  object test extends ScalaTests with TestModule.Utest {
+    private def customSources: T[Seq[PathRef]] = Task.Sources("resources")
+    override def sources: T[Seq[PathRef]] = Task { super.sources() ++ customSources() }
+    override def mvnDeps: T[Seq[Dep]] = Seq(
+      Deps.utest,
+      Deps.scalaCompiler(crossScalaVersion)
+    )
+    override def scalacPluginMvnDeps: T[Seq[Dep]] = Seq.empty[Dep]
+    override def forkEnv: T[Map[String, String]] = super.forkEnv() ++ Map(
+      "MILL_WORKSPACE_ROOT" -> BuildCtx.workspaceRoot.toString,
+      "TEST_ACYCLIC_TEST_RESOURCES" -> (moduleDir / "resources").toString
+    )
+  }
+}

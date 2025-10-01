@@ -4,3 +4,6 @@ project/target/*
 .idea/*
 .idea_modules/*
 *.iml
+.bsp/
+.cursor/
+.idea/
