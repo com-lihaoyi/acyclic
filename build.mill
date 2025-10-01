@@ -34,12 +34,12 @@ val crosses: Seq[String] =
     Deps.scala36
 
 object acyclic extends Cross[AcyclicModule](crosses)
-trait AcyclicModule extends CrossScalaModule with PublishModule {
+trait AcyclicModule extends CrossScalaModule with SonatypeCentralPublishModule {
   override def crossFullScalaVersion = true
   override def artifactName = "acyclic"
-  def publishVersion: T[String] = VcsVersion.vcsState().format()
+  override def publishVersion: T[String] = VcsVersion.vcsState().format()
 
-  def pomSettings: T[PomSettings] = PomSettings(
+  override def pomSettings: T[PomSettings] = PomSettings(
     description = artifactName(),
     organization = "com.lihaoyi",
     url = "https://github.com/com-lihaoyi/acyclic",
