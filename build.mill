@@ -1,10 +1,10 @@
 package build
 
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.1`
-import mill._
-import scalalib._
-import publish._
-import de.tobiasroeser.mill.vcs.version.VcsVersion
+import mill.*
+import mill.api.BuildCtx
+import mill.scalalib.*
+import publish.*
+import mill.util.VcsVersion
 
 object Deps {
   val scala211: Seq[String] = Seq("2.11.12")
@@ -18,10 +18,11 @@ object Deps {
   val unreleased: Seq[String] = scala33 ++ scala34 ++ scala35 ++ scala36
 
   def scalaCompiler(scalaVersion: String): Dep =
-    if (scalaVersion.startsWith("3.")) ivy"org.scala-lang::scala3-compiler:$scalaVersion"
-    else ivy"org.scala-lang:scala-compiler:$scalaVersion"
+    if scalaVersion.startsWith("3.")
+    then mvn"org.scala-lang::scala3-compiler:$scalaVersion"
+    else mvn"org.scala-lang:scala-compiler:$scalaVersion"
 
-  val utest = ivy"com.lihaoyi::utest:0.8.2"
+  val utest = mvn"com.lihaoyi::utest:0.8.2"
 }
 
 val crosses: Seq[String] =
@@ -49,8 +50,8 @@ trait AcyclicModule extends CrossScalaModule with SonatypeCentralPublishModule {
       Developer("lihaoyi", "Li Haoyi", "https://github.com/lihaoyi")
     )
   )
-  override def compileIvyDeps: T[Agg[Dep]] =
-    Agg(Deps.scalaCompiler(crossScalaVersion))
+  override def compileMvnDeps: T[Seq[Dep]] =
+    Seq(Deps.scalaCompiler(crossScalaVersion))
 
   override def javacOptions: T[Seq[String]] = Seq(
     "-source",
@@ -62,23 +63,20 @@ trait AcyclicModule extends CrossScalaModule with SonatypeCentralPublishModule {
   )
 
   override def scalacOptions: T[Seq[String]] =
-    if (crossScalaVersion.startsWith("2.")) Seq(
-      "-target:jvm-1.8"
-    )
-    else Seq(
-      "-java-output-version",
-      "8"
-    )
+    if crossScalaVersion.startsWith("2.")
+    then Seq("-target:jvm-1.8")
+    else Seq("-java-output-version", "8")
 
   object test extends ScalaTests with TestModule.Utest {
-    override def sources: T[Seq[PathRef]] = Task.Sources(super.sources() :+ PathRef(moduleDir / "resources"))
-    override def ivyDeps: T[Agg[Dep]] = Agg(
+    private def customSources: T[Seq[PathRef]] = Task.Sources("resources")
+    override def sources: T[Seq[PathRef]] = Task { super.sources() ++ customSources() }
+    override def mvnDeps: T[Seq[Dep]] = Seq(
       Deps.utest,
       Deps.scalaCompiler(crossScalaVersion)
     )
-    override def scalacPluginIvyDeps: T[Agg[Dep]] = Agg.empty[Dep]
+    override def scalacPluginMvnDeps: T[Seq[Dep]] = Seq.empty[Dep]
     override def forkEnv: T[Map[String, String]] = super.forkEnv() ++ Map(
-      "MILL_WORKSPACE_ROOT" -> T.workspace.toString,
+      "MILL_WORKSPACE_ROOT" -> BuildCtx.workspaceRoot.toString,
       "TEST_ACYCLIC_TEST_RESOURCES" -> (moduleDir / "resources").toString
     )
   }
