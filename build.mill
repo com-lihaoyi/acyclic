@@ -1,27 +1,30 @@
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.1`
+package build
 
-import mill._, scalalib._, publish._
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.1`
+import mill._
+import scalalib._
+import publish._
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 
 object Deps {
-  val scala211 = Seq("2.11.12")
-  val scala212 = 9.to(20).map("2.12." + _)
-  val scala213 = 3.to(16).map("2.13." + _)
-  val scala33 = 0.to(3).map("3.3." + _)
-  val scala34 = 0.to(3).map("3.4." + _)
-  val scala35 = 0.to(2).map("3.5." + _)
-  val scala36 = 0.to(4).map("3.6." + _)
+  val scala211: Seq[String] = Seq("2.11.12")
+  val scala212: Seq[String] = 9.to(20).map("2.12." + _)
+  val scala213: Seq[String] = 3.to(16).map("2.13." + _)
+  val scala33: Seq[String] = 0.to(3).map("3.3." + _)
+  val scala34: Seq[String] = 0.to(3).map("3.4." + _)
+  val scala35: Seq[String] = 0.to(2).map("3.5." + _)
+  val scala36: Seq[String] = 0.to(4).map("3.6." + _)
 
-  val unreleased = scala33 ++ scala34 ++ scala35 ++ scala36
+  val unreleased: Seq[String] = scala33 ++ scala34 ++ scala35 ++ scala36
 
-  def scalaCompiler(scalaVersion: String) =
+  def scalaCompiler(scalaVersion: String): Dep =
     if (scalaVersion.startsWith("3.")) ivy"org.scala-lang::scala3-compiler:$scalaVersion"
     else ivy"org.scala-lang:scala-compiler:$scalaVersion"
 
   val utest = ivy"com.lihaoyi::utest:0.8.2"
 }
 
-val crosses =
+val crosses: Seq[String] =
   Deps.scala211 ++
     Deps.scala212 ++
     Deps.scala213 ++
@@ -34,9 +37,9 @@ object acyclic extends Cross[AcyclicModule](crosses)
 trait AcyclicModule extends CrossScalaModule with PublishModule {
   override def crossFullScalaVersion = true
   override def artifactName = "acyclic"
-  def publishVersion = VcsVersion.vcsState().format()
+  def publishVersion: T[String] = VcsVersion.vcsState().format()
 
-  def pomSettings = PomSettings(
+  def pomSettings: T[PomSettings] = PomSettings(
     description = artifactName(),
     organization = "com.lihaoyi",
     url = "https://github.com/com-lihaoyi/acyclic",
@@ -46,10 +49,10 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
       Developer("lihaoyi", "Li Haoyi", "https://github.com/lihaoyi")
     )
   )
-  override def compileIvyDeps =
+  override def compileIvyDeps: T[Agg[Dep]] =
     Agg(Deps.scalaCompiler(crossScalaVersion))
 
-  override def javacOptions = Seq(
+  override def javacOptions: T[Seq[String]] = Seq(
     "-source",
     "8",
     "-target",
@@ -58,7 +61,7 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
     "UTF-8"
   )
 
-  override def scalacOptions =
+  override def scalacOptions: T[Seq[String]] =
     if (crossScalaVersion.startsWith("2.")) Seq(
       "-target:jvm-1.8"
     )
@@ -68,15 +71,15 @@ trait AcyclicModule extends CrossScalaModule with PublishModule {
     )
 
   object test extends ScalaTests with TestModule.Utest {
-    override def sources = T.sources(super.sources() :+ PathRef(millSourcePath / "resources"))
-    override def ivyDeps = Agg(
+    override def sources: T[Seq[PathRef]] = Task.Sources(super.sources() :+ PathRef(moduleDir / "resources"))
+    override def ivyDeps: T[Agg[Dep]] = Agg(
       Deps.utest,
       Deps.scalaCompiler(crossScalaVersion)
     )
-    override def scalacPluginIvyDeps = Agg.empty[Dep]
-    override def forkEnv = super.forkEnv() ++ Map(
+    override def scalacPluginIvyDeps: T[Agg[Dep]] = Agg.empty[Dep]
+    override def forkEnv: T[Map[String, String]] = super.forkEnv() ++ Map(
       "MILL_WORKSPACE_ROOT" -> T.workspace.toString,
-      "TEST_ACYCLIC_TEST_RESOURCES" -> (millSourcePath / "resources").toString
+      "TEST_ACYCLIC_TEST_RESOURCES" -> (moduleDir / "resources").toString
     )
   }
 }
