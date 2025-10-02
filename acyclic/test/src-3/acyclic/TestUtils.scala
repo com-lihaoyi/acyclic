@@ -68,9 +68,12 @@ object TestUtils extends BaseTestUtils {
         ))
     }
 
-    given ctx: Context = FreshContext.initial(ctxBase, new ScalaSettings {
-      override val defaultState = settingsState3
-    })
+    given ctx: Context = FreshContext.initial(
+      ctxBase,
+      new ScalaSettings {
+        override val defaultState = settingsState3
+      }
+    )
       .asInstanceOf[FreshContext]
       .setReporter(storeReporter.getOrElse(ConsoleReporter()))
 
@@ -83,11 +86,16 @@ object TestUtils extends BaseTestUtils {
 
     if (vd.toList.isEmpty) throw CompilationException(cycles.get)
 
-    storeReporter.map(_.pendingMessages.toSeq.map(i => (i.msg.message, i.level match {
-      case ERROR => "ERROR"
-      case INFO => "INFO"
-      case WARNING => "WARNING"
-    }))).getOrElse(Seq.empty)
+    storeReporter.map(_.pendingMessages.toSeq.map(i =>
+      (
+        i.msg.message,
+        i.level match {
+          case ERROR => "ERROR"
+          case INFO => "INFO"
+          case WARNING => "WARNING"
+        }
+      )
+    )).getOrElse(Seq.empty)
   }
 
   def makeFail(path: String, force: Boolean = false)(expected: Seq[(Value, SortedSet[Int])]*) = {

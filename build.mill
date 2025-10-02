@@ -26,15 +26,20 @@ object Deps {
   val utest = mvn"com.lihaoyi::utest:0.8.2"
 }
 
-val crosses: Seq[String] =
-  Deps.scala211 ++
-    Deps.scala212 ++
-    Deps.scala213 ++
-    Deps.scala33 ++
-    Deps.scala34 ++
-    Deps.scala35 ++
-    Deps.scala36 ++
-    Deps.scala37
+val crosses: Seq[String] = sys.env.get("SCALA_VERSION")
+  .map(_.trim)
+  .filter(_.nonEmpty)
+  .map(Seq(_))
+  .getOrElse(
+    Deps.scala211 ++
+      Deps.scala212 ++
+      Deps.scala213 ++
+      Deps.scala33 ++
+      Deps.scala34 ++
+      Deps.scala35 ++
+      Deps.scala36 ++
+      Deps.scala37
+  )
 
 object acyclic extends Cross[AcyclicModule](crosses)
 trait AcyclicModule extends CrossScalaModule with SonatypeCentralPublishModule {

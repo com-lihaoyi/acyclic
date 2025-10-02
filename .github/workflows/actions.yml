@@ -5,10 +5,18 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      scala_version:
+        description: 'Scala version to publish'
+        required: true
+        type: string
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      SCALA_VERSION: ${{ inputs.scala_version }}
     steps:
       - uses: actions/checkout@v4
       - name: Run tests
