@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       scala_version:
-        description: 'Scala version to publish'
+        description: 'Single Scala version to publish'
         required: true
         type: string
 
