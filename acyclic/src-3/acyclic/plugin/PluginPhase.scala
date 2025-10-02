@@ -18,9 +18,9 @@ import dotty.tools.dotc.util.NoSource
  * - Don't report more than one cycle per file/pkg, to avoid excessive spam
  */
 class PluginPhase(
-  protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
-  protected val force: Boolean,
-  protected val fatal: Boolean
+    protected val cycleReporter: Seq[(Value, SortedSet[Int])] => Unit,
+    protected val force: Boolean,
+    protected val fatal: Boolean
 )(using ctx: Context) extends BasePluginPhase[CompilationUnit, tpd.Tree, Symbol], GraphAnalysis[tpd.Tree] {
 
   def treeLine(tree: tpd.Tree): Int = tree.sourcePos.line + 1
@@ -68,7 +68,8 @@ class PluginPhase(
 
   def unitTree(unit: CompilationUnit): tpd.Tree = unit.tpdTree
   def unitPath(unit: CompilationUnit): String = unit.source.path
-  def unitPkgName(unit: CompilationUnit): List[String] = pkgNameAccumulator(Nil, unit.tpdTree).reverse.flatMap(_.split('.'))
+  def unitPkgName(unit: CompilationUnit): List[String] =
+    pkgNameAccumulator(Nil, unit.tpdTree).reverse.flatMap(_.split('.'))
   def findPkgObjects(tree: tpd.Tree): List[tpd.Tree] = pkgObjectAccumulator(Nil, tree).reverse
   def pkgObjectName(pkgObject: tpd.Tree): String = pkgObject.symbol.enclosingPackageClass.fullName.toString
   def hasAcyclicImport(tree: tpd.Tree, selector: String): Boolean = hasAcyclicImportAccumulator(selector)(false, tree)
