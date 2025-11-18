@@ -14,7 +14,7 @@ object Deps {
   val scala34: Seq[String] = 0.to(3).map("3.4." + _)
   val scala35: Seq[String] = 0.to(2).map("3.5." + _)
   val scala36: Seq[String] = 0.to(4).map("3.6." + _)
-  val scala37: Seq[String] = 0.to(3).map("3.7." + _)
+  val scala37: Seq[String] = 0.to(4).map("3.7." + _)
 
   val unreleased: Seq[String] = scala33 ++ scala34 ++ scala35 ++ scala36 ++ scala37
 
