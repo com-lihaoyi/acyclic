@@ -305,6 +305,14 @@ THE SOFTWARE.
 
 == ChangeLog
 
+=== 0.3.20
+
+* Added support for Scala 2.13.18 and 3.7.4
+
+=== 0.3.19
+
+* Added support for Scala 2.13.17, 3.3.4, 3.3.5, 3.3.6, 3.7.0, 3.7.1, 3.7.2, 3.7.3
+
 === 0.3.18
 
 * Added support for Scala 3.6.4
